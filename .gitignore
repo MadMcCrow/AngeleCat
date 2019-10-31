@@ -1,12 +1,12 @@
 # Unreal Engine specifics
-*/Intermediate
-*/Binaries
-*/Saved
+Intermediate
+Binaries
+Saved
 
 # Developers files
-*/Content/Developers
-*/Content/StarterContent
-*/Content/Collections
+Content/Developers
+Content/StarterContent
+Content/Collections
 
 # no need to store solution, it can be regenerated
 *.sln
@@ -22,7 +22,7 @@
 *.bat
 
 #UE4 Engine
-*/UE4
+UE4
 
 
 #3D modeling files
