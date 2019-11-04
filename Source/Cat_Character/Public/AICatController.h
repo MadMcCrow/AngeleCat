@@ -1,27 +1,16 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Noe Perard-Gayot <noe.perard@gmail.com> 2019 - All Rights Reserved
 #pragma once
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "CatNeedInterface.h"
 #include "AICatController.generated.h"
 
 
 class UCurveFloat;
 
-UENUM(BlueprintType)
-enum class ECatNeed	 : uint8
-{
-	ECN_Food	UMETA(DisplayName = "Food"),
-	ECN_Water	UMETA(DisplayName = "Water"),
-	ECN_Sleep	UMETA(DisplayName = "Sleep"),
-	ECN_Play	UMETA(DisplayName = "Play"),
-	ECN_Max		UMETA(Hidden)
-};
-
-
 /**
- * 
+ *
  */
 UCLASS()
 class CAT_CHARACTER_API AAICatController : public AAIController
@@ -64,5 +53,5 @@ protected:
 
 
 
-	
+
 };
