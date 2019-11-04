@@ -30,7 +30,7 @@ class CAT_CHARACTER_API AAICatController : public AAIController
 
 public:
 
-	AAICatController(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get())
+	AAICatController(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void BeginPlay() override;
 
