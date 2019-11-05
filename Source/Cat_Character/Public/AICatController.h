@@ -23,12 +23,11 @@ public:
 
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintCallable, Category = "Needs")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Needs")
 	virtual void GoToNeed(ECatNeed need);
 
 	UFUNCTION(BlueprintCallable, Category = "Needs")
-	virtual FVector FindClosestNeed(ECatNeed need);
-
+	virtual bool FindClosestNeed(ECatNeed need, FVector &location) const;
 
 
 protected:
@@ -41,6 +40,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Needs")
 	TMap<ECatNeed,float> NeedsDecreaseRate;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Needs")
+	TMap<ECatNeed,bool> RequiereSight;
+
 
 	UFUNCTION()
 	virtual void InitNeedsStats();
@@ -50,6 +52,10 @@ protected:
 
 	UFUNCTION()
 	virtual void InitPredefinedNeedsCurves();
+
+	
+	UFUNCTION()
+	virtual void InitRequiereSight();
 
 
 

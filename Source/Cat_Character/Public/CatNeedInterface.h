@@ -32,7 +32,6 @@ class CAT_CHARACTER_API ICatNeedInterface
 	GENERATED_BODY()
 public:
 
-
     UFUNCTION(BlueprintCallable, Category = "Needs")
     virtual ECatNeed GetNeedType() const PURE_VIRTUAL(ICatNeedInterface::GetCatNeedEffect, return ECatNeed::ECN_None;);
 
