@@ -13,6 +13,7 @@ public class Cat_Items : ModuleRules
         //In case you would like to add various classes that you're going to use in your game
         //you should add the core,coreuobject and engine dependencies.
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Cat_Character" });
 
         //The path for the header files
         PublicIncludePaths.AddRange(new string[] { "Cat_Items/Public" });

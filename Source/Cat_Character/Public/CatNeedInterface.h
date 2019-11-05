@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+	#include "UObject/Interface.h"
 #include "CatNeedInterface.generated.h"
 
 
@@ -18,7 +19,7 @@ enum class ECatNeed	 : uint8
 };
 
 
-UINTERFACE(Category = "Needs")
+UINTERFACE(meta = (CannotImplementInterfaceInBlueprint), Category = "Needs")
 class CAT_CHARACTER_API UCatNeedInterface : public UInterface
 {
 	//GENERATED_UINTERFACE_BODY()
@@ -32,10 +33,10 @@ class CAT_CHARACTER_API ICatNeedInterface
 public:
 
 
-    UFUNCTION(BlueprintPure, Category = "Needs")
-    ECatNeed GetNeedType() const PURE_VIRTUAL(ICatNeedInterface::GetCatNeedEffect, return ECatNeed::ECN_None;);
+    UFUNCTION(BlueprintCallable, Category = "Needs")
+    virtual ECatNeed GetNeedType() const PURE_VIRTUAL(ICatNeedInterface::GetCatNeedEffect, return ECatNeed::ECN_None;);
 
-    UFUNCTION(BlueprintPure)
-    void GetCatNeedEffect(ECatNeed &Type, float &Value) const PURE_VIRTUAL(ICatNeedInterface::GetCatNeedEffect,;);
+    UFUNCTION(BlueprintCallable, Category = "Needs")
+    virtual void GetCatNeedEffect(ECatNeed &Type, float &Value) const PURE_VIRTUAL(ICatNeedInterface::GetCatNeedEffect,;);
 
 };
