@@ -5,6 +5,7 @@
 #include "Runtime/Core/Public/Async/ParallelFor.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 
+
  AGrid::AGrid(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
 {
 
@@ -17,7 +18,7 @@
     ParallelFor(Slots.Num(), [&](int32 Idx) {
     	Slots[Idx].SetCoordinate(Idx,GridSize.X , GridSize.Y );
     });
-    
+
 }
 
 void AGrid::BeginPlay()
@@ -36,7 +37,7 @@ FVector2D AGrid::GetLocalGridPosition(FIntPoint pos)
 void AGrid::DrawSlots()
 {
 	FTransform ActorT = GetActorTransform();
-	
+
 	SlotMeshes->ClearInstances();
 	ParallelFor(Slots.Num(), [this, &ActorT](int32 Idx) {
 		const FVector LocalPosition = FVector(GetLocalGridPosition(FGridItemSlot::CoordFromIdx(Idx, GridSize.X , GridSize.Y)), 0.f) + GridOffset;
@@ -45,6 +46,11 @@ void AGrid::DrawSlots()
 		// Add instance mesh
 		SlotMeshes->AddInstanceWorldSpace(InstanceTransform);
     });
+}
+
+void AGrid::UpdateSlots()
+{
+
 }
 
 void AGrid::SelectSlot(int32 idx)
@@ -70,7 +76,7 @@ void AGrid::SelectSlot(FIntPoint coord)
 {
 	SelectSlot(FGridItemSlot::IndexFromCoord(coord, GridSize.X , GridSize.Y ));
 }
-    
+
 void AGrid::SelectSlot(FVector WorldPosition)
 {
 	const auto ClosestPoint = FVector::PointPlaneProject(WorldPosition, GetActorLocation() + GridOffset, GetActorUpVector());
@@ -78,9 +84,9 @@ void AGrid::SelectSlot(FVector WorldPosition)
 	ActorT.AddToTranslation(GridOffset);
 	const auto Local = ActorT.InverseTransformPosition(ClosestPoint);
 	// we should now only consider X and Y for position on the grid.
-	SelectSlot(FIntPoint(ClosestPoint.X / ElementSize.X,ClosestPoint.Y / ElementSize.Y)); 	
+	SelectSlot(FIntPoint(ClosestPoint.X / ElementSize.X,ClosestPoint.Y / ElementSize.Y));
 }
-    
+
 void AGrid::DeselectSlot()
 {
 	SelectedSlot = -1;

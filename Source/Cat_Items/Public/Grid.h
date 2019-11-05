@@ -14,18 +14,18 @@ struct FGridItemSlot
 {
     GENERATED_BODY()
 protected:
-    
+
     UPROPERTY()
     FIntPoint coordinate;
-    
+
     UPROPERTY()
     bool bIsEmpty;
-    
+
     UPROPERTY()
     AActor * Item;
-    
+
 public:
-    
+
     FGridItemSlot(FIntPoint coord = FIntPoint(0,0), bool empty = true, AActor * obj = nullptr) : coordinate(coord), bIsEmpty(empty), Item(obj)
     {}
 
@@ -42,6 +42,7 @@ public:
     {
         return (coord.Y % YDim) * XDim + (coord.X % XDim);
     }
+
 };
 
 
@@ -63,7 +64,7 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
     FVector2D ElementSize;
-    
+
     UPROPERTY()
     FVector GridOffset;
 
@@ -77,11 +78,14 @@ protected:
     ///	@brief SlotMeshes					The meshes drawn to represent the path in real world
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
 	    UHierarchicalInstancedStaticMeshComponent * SlotMeshes;
-    
+
 public:
 
-    UFUNCTION(BlueprintCallable, Category = "Rendering") 
+    UFUNCTION(BlueprintCallable, Category = "Rendering")
     void DrawSlots();
+
+    UFUNCTION(BlueprintCallable, Category = "Rendering")
+    void UpdateSlots();
 
     UFUNCTION(BlueprintCallable, Category = "Selection", DisplayName ="SelectSlotFromIdx")
     void SelectSlot(int32 idx);
@@ -89,24 +93,34 @@ public:
     void SelectSlot(int32 X, int32 Y);
     UFUNCTION(BlueprintCallable, Category = "Selection", DisplayName ="SelectSlotFromXY" )
     void SelectSlotInt32(int32 X, int32 Y) { SelectSlot(X,Y);}
-    
+
     void SelectSlot(FIntPoint coord);
     UFUNCTION(BlueprintCallable, Category = "Selection", DisplayName ="SelectSlotFromCoord")
     void SelectSlotIntPoint(FIntPoint coord) {SelectSlot(coord);}
-    
+
     void SelectSlot(FVector WorldPosition);
     UFUNCTION(BlueprintCallable, Category = "Selection", DisplayName ="SelectSlotFromWorld")
     void SelectSlotFVector(FVector WorldPosition) {SelectSlot(WorldPosition);}
-    
+
     UFUNCTION(BlueprintCallable, Category = "Selection")
     void DeselectSlot();
 
-    
+
+    UFUNCTION(BlueprintPure, Category = "Navigation")
+    FORCEINLINE FIntPoint Left(const FIntPoint &coord)  {return FIntPoint((coord.X -1)% GridSize.X, coord.Y);}
+    UFUNCTION(BlueprintPure, Category = "Navigation")
+    FORCEINLINE FIntPoint Right(const FIntPoint &coord) {return FIntPoint((coord.X +1)% GridSize.X, coord.Y);}
+    UFUNCTION(BlueprintPure, Category = "Navigation")
+    FORCEINLINE FIntPoint Up(const FIntPoint &coord)    {return FIntPoint(coord.X, (coord.Y -1)% GridSize.Y);}
+    UFUNCTION(BlueprintPure, Category = "Navigation")
+    FORCEINLINE FIntPoint Down(const FIntPoint &coord)  {return FIntPoint(coord.X, (coord.Y +1)% GridSize.Y);}
+
+
 private :
 
     int32 SelectedSlot;
     bool bSlotIsSelected;
-    
+
     TArray<FGridItemSlot> Slots;
 
 
