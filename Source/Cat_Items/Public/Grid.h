@@ -87,23 +87,39 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Rendering")
     void UpdateSlots();
 
-    UFUNCTION(BlueprintCallable, Category = "Selection", DisplayName ="SelectSlotFromIdx")
+    UFUNCTION(BlueprintCallable, Category = "Navigation|Selection", DisplayName ="SelectSlotFromIdx")
     void SelectSlot(int32 idx);
 
     void SelectSlot(int32 X, int32 Y);
-    UFUNCTION(BlueprintCallable, Category = "Selection", DisplayName ="SelectSlotFromXY" )
+    UFUNCTION(BlueprintCallable, Category = "Navigation|Selection", DisplayName ="SelectSlotFromXY" )
     void SelectSlotInt32(int32 X, int32 Y) { SelectSlot(X,Y);}
 
     void SelectSlot(FIntPoint coord);
-    UFUNCTION(BlueprintCallable, Category = "Selection", DisplayName ="SelectSlotFromCoord")
+    UFUNCTION(BlueprintCallable, Category = "Navigation|Selection", DisplayName ="SelectSlotFromCoord")
     void SelectSlotIntPoint(FIntPoint coord) {SelectSlot(coord);}
 
     void SelectSlot(FVector WorldPosition);
-    UFUNCTION(BlueprintCallable, Category = "Selection", DisplayName ="SelectSlotFromWorld")
+    UFUNCTION(BlueprintCallable, Category = "Navigation|Selection", DisplayName ="SelectSlotFromWorld")
     void SelectSlotFVector(FVector WorldPosition) {SelectSlot(WorldPosition);}
 
-    UFUNCTION(BlueprintCallable, Category = "Selection")
+    UFUNCTION(BlueprintCallable, Category = "Navigation|Selection")
     void DeselectSlot();
+
+
+    UFUNCTION(BlueprintCallable, Category = "Navigation|Hover", DisplayName ="HoverSlotFromIdx")
+    void HoverSlot(int32 idx);
+
+    void HoverSlot(int32 X, int32 Y);
+    UFUNCTION(BlueprintCallable, Category = "Navigation|Hover", DisplayName ="HoverSlotFromXY" )
+    void HoverSlotInt32(int32 X, int32 Y) { HoverSlot(X,Y);}
+
+    void HoverSlot(FIntPoint coord);
+    UFUNCTION(BlueprintCallable, Category = "Navigation|Hover", DisplayName ="HoverSlotFromCoord")
+    void HoverSlotIntPoint(FIntPoint coord) {HoverSlot(coord);}
+
+    void HoverSlot(FVector WorldPosition);
+    UFUNCTION(BlueprintCallable, Category = "Navigation|Hover", DisplayName ="HoverSlotFromWorld")
+    void HoverSlotFVector(FVector WorldPosition) {HoverSlot(WorldPosition);}
 
 
     UFUNCTION(BlueprintPure, Category = "Navigation")
@@ -118,7 +134,18 @@ public:
 
 private :
 
+    UPROPERTY()
     int32 SelectedSlot;
+    
+    UPROPERTY(transient)
+    int32 PreviousSelectedSlot;
+
+    UPROPERTY()
+    int32 HoveredSlot;
+
+    UPROPERTY(transient)
+    int32 PreviousHoveredSlot;
+
     bool bSlotIsSelected;
 
     TArray<FGridItemSlot> Slots;

@@ -50,11 +50,14 @@ void AGrid::DrawSlots()
 
 void AGrid::UpdateSlots()
 {
-
+    // we always remove selected and hovered slot.
+    // if Selected == hovered. we only do selected.
+    SlotMeshes.
 }
 
 void AGrid::SelectSlot(int32 idx)
 {
+    PreviousSelectedSlot = Slots.IsValidIndex(SelectedSlot) ? SelectedSlot : -1;
 	if(Slots.IsValidIndex(idx))
 	{
 		SelectedSlot = idx;
@@ -89,6 +92,58 @@ void AGrid::SelectSlot(FVector WorldPosition)
 
 void AGrid::DeselectSlot()
 {
+    PreviousSelectedSlot = SelectedSlot;
 	SelectedSlot = -1;
 	bSlotIsSelected = false;
+}
+
+void AGrid::HoverSlot(int32 idx)
+{
+	if(Slots.IsValidIndex(idx))
+	{
+		HoveredSlot = idx;
+	}
+	else
+	{
+		HoveredSlot = -1;
+	}
+}
+
+void AGrid::HoverSlot(int32 X, int32 Y)
+{
+	HoverSlot(FGridItemSlot::IndexFromCoord(FIntPoint(X,Y), GridSize.X , GridSize.Y ));
+}
+
+void AGrid::HoverSlot(FIntPoint coord)
+{
+	HoverSlot(FGridItemSlot::IndexFromCoord(coord, GridSize.X , GridSize.Y ));
+}
+
+void AGrid::HoverSlot(FVector WorldPosition)
+{
+	const auto ClosestPoint = FVector::PointPlaneProject(WorldPosition, GetActorLocation() + GridOffset, GetActorUpVector());
+	FTransform ActorT = GetActorTransform();
+	ActorT.AddToTranslation(GridOffset);
+	const auto Local = ActorT.InverseTransformPosition(ClosestPoint);
+	// we should now only consider X and Y for position on the grid.
+	HoverSlot(FIntPoint(ClosestPoint.X / ElementSize.X,ClosestPoint.Y / ElementSize.Y));
+}
+
+void HideSlotInstanceMesh(int32 idx, bool hide = true)
+{
+    // Set to actual transform of the idx
+    auto transform = FTransform
+(
+    const FQuat(),
+    const FVector& InTranslation,
+    const FVector& InScale3D
+);
+    // apply it
+    SlotMeshes->UpdateInstanceTransform( idx, hide ? FTransform& NewInstanceTrans...,
+    bool bWorldSpace,
+    bool bMarkRenderStateDirty,
+    bool bTeleport
+    );
+
+    // enjoy
 }
