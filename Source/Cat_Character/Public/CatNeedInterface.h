@@ -10,7 +10,7 @@
 UENUM(BlueprintType)
 enum class ECatNeed	 : uint8
 {
-    ECN_None	UMETA(Hidden),
+    ECN_None	UMETA(DisplayName = "None", Hidden),
 	ECN_Food	UMETA(DisplayName = "Food"),
 	ECN_Water	UMETA(DisplayName = "Water"),
 	ECN_Sleep	UMETA(DisplayName = "Sleep"),

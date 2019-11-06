@@ -73,9 +73,9 @@ public:
 protected:
 
     UFUNCTION(BlueprintCallable, Category = "Grid")
-    FVector2D GetLocalGridPosition(int32 X, int32 Y) {return GetLocalGridPosition(FIntPoint(X,Y));}
+    FVector2D GetLocalGridPosition(int32 X, int32 Y) const {return GetLocalGridPosition(FIntPoint(X,Y));}
 
-    FVector2D GetLocalGridPosition(FIntPoint pos);
+    FVector2D GetLocalGridPosition(const FIntPoint &pos) const;
 
 private:
     ///	@brief SlotMeshes		The meshes drawn to represent the Grid in real world
@@ -98,7 +98,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Rendering")
     void UpdateSlots();
 
-    FTransform GetSlotIdxWorldSpace() const;
+    FTransform GetSlotIdxWorldSpace(int32 idx) const;
 
     UFUNCTION(BlueprintCallable, Category = "Navigation|Selection", DisplayName ="SelectSlotFromIdx")
     void SelectSlot(int32 idx);
@@ -163,5 +163,6 @@ private :
 
     TArray<FGridItemSlot> Slots;
 
+    void HideSlotInstanceMesh(int32 idx, bool hide = true);
 
 };

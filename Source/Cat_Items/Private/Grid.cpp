@@ -27,7 +27,7 @@ void AGrid::BeginPlay()
 	DrawSlots();
 }
 
-FVector2D AGrid::GetLocalGridPosition(FIntPoint pos)
+FVector2D AGrid::GetLocalGridPosition(const FIntPoint &pos) const
 {
 	const float X = (pos.X * ElementSize.X) +(ElementSize.X * 0.5);
 	const float Y = (pos.Y * ElementSize.Y) +(ElementSize.Y * 0.5);
@@ -38,8 +38,8 @@ void AGrid::DrawSlots()
 {
 	SlotMeshes->ClearInstances();
     FCriticalSection Mutex;
-	ParallelFor(Slots.Num(), [this](int32 Idx) {
-		const FTransform InstanceTransform = GetSlotIdxWorldSpace();
+	ParallelFor(Slots.Num(), [this, &Mutex](int32 Idx) {
+		const FTransform InstanceTransform = GetSlotIdxWorldSpace(Idx);
 		// Add instance mesh
         Mutex.Lock();
 		SlotMeshes->AddInstanceWorldSpace(InstanceTransform);
@@ -53,33 +53,34 @@ void AGrid::UpdateSlots()
     // if Selected == hovered. we only do selected.
     if(SelectedSlot != -1)
     {
-        SelectedSlotMesh.SetHiddenInGame(false /*hidden*/, true/*Propagate to children*/)
-        SelectedSlotMesh.SetWorldTransform(GetSlotIdxWorldSpace(SelectedSlot));
+        SelectedSlotMesh->SetHiddenInGame(false /*hidden*/, true/*Propagate to children*/);
+        SelectedSlotMesh->SetWorldTransform(GetSlotIdxWorldSpace(SelectedSlot));
         HideSlotInstanceMesh(SelectedSlot, true);
         if(PreviousSelectedSlot != -1)
             HideSlotInstanceMesh(PreviousSelectedSlot, false);
     }else
     {
-        SelectedSlotMesh.SetHiddenInGame(true /*hidden*/, true/*Propagate to children*/)
+        SelectedSlotMesh->SetHiddenInGame(true /*hidden*/, true/*Propagate to children*/);
     }
     if(HoveredSlot != -1 && HoveredSlot != SelectedSlot)
     {
-        HoveredSlotMesh.SetHiddenInGame(false /*hidden*/, true/*Propagate to children*/)
-        HoveredSlotMesh.SetWorldTransform(GetSlotIdxWorldSpace(HoveredSlot));
+        HoveredSlotMesh->SetHiddenInGame(false /*hidden*/, true/*Propagate to children*/);
+        HoveredSlotMesh->SetWorldTransform(GetSlotIdxWorldSpace(HoveredSlot));
         HideSlotInstanceMesh(HoveredSlot, true);
         if(PreviousHoveredSlot != -1)
             HideSlotInstanceMesh(PreviousHoveredSlot, false);
     }
     else
     {
-        HoveredSlotMesh.SetHiddenInGame(true /*hidden*/, true/*Propagate to children*/)
+        HoveredSlotMesh->SetHiddenInGame(true /*hidden*/, true/*Propagate to children*/);
     }
 }
 
-FTransform AGrid::GetSlotIdxWorldSpace() const
+FTransform AGrid::GetSlotIdxWorldSpace(int32 idx) const
 {
     const FTransform ActorT = GetActorTransform();
-    const FVector LocalPosition = FVector(GetLocalGridPosition(FGridItemSlot::CoordFromIdx(Idx, GridSize.X , GridSize.Y)), 0.f) + GridOffset;
+	const FVector2D Local2D = GetLocalGridPosition(FGridItemSlot::CoordFromIdx(idx, GridSize.X , GridSize.Y));
+    const FVector LocalPosition = FVector(Local2D, 0.f) + GridOffset;
 	const FVector WorldLocation = ActorT.TransformPosition(LocalPosition);
 	return FTransform(ActorT.Rotator(), WorldLocation , ActorT.GetScale3D());
 }
@@ -167,12 +168,12 @@ void AGrid::HoverSlot(FVector WorldPosition)
 	HoverSlot(FIntPoint(ClosestPoint.X / ElementSize.X,ClosestPoint.Y / ElementSize.Y));
 }
 
-void HideSlotInstanceMesh(int32 idx, bool hide = true)
+void AGrid::HideSlotInstanceMesh(int32 idx, bool hide)
 {
     // Set to actual transform of the idx
     FTransform insttransform;
-    GetInstanceTransform(idx, insttransform, true);
-    insttransform.SetScale3D(hide ? FVector::ZeroVector, FVector::OneVector);
+    SlotMeshes->GetInstanceTransform(idx, insttransform, true);
+    insttransform.SetScale3D(hide ? FVector::ZeroVector: FVector::OneVector);
     // apply it
     SlotMeshes->UpdateInstanceTransform( idx, insttransform, true /*bWorldSpace*/, true/*bMarkRenderStateDirty*/,false /*bTeleport*/);
     // enjoy
