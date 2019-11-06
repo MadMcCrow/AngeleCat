@@ -8,6 +8,8 @@
 
 // forward declaration
 class UHierarchicalInstancedStaticMeshComponent;
+class UStaticMeshComponent;
+
 
 USTRUCT()
 struct FGridItemSlot
@@ -75,9 +77,18 @@ protected:
 
     FVector2D GetLocalGridPosition(FIntPoint pos);
 
-    ///	@brief SlotMeshes					The meshes drawn to represent the path in real world
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
+private:
+    ///	@brief SlotMeshes		The meshes drawn to represent the Grid in real world
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = true))
 	    UHierarchicalInstancedStaticMeshComponent * SlotMeshes;
+
+    ///	@brief SelectedSlotMesh The meshes drawn to represent the selected grid slot in real world
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = true))
+	    UStaticMeshComponent * SelectedSlotMesh;
+
+    ///	@brief HoveredSlotMesh	The meshes drawn to represent the hovered grid slot in real world
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = true))
+	    UStaticMeshComponent * HoveredSlotMesh;
 
 public:
 
@@ -86,6 +97,8 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Rendering")
     void UpdateSlots();
+
+    FTransform GetSlotIdxWorldSpace() const;
 
     UFUNCTION(BlueprintCallable, Category = "Navigation|Selection", DisplayName ="SelectSlotFromIdx")
     void SelectSlot(int32 idx);
@@ -136,7 +149,7 @@ private :
 
     UPROPERTY()
     int32 SelectedSlot;
-    
+
     UPROPERTY(transient)
     int32 PreviousSelectedSlot;
 
