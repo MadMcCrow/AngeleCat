@@ -59,7 +59,7 @@ TArray<ECatNeed> AAICatController::GetCriticalNeeds() const
         auto value    = NeedsStats.Find(need);
         auto critical = NeedsCriticalLevels.Find(need);
         if(value > critical)
-            NeedCopy.Remove(it);
+            NeedCopy.Remove(need);
     }
     NeedCopy.ValueSort([](float A, float B) { return A < B;});
     NeedCopy.GetKeys(retval);
