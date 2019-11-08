@@ -4,3 +4,9 @@
 
 #include "Cat_Character.h"
 #include "CoreMinimal.h"
+#include "Engine/World.h"
+#include "Curves/CurveFloat.h"
+#include "Kismet/GameplayStatics.h"
+
+
+DEFINE_LOG_CATEGORY(LogCat_Character);

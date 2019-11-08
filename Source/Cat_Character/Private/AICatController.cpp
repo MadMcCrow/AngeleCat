@@ -2,10 +2,8 @@
 
 
 #include "AICatController.h"
-#include "Curves/CurveFloat.h"
-#include "Kismet/GameplayStatics.h"
+#include "Cat_CharacterPCH.h"
 #include "CatNeedInterface.h"
-#include "Engine/World.h"
 #include "Runtime/Core/Public/Async/ParallelFor.h"
 
 AAICatController::AAICatController(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
@@ -21,7 +19,7 @@ void AAICatController::BeginPlay()
     Super::BeginPlay();
 }
 
-	
+
 ECatNeed AAICatController::GetMostWantedNeed(float &outValue) const
 {
     float MinNeed = BIG_NUMBER;
@@ -34,7 +32,7 @@ ECatNeed AAICatController::GetMostWantedNeed(float &outValue) const
             retval = it.Key;
         }
     }
-    outValue = MinNeed; 
+    outValue = MinNeed;
     return retval;
 }
 
@@ -67,10 +65,28 @@ TArray<ECatNeed> AAICatController::GetCriticalNeeds() const
 }
 
 
-void AAICatController::GoToNeed_Implementation(ECatNeed need)
+void AAICatController::FindNeed_Implementation()
 {
-
+    UE_LOG(LogCat_Character, Display, TEXT("[AAICatController::FindNeed_Implementation] Find Need called"));
 }
+
+void AAICatController::GoToNeed_Implementation()
+{
+   UE_LOG(LogCat_Character, Display, TEXT("[AAICatController::GoToNeed_Implementation] go to Need called"));
+}
+
+void AAICatController::UseNeed_Implementation()
+{
+UE_LOG(LogCat_Character, Display, TEXT("[AAICatController::UseNeed_Implementation] use Need called"));
+}
+
+void AAICatController::DoNothing_Implementation()
+{
+UE_LOG(LogCat_Character, Display, TEXT("[AAICatController::DoNothing_Implementation] Do nothing called"));
+}
+
+
+
 
 bool AAICatController::FindClosestNeed(ECatNeed need, FVector &location,  AActor * &needActor) const
 {
@@ -79,7 +95,7 @@ bool AAICatController::FindClosestNeed(ECatNeed need, FVector &location,  AActor
     const FVector ThisLocation = GetPawn() ? GetPawn()->GetActorLocation() : FVector();
     const bool NeedSight = NeedsRequiereSight.Find(need) != nullptr ? *NeedsRequiereSight.Find(need) : false;
     const auto World = GetWorld();
-    
+
     NeedActors.Sort([&ThisLocation, &World](const AActor& Lhs, const AActor& Rhs) -> bool
     {
         const float DistanceLhs = FVector::DistSquared(Lhs.GetActorLocation(), ThisLocation);
@@ -113,7 +129,7 @@ bool AAICatController::FindClosestNeed(ECatNeed need, FVector &location,  AActor
     needActor = NeedActors[0];
     location = NeedActors.IsValidIndex(0) ? NeedActors[0]->GetActorLocation() : ThisLocation ;
     return NeedActors.IsValidIndex(0);
-    
+
 }
 
 void  AAICatController::InitNeedsStats()
@@ -147,7 +163,7 @@ void AAICatController::InitPredefinedNeedsCurves()
         // you need to set property to nullptr, as it is shown as asset in the UE4
         PredefinedNeedsCurves.Add(static_cast<ECatNeed>(it), nullptr/*NewObject<UCurveFloat>(this,UCurveFloat::StaticClass())*/);
         }
-       
+
     }
 
 }
@@ -185,3 +201,77 @@ void AAICatController::PostEditChangeProperty(struct FPropertyChangedEvent& Prop
 	InitNeedsRequiereSight();
 }
 #endif // WITH_EDITOR
+
+void AAICatController::SetCurrentNeed(const ECatNeed newNeed)
+{
+    NeedChosen = newNeed;
+    NeedChanged.Broadcast();
+}
+
+void AAICatController::SetCurrentNeedActor(const AActor* newActor)
+{
+    UseActor = newActor;
+    NeedChanged.Broadcast();
+}
+
+FVector AAICatController::GetNeedActorLocation() const
+{
+    const auto interface = Cast<ICatNeedInterface>(UseActor);
+    if(interface)
+    {
+        return UseActor.GetActorLocation() + interface.GetCatNeedLocation();
+    }
+    return FVector();
+}
+
+bool AAICatController::GetNeedIsCritical() const
+{
+    critlevelptr = NeedsCriticalLevels.Find(NeedChosen);
+    needstatptr  = NeedsStats.Find(NeedChosen);
+    if(critlevelptr && needstatptr)
+    {
+        if(*needstatptr < *critlevelptr)
+            return true;
+        else
+            return false;
+    }
+    return false;
+}
+
+void AAICatController::UpdateNeed()
+{
+    ECatNeed newneed = ECatNeed::ECN_None;
+    const auto importantneeds = GetCriticalNeeds();
+    if(importantneeds.IsValidIndex(0))
+    {
+        // Let's use that need:
+        newneed = importantneeds[0];
+    }
+    else    // nothing really urgent to do, will do
+    {
+        const auto sortedneeds = GetSortedNeeds();
+        if(sortedneeds.IsValidIndex(0))
+        {
+            newneed = sortedneeds[0];
+        }
+    }
+    SetCurrentNeed(newneed);
+    if(newneed != ECatNeed::ECN_None)
+    {
+        AActor * needactor;
+        FVector needlocation;
+        if(FindClosestNeed(newneed, needlocation , needactor))
+        {
+            SetCurrentNeedActor(needActor);
+        }
+        else
+        {
+            DoNothing();
+        }
+
+    }
+    else
+    {
+        DoNothing();
+    }
+}

@@ -26,7 +26,7 @@ float AItem::GetNeedEfficiency_Implementation() const
     return Info.MaxEfficiency;
 }
 
-void AItem::Use_Implementation(float Amount, AAICatController * Cat)
+void AItem::Use(float Amount, AAICatController * Cat)
 {
-    
+    Use_BP(Amount,Cat);
 }

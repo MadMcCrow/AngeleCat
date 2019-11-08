@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "CatPawn.generated.h"
 
+class AAICatController;
+
 UCLASS()
 class CAT_CHARACTER_API ACatPawn : public ACharacter
 {
@@ -25,5 +27,10 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+    UFUNCTION(BlueprintPure, Category = "Controller")
+    virtual AAICatController * GetCatController() const;
+
+
 
 };

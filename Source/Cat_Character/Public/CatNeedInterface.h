@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-	#include "UObject/Interface.h"
+//#include "CoreMinimal.h"
+#include "UObject/Interface.h"
 #include "CatNeedInterface.generated.h"
 
 
@@ -33,9 +33,14 @@ class CAT_CHARACTER_API ICatNeedInterface
 public:
 
     UFUNCTION(BlueprintCallable, Category = "Needs")
-    virtual ECatNeed GetNeedType() const PURE_VIRTUAL(ICatNeedInterface::GetCatNeedEffect, return ECatNeed::ECN_None;);
+    virtual ECatNeed GetNeedType() const PURE_VIRTUAL(ICatNeedInterface::GetNeedType, return ECatNeed::ECN_None;);
 
     UFUNCTION(BlueprintCallable, Category = "Needs")
     virtual void GetCatNeedEffect(ECatNeed &Type, float &Value) const PURE_VIRTUAL(ICatNeedInterface::GetCatNeedEffect,;);
 
+    UFUNCTION(BlueprintCallable, Category = "Needs")
+    virtual FVector GetCatNeedLocation() const PURE_VIRTUAL(ICatNeedInterface::GetCatNeedLocation,return FVector(););
+
+    UFUNCTION(BlueprintCallable, Category = "Needs")
+    virtual void Use(float Amount, AAICatController * Controller) const PURE_VIRTUAL(ICatNeedInterface::Use,;);
 };

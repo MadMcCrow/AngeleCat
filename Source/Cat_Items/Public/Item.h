@@ -17,16 +17,16 @@ struct FItemStaticData
     GENERATED_BODY()
     friend class AItem;
 protected:
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FName StaticName;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FText LocalizedName;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FText Description;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buy")
     int32  Cost;
 
@@ -36,7 +36,7 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Needs")
     float MaxEfficiency;
 };
-    
+
 
 UCLASS()
 class AItem : public AActor, public ICatNeedInterface
@@ -45,26 +45,31 @@ class AItem : public AActor, public ICatNeedInterface
 
 public:
     AItem(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
-    
+
     virtual ECatNeed GetNeedType() const override;
     virtual void GetCatNeedEffect(ECatNeed &Type, float &Value) const override;
-    
+
     UFUNCTION(BlueprintNativeEvent, Category = "Needs")
     float GetNeedEfficiency() const;
-    
-    UFUNCTION(BlueprintNativeEvent, Category = "Needs")
-    void Use(float Amount, AAICatController * Cat);
 
+    UFUNCTION(BlueprintImplementableEvent, Category = "Needs")
+    void Use_BP(float Amount, AAICatController * Cat);
+
+    virtual FVector GetCatNeedLocation() const override {return UseLocation}
+    virtual void Use(float Amount, AAICatController * Controller);
 
 
 protected:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Need")
     FItemStaticData Info;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, MakeEditWidget, Category = "Need")
+    FVector UseLocation;
 
 public:
     static FName MeshName;
 private:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
     UStaticMeshComponent * StaticMesh;
+
 };
-    

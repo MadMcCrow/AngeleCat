@@ -9,6 +9,8 @@
 
 class UCurveFloat;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FUpdateCatTask);
+
 /**
  *
  */
@@ -31,9 +33,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Needs")
 	virtual TArray<ECatNeed> GetCriticalNeeds() const;
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Needs")
-	void GoToNeed(ECatNeed need);
 
 	UFUNCTION(BlueprintCallable, Category = "Needs")
 	virtual bool FindClosestNeed(ECatNeed need, FVector &location, AActor * &needActor) const;
@@ -67,5 +66,57 @@ protected:
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif //WITH_EDITOR
 
+public:
+
+    UPROPERTY(BlueprintAssignable, Category = "Task|Event")
+    FUpdateCatTask ReadyToDoTask;
+
+    UPROPERTY(BlueprintAssignable, Category = "Task|Event")
+    FUpdateCatTask FindNeedDone;
+
+    UPROPERTY(BlueprintAssignable, Category = "Task|Event")
+    FUpdateCatTask GoToNeedDone;
+
+    UPROPERTY(BlueprintAssignable, Category = "Task|Event")
+    FUpdateCatTask UseNeedDone;
+
+    UPROPERTY(BlueprintAssignable, Category = "Task|Event")
+    FUpdateCatTask NeedChanged;
+
+protected:
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Task")
+	void FindNeed();
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Task")
+	void GoToNeed();
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Task")
+	void UseNeed();
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Task")
+	void DoNothing();
+
+protected:
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, BlueprintSetter=SetCurrentNeed, Category = "Task|Data", transient)
+    ECatNeed NeedChosen;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, BlueprintSetter=SetCurrentNeedActor,  Category = "Task|Data", DisplayName = "NeedActor", transient)
+    AActor* UseActor;
+
+    UFUNCTION(BlueprintCallable, BlueprintSetter, Category = "Task|Data")
+    void SetCurrentNeed(const ECatNeed newNeed);
+
+    UFUNCTION(BlueprintCallable, BlueprintSetter, Category = "Task|Data")
+    void SetCurrentNeedActor(const AActor* newActor);
+
+    UFUNCTION(BlueprintPure, Category = "Task|Data")
+    FVector GetNeedActorLocation() const;
+
+    UFUNCTION(BlueprintPure, Category = "Task|Data")
+    bool GetNeedIsCritical() const;
+
+private:
+    virtual void UpdateNeed();
 
 };
