@@ -5,19 +5,50 @@
 #include "Cat_CharacterPCH.h"
 #include "CatNeedInterface.h"
 #include "Runtime/Core/Public/Async/ParallelFor.h"
+#include "TimerManager.h"
 
-AAICatController::AAICatController(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
+
+#define  FUNCLOGTEXT(x) *(FString("[") + FString(__FUNCTION__) + FString(" - ") + GetName() + FString("] ") + FString(  x ))
+#define  EMPTYIMPLEMENTATION() UE_LOG(LogCat_Character, Display,TEXT("%s"), FUNCLOGTEXT("Empty implementation"))
+
+
+AAICatController::AAICatController(const FObjectInitializer &ObjectInitializer) 
+: Super(ObjectInitializer)
+, UpdateNeedDelay(0.1f)
 {
 	InitNeedsStats();
 	InitNeedsDecreaseRate();
 	InitPredefinedNeedsCurves();
 	InitNeedsRequiereSight();
+
+	// do the next task :
+	ReadyToDoTask.AddDynamic(this, &AAICatController::StartNeedAI);
+	GoToNeedDone.AddDynamic(this, &AAICatController::UseNeed);
+	UseNeedDone.AddDynamic(this, &AAICatController::FinishNeedAI);
+	NeedChanged.AddDynamic(this, &AAICatController::ResetTask);
+
 }
 
 void AAICatController::BeginPlay()
 {
     Super::BeginPlay();
+
+	ReadyToDoTask.Broadcast();
+
+	GetWorldTimerManager().SetTimer(UpdateNeedTimerHandle, this, &AAICatController::UpdateNeed, UpdateNeedDelay, true);
+	
 }
+
+void AAICatController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{	
+	if(GetWorld() != nullptr)
+		if(GetWorldTimerManager().IsTimerActive(UpdateNeedTimerHandle))
+			GetWorldTimerManager().ClearTimer(UpdateNeedTimerHandle);
+	
+	Super::EndPlay(EndPlayReason);
+}
+ 
+ 
 
 
 ECatNeed AAICatController::GetMostWantedNeed(float &outValue) const
@@ -64,28 +95,44 @@ TArray<ECatNeed> AAICatController::GetCriticalNeeds() const
     return retval;
 }
 
-
-void AAICatController::FindNeed_Implementation()
+void AAICatController::StartNeedAI_Implementation()
 {
-    UE_LOG(LogCat_Character, Display, TEXT("[AAICatController::FindNeed_Implementation] Find Need called"));
+	EMPTYIMPLEMENTATION();
 }
 
 void AAICatController::GoToNeed_Implementation()
 {
-   UE_LOG(LogCat_Character, Display, TEXT("[AAICatController::GoToNeed_Implementation] go to Need called"));
+	FAIMoveRequest MoveRequest;
+	
+	MoveRequest.SetGoalLocation(GetNeedActorLocation());
+	MoveRequest.SetCanStrafe(false); // cats are weird when they strafe
+	MoveRequest.SetAcceptanceRadius(GetNeedActorAcceptanceRadius());
+	MoveRequest.SetAllowPartialPath(true); // at least try to go there
+	MoveRequest.SetReachTestIncludesAgentRadius(true); // might wanna try with false
+
+	const auto moveorder = MoveTo(MoveRequest, nullptr);
 }
 
 void AAICatController::UseNeed_Implementation()
 {
-UE_LOG(LogCat_Character, Display, TEXT("[AAICatController::UseNeed_Implementation] use Need called"));
+	EMPTYIMPLEMENTATION();
+}
+
+void AAICatController::FinishNeedAI_Implementation()
+{
+	EMPTYIMPLEMENTATION();
 }
 
 void AAICatController::DoNothing_Implementation()
 {
-UE_LOG(LogCat_Character, Display, TEXT("[AAICatController::DoNothing_Implementation] Do nothing called"));
+	EMPTYIMPLEMENTATION();
 }
 
-
+void AAICatController::ResetTask_Implementation()
+{
+	EMPTYIMPLEMENTATION();
+	StopMovement();
+}
 
 
 bool AAICatController::FindClosestNeed(ECatNeed need, FVector &location,  AActor * &needActor) const
@@ -204,12 +251,18 @@ void AAICatController::PostEditChangeProperty(struct FPropertyChangedEvent& Prop
 
 void AAICatController::SetCurrentNeed(const ECatNeed newNeed)
 {
+	if (NeedChosen == newNeed)
+		return;
+
     NeedChosen = newNeed;
     NeedChanged.Broadcast();
 }
 
-void AAICatController::SetCurrentNeedActor(const AActor* newActor)
+void AAICatController::SetCurrentNeedActor( AActor* newActor)
 {
+	if (UseActor == newActor)
+		return;
+
     UseActor = newActor;
     NeedChanged.Broadcast();
 }
@@ -219,15 +272,26 @@ FVector AAICatController::GetNeedActorLocation() const
     const auto interface = Cast<ICatNeedInterface>(UseActor);
     if(interface)
     {
-        return UseActor.GetActorLocation() + interface.GetCatNeedLocation();
+        return UseActor->GetActorLocation() + interface->GetCatNeedLocation();
     }
     return FVector();
 }
 
+float AAICatController::GetNeedActorAcceptanceRadius() const
+{
+	const auto interface = Cast<ICatNeedInterface>(UseActor);
+	if (interface)
+	{
+		return interface->GetCatNeedRadius();
+	}
+	return 200.f;
+}
+
+
 bool AAICatController::GetNeedIsCritical() const
 {
-    critlevelptr = NeedsCriticalLevels.Find(NeedChosen);
-    needstatptr  = NeedsStats.Find(NeedChosen);
+    const auto critlevelptr = NeedsCriticalLevels.Find(NeedChosen);
+    const auto needstatptr  = NeedsStats.Find(NeedChosen);
     if(critlevelptr && needstatptr)
     {
         if(*needstatptr < *critlevelptr)
@@ -241,6 +305,7 @@ bool AAICatController::GetNeedIsCritical() const
 void AAICatController::UpdateNeed()
 {
     ECatNeed newneed = ECatNeed::ECN_None;
+	AActor* needactor = nullptr;
     const auto importantneeds = GetCriticalNeeds();
     if(importantneeds.IsValidIndex(0))
     {
@@ -258,20 +323,21 @@ void AAICatController::UpdateNeed()
     SetCurrentNeed(newneed);
     if(newneed != ECatNeed::ECN_None)
     {
-        AActor * needactor;
+       
         FVector needlocation;
         if(FindClosestNeed(newneed, needlocation , needactor))
-        {
-            SetCurrentNeedActor(needActor);
-        }
+			needactor = nullptr;
         else
-        {
             DoNothing();
-        }
-
     }
-    else
-    {
-        DoNothing();
-    }
+   
+    
+	if (needactor == nullptr || newneed == ECatNeed::ECN_None)
+	{
+		DoNothing();
+		return;
+	}
+   
+	SetCurrentNeedActor(needactor);
+	SetCurrentNeed(newneed);
 }

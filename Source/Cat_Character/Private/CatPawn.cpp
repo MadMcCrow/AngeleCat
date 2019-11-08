@@ -35,5 +35,5 @@ void ACatPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 AAICatController * ACatPawn::GetCatController() const
 {
-    return Cast<AAICatController>(GetController);
+    return Cast<AAICatController>(GetController());
 }

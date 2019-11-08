@@ -7,6 +7,7 @@
 #include "CatNeedInterface.h"
 #include "Item.generated.h"
 
+class AAICatController;
 //forward declaration
 class UStaticMeshComponent;
 
@@ -55,15 +56,15 @@ public:
     UFUNCTION(BlueprintImplementableEvent, Category = "Needs")
     void Use_BP(float Amount, AAICatController * Cat);
 
-    virtual FVector GetCatNeedLocation() const override {return UseLocation}
-    virtual void Use(float Amount, AAICatController * Controller);
+	virtual FVector GetCatNeedLocation() const override { return UseLocation; }
+    virtual void Use(float Amount, AAICatController * Controller) override;
 
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Need")
     FItemStaticData Info;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, MakeEditWidget, Category = "Need")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly,meta = (MakeEditWidget), Category = "Need")
     FVector UseLocation;
 
 public:
