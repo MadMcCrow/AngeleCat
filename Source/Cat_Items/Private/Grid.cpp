@@ -4,16 +4,23 @@
 #include "Cat_ItemsPCH.h"
 #include "Runtime/Core/Public/Async/ParallelFor.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
-
+#include "GameFramework/PlayerController.h"
+#include "Components/BoxComponent.h"
 
  AGrid::AGrid(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
 {
-
-	SlotMeshes = CreateDefaultSubobject<UHierarchicalInstancedStaticMeshComponent>(TEXT("SlotMeshes"));
+	// default values
 	GridSize= FIntPoint(25,25);
 	ElementSize = FVector2D(200.f,200.f);
 	PrimaryActorTick.bCanEverTick = false;
-
+	
+	// Create Components
+	GlobalGridCollision = ObjectInitializer.CreateDefaultSubobject<UBoxComponent>(this, TEXT("CollisionBox"));
+	RootComponent = GlobalGridCollision;
+	SlotMeshes = ObjectInitializer.CreateDefaultSubobject<UHierarchicalInstancedStaticMeshComponent>(this, TEXT("SlotMeshes"));
+	SlotMeshes->SetupAttachment(RootComponent);
+	
+	// Init slots
     Slots.Init(FGridItemSlot(), GridSize.X * GridSize.Y);
     ParallelFor(Slots.Num(), [&](int32 Idx) {
     	Slots[Idx].SetCoordinate(Idx,GridSize.X , GridSize.Y );
@@ -32,6 +39,34 @@ FVector2D AGrid::GetLocalGridPosition(const FIntPoint &pos) const
 	const float X = (pos.X * ElementSize.X) +(ElementSize.X * 0.5);
 	const float Y = (pos.Y * ElementSize.Y) +(ElementSize.Y * 0.5);
     return FVector2D( X, Y);
+}
+
+bool AGrid::FindLookedAtPositionFromScreen(const FVector2D &screenPosition, const APlayerController* player, FIntPoint &outSlot)
+{
+	FVector position, direction;
+	bool valid = true;
+	valid = player->DeprojectScreenPositionToWorld(screenPosition.X, screenPosition.Y, position, direction );
+	
+	if(!valid)
+		return false;
+	
+	FHitResult OutHit;
+	const FVector Start = position;
+	const FVector End = ((direction * 1000.f) + position);
+	FCollisionQueryParams CollisionParams;
+	if(!GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams)) 
+		return false;
+
+ 
+	if(OutHit.IsValidBlockingHit())
+	{
+		outSlot = CoordFromWorldSpace(OutHit.ImpactPoint);
+		if(OutHit.Actor == this)
+		{
+			valid = true;	
+		}
+	}
+	return valid;
 }
 
 void AGrid::DrawSlots()
@@ -117,12 +152,7 @@ void AGrid::SelectSlot(FIntPoint coord)
 
 void AGrid::SelectSlot(FVector WorldPosition)
 {
-	const auto ClosestPoint = FVector::PointPlaneProject(WorldPosition, GetActorLocation() + GridOffset, GetActorUpVector());
-	FTransform ActorT = GetActorTransform();
-	ActorT.AddToTranslation(GridOffset);
-	const auto Local = ActorT.InverseTransformPosition(ClosestPoint);
-	// we should now only consider X and Y for position on the grid.
-	SelectSlot(FIntPoint(ClosestPoint.X / ElementSize.X,ClosestPoint.Y / ElementSize.Y));
+	SelectSlot(CoordFromWorldSpace(WorldPosition));
 }
 
 void AGrid::DeselectSlot()
@@ -160,13 +190,19 @@ void AGrid::HoverSlot(FIntPoint coord)
 
 void AGrid::HoverSlot(FVector WorldPosition)
 {
+	HoverSlot(CoordFromWorldSpace(WorldPosition));
+}
+
+ FIntPoint AGrid::CoordFromWorldSpace(const FVector &WorldPosition)
+ {
 	const auto ClosestPoint = FVector::PointPlaneProject(WorldPosition, GetActorLocation() + GridOffset, GetActorUpVector());
 	FTransform ActorT = GetActorTransform();
 	ActorT.AddToTranslation(GridOffset);
 	const auto Local = ActorT.InverseTransformPosition(ClosestPoint);
+	
 	// we should now only consider X and Y for position on the grid.
-	HoverSlot(FIntPoint(ClosestPoint.X / ElementSize.X,ClosestPoint.Y / ElementSize.Y));
-}
+	return FIntPoint(ClosestPoint.X / ElementSize.X,ClosestPoint.Y / ElementSize.Y);
+ }
 
 void AGrid::HideSlotInstanceMesh(int32 idx, bool hide)
 {
