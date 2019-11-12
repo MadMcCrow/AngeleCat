@@ -1,3 +1,5 @@
+// Noe Perard-Gayot <noe.perard@gmail.com> 2019 - All Rights Reserved
+
 #include "Item.h"
 #include "Components/StaticMeshComponent.h"
 
@@ -7,6 +9,21 @@ AItem::AItem(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitiali
 {
     StaticMesh = ObjectInitializer.CreateDefaultSubobject<UStaticMeshComponent>(this,MeshName);
     RootComponent = StaticMesh;
+}
+
+void AItem::SetFromData(const FItemStaticData &in)
+{
+    Info = in;
+    if(StaticMesh)
+    {
+        StaticMesh->SetStaticMesh(Info.GetMesh());
+    }
+
+}
+
+void AItem::SetFromDataAsset(const UItemData * &in)
+{
+    SetFromData(in->GetData());
 }
 
 ECatNeed AItem::GetNeedType() const

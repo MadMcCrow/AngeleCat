@@ -5,37 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "CatNeedInterface.h"
+#include "ItemData.h"
 #include "Item.generated.h"
 
 //forward declaration
 class UStaticMeshComponent;
-
-
-USTRUCT(BlueprintType, Category = "Item")
-struct FItemStaticData
-{
-    GENERATED_BODY()
-    friend class AItem;
-protected:
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FName StaticName;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FText LocalizedName;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FText Description;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buy")
-    int32  Cost;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Needs")
-    ECatNeed NeedType;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Needs")
-    float MaxEfficiency;
-};
 
 
 UCLASS()
@@ -45,6 +19,12 @@ class AItem : public AActor, public ICatNeedInterface
 
 public:
     AItem(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
+
+    UFUNCTION(BlueprintCallable, Category = "Setup")
+    void SetFromData(const FItemStaticData &in);
+
+    UFUNCTION(BlueprintCallable, Category = "Setup")
+    void SetFromDataAsset(const UItemData * &in);
 
     virtual ECatNeed GetNeedType() const override;
     virtual void GetCatNeedEffect(ECatNeed &Type, float &Value) const override;
