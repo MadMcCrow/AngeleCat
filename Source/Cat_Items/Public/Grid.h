@@ -57,6 +57,7 @@ public:
 
     AGrid(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
 
+    virtual void OnConstruction(const FTransform& transform) override;
     virtual void BeginPlay() override;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
@@ -65,7 +66,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
     FVector2D ElementSize;
 
-    UPROPERTY()
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid")
     FVector GridOffset;
 
 protected:
@@ -106,6 +107,10 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Rendering")
     void UpdateSlots();
+
+
+    UFUNCTION(BlueprintCallable, Category = "Geometry")
+    void SetBoundingBox();
 
     FTransform GetSlotIdxWorldSpace(int32 idx) const;
 

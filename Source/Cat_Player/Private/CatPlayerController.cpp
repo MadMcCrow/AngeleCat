@@ -16,10 +16,13 @@ ACatPlayerController::ACatPlayerController(const FObjectInitializer &ObjectIniti
 void ACatPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-    // InputComponent->BindAction
+    BindInputComponent->BindAction(ClickActionName, EInputEvent::IE_Pressed, this, &ACatPlayerController::OnClick);
 }
 
 void ACatPlayerController::Onclick()
 {
-
+    if(GridInteractComp)
+    {
+        GridInteractComp->TrySelect();
+    }
 }

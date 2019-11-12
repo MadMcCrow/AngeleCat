@@ -27,6 +27,9 @@ protected :
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid")
 	UPlayerGridInteraction * GridInteractComp;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+    FName ClickActionName;
+
 
 
 };

@@ -28,10 +28,19 @@
 
 }
 
+void AGrid::OnConstruction(const FTransform& transform)
+{
+    Super::OnConstruction(transform);
+    
+    SetBoundingBox();
+   	DrawSlots();
+}
+
+
 void AGrid::BeginPlay()
 {
 	Super::BeginPlay();
-	DrawSlots();
+	// DrawSlots();
 }
 
 FVector2D AGrid::GetLocalGridPosition(const FIntPoint &pos) const
@@ -109,6 +118,21 @@ void AGrid::UpdateSlots()
     {
         HoveredSlotMesh->SetHiddenInGame(true /*hidden*/, true/*Propagate to children*/);
     }
+}
+
+void AGrid::SetBoundingBox()
+{
+    // Get real actor dimensions :
+    const FVector2D size2d = GridSize * ElementSize;
+    const Fvector  size = FVector(size2d, 10);
+
+    // set bounding box dimension :
+    GlobalGridCollision->SetBoxExtent(size/2, false);
+
+    // set grid offset
+    // TODO: CHECK THAT :
+    GridOffset = -1 * size/2;
+
 }
 
 FTransform AGrid::GetSlotIdxWorldSpace(int32 idx) const
