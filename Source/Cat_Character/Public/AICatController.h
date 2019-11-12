@@ -24,6 +24,7 @@ public:
 	AAICatController(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Needs")
 	virtual ECatNeed GetMostWantedNeed(float &outValue) const;
@@ -72,9 +73,6 @@ public:
     FUpdateCatTask ReadyToDoTask;
 
     UPROPERTY(BlueprintAssignable, Category = "Task|Event")
-    FUpdateCatTask FindNeedDone;
-
-    UPROPERTY(BlueprintAssignable, Category = "Task|Event")
     FUpdateCatTask GoToNeedDone;
 
     UPROPERTY(BlueprintAssignable, Category = "Task|Event")
@@ -84,8 +82,9 @@ public:
     FUpdateCatTask NeedChanged;
 
 protected:
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Task")
-	void FindNeed();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Task")
+	void StartNeedAI();
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Task")
 	void GoToNeed();
@@ -93,8 +92,14 @@ protected:
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Task")
 	void UseNeed();
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Task")
+	void FinishNeedAI();
+
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Task")
 	void DoNothing();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Task")
+	void ResetTask();
 
 protected:
 
@@ -108,15 +113,24 @@ protected:
     void SetCurrentNeed(const ECatNeed newNeed);
 
     UFUNCTION(BlueprintCallable, BlueprintSetter, Category = "Task|Data")
-    void SetCurrentNeedActor(const AActor* newActor);
+    void SetCurrentNeedActor(AActor * newActor);
 
     UFUNCTION(BlueprintPure, Category = "Task|Data")
     FVector GetNeedActorLocation() const;
 
-    UFUNCTION(BlueprintPure, Category = "Task|Data")
+	UFUNCTION(BlueprintPure, Category = "Task|Data")
+	float GetNeedActorAcceptanceRadius() const;
+
+	UFUNCTION(BlueprintPure, Category = "Task|Data")
     bool GetNeedIsCritical() const;
 
 private:
+	UFUNCTION()
     virtual void UpdateNeed();
+
+	/* Handle to manage the update need timer */
+	FTimerHandle UpdateNeedTimerHandle;
+
+	float UpdateNeedDelay;
 
 };

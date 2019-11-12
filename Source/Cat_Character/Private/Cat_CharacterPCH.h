@@ -8,5 +8,3 @@
 #include "Curves/CurveFloat.h"
 #include "Kismet/GameplayStatics.h"
 
-
-DEFINE_LOG_CATEGORY(LogCat_Character);

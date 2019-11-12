@@ -6,6 +6,9 @@
 #include "UObject/Interface.h"
 #include "CatNeedInterface.generated.h"
 
+// Forward Declaration
+class AAICatController;
+
 
 UENUM(BlueprintType)
 enum class ECatNeed	 : uint8
@@ -41,6 +44,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Needs")
     virtual FVector GetCatNeedLocation() const PURE_VIRTUAL(ICatNeedInterface::GetCatNeedLocation,return FVector(););
 
+	UFUNCTION(BlueprintCallable, Category = "Needs")
+		virtual float GetCatNeedRadius() const PURE_VIRTUAL(ICatNeedInterface::GetCatNeedRadius, return 100.f;);
+
     UFUNCTION(BlueprintCallable, Category = "Needs")
-    virtual void Use(float Amount, AAICatController * Controller) const PURE_VIRTUAL(ICatNeedInterface::Use,;);
+    virtual void Use(float Amount, AAICatController * Controller) PURE_VIRTUAL(ICatNeedInterface::Use,;);
 };
