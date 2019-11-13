@@ -28,17 +28,28 @@ protected:
 
 public:
 
-    UPROPERTY()
+    UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Events|Button")
     FOnButtonClickedEvent   OnClicked;
-
-    UPROPERTY()
+    UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Events|Button")
     FOnButtonPressedEvent   OnPressed;
-
-    UPROPERTY()
+    UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Events|Button")
     FOnButtonReleasedEvent  OnReleased;
-
-    UPROPERTY()
+    UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Events|Button")
     FOnButtonHoverEvent     OnHovered;
+
+protected:
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Events|Button")
+    void OnClickedEvent();
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Events|Button")
+    void OnPressedEvent();
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Events|Button")
+    void OnReleasedEvent();
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Events|Button")
+    void OnHoveredEvent();
 
 private:
     UFUNCTION()
