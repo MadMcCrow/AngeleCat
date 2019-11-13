@@ -78,19 +78,19 @@ protected:
 
 private:
     ///	@brief SlotMeshes		The meshes drawn to represent the Grid in real world
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = true))
 	    UHierarchicalInstancedStaticMeshComponent * SlotMeshes;
 
     ///	@brief SelectedSlotMesh The meshes drawn to represent the selected grid slot in real world
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = true))
 	    UStaticMeshComponent * SelectedSlotMesh;
 
     ///	@brief HoveredSlotMesh	The meshes drawn to represent the hovered grid slot in real world
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = true))
 	    UStaticMeshComponent * HoveredSlotMesh;
 
     ///	@brief HoveredSlotMesh	The meshes drawn to represent the hovered grid slot in real world
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = true))
 	    UBoxComponent * GlobalGridCollision;
 
 

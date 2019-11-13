@@ -19,16 +19,27 @@ public:
 	ACatPlayerController(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
 	
 	virtual void SetupInputComponent() override;
+	virtual void Tick(float deltaTime) override;
+
+	UFUNCTION(BlueprintPure, Category = "Mouse")
+	bool IsUsingMouse() const;
+
+
 
 protected :
 
-	virtual void Onclick();
+	UFUNCTION()
+	virtual void OnClick();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grid")
 	UPlayerGridInteraction * GridInteractComp;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
     FName ClickActionName;
+
+	UFUNCTION()
+	void UpdateGridInteractionCursorPosition();
+	
 
 
 

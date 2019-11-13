@@ -1,6 +1,7 @@
 // Noe Perard-Gayot <noe.perard@gmail.com> 2019 - All Rights Reserved
 
 #include "Item.h"
+#include "ItemData.h"
 #include "Components/StaticMeshComponent.h"
 
 FName AItem::MeshName = TEXT("ItemMesh");
@@ -21,7 +22,7 @@ void AItem::SetFromData(const FItemStaticData &in)
 
 }
 
-void AItem::SetFromDataAsset(const UItemData * &in)
+void AItem::SetFromDataAsset(const UItemData * in)
 {
     SetFromData(in->GetData());
 }

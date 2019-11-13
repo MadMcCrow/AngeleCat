@@ -16,13 +16,29 @@ ACatPlayerController::ACatPlayerController(const FObjectInitializer &ObjectIniti
 void ACatPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-    BindInputComponent->BindAction(ClickActionName, EInputEvent::IE_Pressed, this, &ACatPlayerController::OnClick);
+    InputComponent->BindAction(ClickActionName, EInputEvent::IE_Pressed, this, &ACatPlayerController::OnClick);
 }
 
-void ACatPlayerController::Onclick()
+void ACatPlayerController::Tick(float deltaTime)
+{
+    Super::Tick(deltaTime);
+    UpdateGridInteractionCursorPosition();
+}
+
+bool ACatPlayerController::IsUsingMouse() const
+{
+    return true;
+}
+
+void ACatPlayerController::OnClick()
 {
     if(GridInteractComp)
     {
         GridInteractComp->TrySelect();
     }
+}
+
+void ACatPlayerController::UpdateGridInteractionCursorPosition()
+{
+
 }

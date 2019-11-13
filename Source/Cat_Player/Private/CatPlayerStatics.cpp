@@ -26,17 +26,17 @@ FVector2D UCatPlayerStatics::MouseScreenBorderMove(UObject * WorldContextObject,
 
 	if(MousePos.X > 1.f - xThreshold)
 	{
-		xMovement = (MousePos.X - xThreshold) / (1.f - xThreshold);
+		xMovement = -1.f *  (MousePos.X - xThreshold) / (1.f - xThreshold); // inverted because the origin is top right
 	} else if( MousePos.X < xThreshold)
 	{
-		xMovement = -1.f *  (xThreshold - MousePos.X) / (xThreshold );
+		xMovement = (xThreshold - MousePos.X) / (xThreshold );
 	}
 	if(MousePos.Y > 1.f - yThreshold)
 	{
-		yMovement = -1.f * (MousePos.Y - yThreshold) / (1.f - yThreshold);
+		yMovement = (MousePos.Y - yThreshold) / (1.f - yThreshold);
 	} else if( MousePos.Y < yThreshold)
 	{
-		yMovement =(yThreshold - MousePos.Y) / (yThreshold );
+		yMovement = -1.f * (yThreshold - MousePos.Y) / (yThreshold );
 	}
 
 	return invertXY?  FVector2D(yMovement, xMovement) : FVector2D(xMovement, yMovement);

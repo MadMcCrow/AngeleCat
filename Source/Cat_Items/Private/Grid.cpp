@@ -20,6 +20,13 @@
 	SlotMeshes = ObjectInitializer.CreateDefaultSubobject<UHierarchicalInstancedStaticMeshComponent>(this, TEXT("SlotMeshes"));
 	SlotMeshes->SetupAttachment(RootComponent);
 	
+	// Slots
+	SelectedSlotMesh	= ObjectInitializer.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("SelectedSlotMesh"));
+	HoveredSlotMesh		= ObjectInitializer.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("HoveredSlotMesh"));
+	SelectedSlotMesh->SetupAttachment(RootComponent);
+	HoveredSlotMesh->SetupAttachment(RootComponent);
+
+
 	// Init slots
     Slots.Init(FGridItemSlot(), GridSize.X * GridSize.Y);
     ParallelFor(Slots.Num(), [&](int32 Idx) {
@@ -33,14 +40,14 @@ void AGrid::OnConstruction(const FTransform& transform)
     Super::OnConstruction(transform);
     
     SetBoundingBox();
-   	DrawSlots();
+
 }
 
 
 void AGrid::BeginPlay()
 {
 	Super::BeginPlay();
-	// DrawSlots();
+	DrawSlots();
 }
 
 FVector2D AGrid::GetLocalGridPosition(const FIntPoint &pos) const
@@ -80,15 +87,26 @@ bool AGrid::FindLookedAtPositionFromScreen(const FVector2D &screenPosition, cons
 
 void AGrid::DrawSlots()
 {
-	SlotMeshes->ClearInstances();
-    FCriticalSection Mutex;
-	ParallelFor(Slots.Num(), [this, &Mutex](int32 Idx) {
-		const FTransform InstanceTransform = GetSlotIdxWorldSpace(Idx);
-		// Add instance mesh
-        Mutex.Lock();
-		SlotMeshes->AddInstanceWorldSpace(InstanceTransform);
-        Mutex.Unlock();
-    });
+	if(SlotMeshes)
+	{
+		SlotMeshes->ClearInstances();
+		for(int32 Idx = 0; Idx < Slots.Num(); Idx++)
+		{
+			const FTransform InstanceTransform = GetSlotIdxWorldSpace(Idx);
+			SlotMeshes->AddInstanceWorldSpace(InstanceTransform);
+		}
+		// this crashes
+		/*
+		FCriticalSection Mutex;
+		ParallelFor(Slots.Num(), [this, &Mutex](int32 Idx) {
+			const FTransform InstanceTransform = GetSlotIdxWorldSpace(Idx);
+			// Add instance mesh
+			Mutex.Lock();
+			SlotMeshes->AddInstanceWorldSpace(InstanceTransform);
+			Mutex.Unlock();
+		});
+		*/
+	}
 }
 
 void AGrid::UpdateSlots()
@@ -123,8 +141,8 @@ void AGrid::UpdateSlots()
 void AGrid::SetBoundingBox()
 {
     // Get real actor dimensions :
-    const FVector2D size2d = GridSize * ElementSize;
-    const Fvector  size = FVector(size2d, 10);
+    const FVector2D size2d = FVector2D(GridSize.X * ElementSize.X, GridSize.Y * ElementSize.Y);
+    const FVector  size = FVector(size2d, 10);
 
     // set bounding box dimension :
     GlobalGridCollision->SetBoxExtent(size/2, false);
