@@ -21,7 +21,12 @@ protected:
 public:
 
     template<typename WidgetT>
-    WidgetT * CreateChild( OwnerT * OwningObject,TSubclassOf< UUserWidget > UserWidgetClass, FName WidgetName);
+    WidgetT * CreateChild(TSubclassOf< UUserWidget > UserWidgetClass, FName WidgetName);
 
+    UFUNCTION(BlueprintCallable, Category = "Context", DisplayName = "CreateChild")
+    UUserWidget * CreateChild_BP(TSubclassOf< UUserWidget > UserWidgetClass, FName WidgetName)
+    {
+        return CreateChild<UUserWidget>(UserWidgetClass,WidgetName);
+    }
 
 };

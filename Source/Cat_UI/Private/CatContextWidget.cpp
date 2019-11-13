@@ -4,7 +4,7 @@
 #include "Cat_UIPCH.h"
 
 template<typename WidgetT>
-WidgetT * UCatContextWidget::CreateChild( OwnerT * OwningObject,TSubclassOf< UUserWidget > UserWidgetClass, FName WidgetName)
+WidgetT * UCatContextWidget::CreateChild(TSubclassOf< UUserWidget > UserWidgetClass, FName WidgetName)
 {
     if(!WSubWidgetContainer)
         return nullptr;
