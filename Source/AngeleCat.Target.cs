@@ -10,6 +10,7 @@ public class AngeleCatTarget : TargetRules
 		Type = TargetType.Game;
 		ExtraModuleNames.Add("AngeleCat");
         ExtraModuleNames.Add("Cat_Player");
+        ExtraModuleNames.Add("Cat_UI");
 		ExtraModuleNames.Add("Cat_Game");
         ExtraModuleNames.Add("Cat_Character");
         ExtraModuleNames.Add("Cat_Items");
