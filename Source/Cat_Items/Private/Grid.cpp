@@ -237,13 +237,30 @@ void AGrid::HoverSlot(FVector WorldPosition)
 
  FIntPoint AGrid::CoordFromWorldSpace(const FVector &WorldPosition)
  {
+     /*
 	const auto ClosestPoint = FVector::PointPlaneProject(WorldPosition, GetActorLocation() + GridOffset, GetActorUpVector());
 	FTransform ActorT = GetActorTransform();
 	ActorT.AddToTranslation(GridOffset);
 	const auto Local = ActorT.InverseTransformPosition(ClosestPoint);
-	
+    return FIntPoint(ClosestPoint.X / ElementSize.X,ClosestPoint.Y / ElementSize.Y);
+	*/
+    // let's use instanced mesh to do that:
+    FBox NewBox = FBox::BuildAABB (WorldPosition, FVector(ElementSize, ElementSize.X));
+    const auto Idxs = SlotMeshes->GetInstancesOverlappingBox(const FBox& Box, true);
+    Idxs.Sort([&WorldPosition](const int32 &idxA, const int32 &idxB){
+        FTransform instanceA;
+        FTransform instanceB;
+        SlotMeshes->GetInstanceTransform(idxA, instanceA, true);
+        SlotMeshes->GetInstanceTransform(idxA, instanceB, true);
+        return FVector::Dist(instanceA.GetTranslation(), WorldPosition) < FVector::Dist(instanceB.GetTranslation(), WorldPosition);
+    });
+    if(!Idxs.IsValidIndex(0))
+        return FIntPoint(0,0);
+    
+    
+    return FGridItemSlot::CoordFromIdx(Idxs[]);
 	// we should now only consider X and Y for position on the grid.
-	return FIntPoint(ClosestPoint.X / ElementSize.X,ClosestPoint.Y / ElementSize.Y);
+
  }
 
 void AGrid::HideSlotInstanceMesh(int32 idx, bool hide)
