@@ -7,6 +7,7 @@
 
 class AGrid;
 class UPlayerGridInteraction;
+class UWidget;
 
 /// @brief ACatPlayerController		Default Player controller for Cat
 UCLASS(ClassGroup=(PlayerController))
@@ -20,11 +21,13 @@ public:
 	
 	virtual void SetupInputComponent() override;
 	virtual void Tick(float deltaTime) override;
+	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintPure, Category = "Mouse")
 	bool IsUsingMouse() const;
 
-
+	UFUNCTION(BlueprintCallable, Category = "Mouse")
+	virtual void EnableMouse(UWidget * inWidgetToFocus);
 
 protected :
 
