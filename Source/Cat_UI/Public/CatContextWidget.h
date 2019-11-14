@@ -12,10 +12,10 @@ class CAT_UI_API UCatContextWidget : public UCatUserWidget
 	GENERATED_BODY()
 protected:
 
-    UPROPERTY(meta = (BindWidget), BlueprintReadWrite, Category= "widget")
-    UTextBlock WTitle;
-
-    UPROPERTY(meta = (BindWidget), BlueprintReadWrite, Category= "widget")
+    UPROPERTY(meta = (BindWidget),VisibleAnywhere, BlueprintReadOnly, Category= "Widget")
+    UTextBlock * WTitle;
+    
+    UPROPERTY(meta = (BindWidget),VisibleAnywhere, BlueprintReadOnly, Category= "Widget")
     UPanelWidget * WSubWidgetContainer;
 
 public:

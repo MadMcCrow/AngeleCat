@@ -3,6 +3,7 @@
 
 #include "CatPlayerController.h"
 #include "PlayerGridInteraction.h"
+#include "Components/Widget.h"
 //#include "Engine/World.h"
 //#include "GameFramework/Character.h"
 //#include "Kismet/GameplayStatics.h"
@@ -25,9 +26,28 @@ void ACatPlayerController::Tick(float deltaTime)
     UpdateGridInteractionCursorPosition();
 }
 
+void ACatPlayerController::BeginPlay()
+{
+    Super::BeginPlay();
+    if(IsUsingMouse())
+        EnableMouse(nullptr);
+}
+
 bool ACatPlayerController::IsUsingMouse() const
 {
     return true;
+}
+
+void ACatPlayerController::EnableMouse(UWidget * inWidgetToFocus)
+{
+    FInputModeGameAndUI inputmode;
+	inputmode.SetLockMouseToViewportBehavior(EMouseLockMode::LockOnCapture);
+	inputmode.SetHideCursorDuringCapture(false);
+	if (inWidgetToFocus != nullptr)
+	{
+		inputmode.SetWidgetToFocus(inWidgetToFocus->TakeWidget());
+	}
+	SetInputMode(inputmode);
 }
 
 void ACatPlayerController::OnClick()
@@ -40,5 +60,14 @@ void ACatPlayerController::OnClick()
 
 void ACatPlayerController::UpdateGridInteractionCursorPosition()
 {
+    if(!GridInteractComp)
+        return;
 
+    FVector2D pos = FVector2D(0.5,0.5);
+    if(IsUsingMouse())
+    {
+        GetMousePosition(pos.X, pos.Y);
+    }
+
+    GridInteractComp->SetCursorScreenPosition(pos);
 }

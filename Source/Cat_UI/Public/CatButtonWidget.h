@@ -8,7 +8,6 @@
 
 class UTextBlock;
 
-
 /// @brief UCatUserWidget		base class for user widget
 UCLASS(ClassGroup=(UI))
 class CAT_UI_API UCatButtonWidget : public UCatTextDisplayWidget
@@ -20,7 +19,7 @@ public:
     virtual void OnWidgetRebuilt() override;
 protected:
 
-    UPROPERTY(meta = (BindWidget), BlueprintReadWrite, Category= "widget")
+    UPROPERTY(meta = (BindWidget),VisibleAnywhere, BlueprintReadOnly, Category= "Widget")
     UButton * WButton;
 
 public:

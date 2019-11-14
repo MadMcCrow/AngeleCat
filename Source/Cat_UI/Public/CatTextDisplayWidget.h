@@ -20,7 +20,7 @@ public:
     virtual void OnWidgetRebuilt() override;
 protected:
 
-    UPROPERTY(meta = (BindWidget), Category= "Widget")
+    UPROPERTY(meta = (BindWidget),VisibleAnywhere, BlueprintReadOnly, Category= "Widget")
     UTextBlock * WDisplayText;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Text", meta= (BlueprintSetter = "SetText"))

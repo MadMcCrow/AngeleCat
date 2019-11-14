@@ -5,32 +5,32 @@
 void UCatButtonWidget::OnWidgetRebuilt()
 {
     Super::OnWidgetRebuilt();
-    if(WButtonText)
+    if(WButton)
     {
-        WButtonText->OnClicked.BindDynamic(this, UCatButtonWidget::OnClicked_impl);
-        WButtonText->OnPressed.BindDynamic(this, UCatButtonWidget::OnPressed_impl);
-        WButtonText->OnReleased.BindDynamic(this,UCatButtonWidget::OnRelease_impl);
-        WButtonText->OnHovered.BindDynamic(this, UCatButtonWidget::OnHovered_impl);
+        WButton->OnClicked.AddDynamic(this,  &UCatButtonWidget::OnClicked_impl);
+        WButton->OnPressed.AddDynamic(this,  &UCatButtonWidget::OnPressed_impl);
+        WButton->OnReleased.AddDynamic(this, &UCatButtonWidget::OnReleased_impl);
+        WButton->OnHovered.AddDynamic(this,  &UCatButtonWidget::OnHovered_impl);
     }
 }
 
 void UCatButtonWidget::OnClicked_impl()
 {
-    OnClicked.BroadCast();
+    OnClicked.Broadcast();
     OnClickedEvent();
 }
 void UCatButtonWidget::OnPressed_impl()
 {
-    OnPressed.BroadCast();
+    OnPressed.Broadcast();
     OnPressedEvent();
 }
 void UCatButtonWidget::OnReleased_impl()
 {
-    OnReleased.BroadCast();
+    OnReleased.Broadcast();
     OnReleasedEvent();
 }
 void UCatButtonWidget::OnHovered_impl()
 {
-    OnHovered.BroadCast();
+    OnHovered.Broadcast();
     OnHoveredEvent();
 }
