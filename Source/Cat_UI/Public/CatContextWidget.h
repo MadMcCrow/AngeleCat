@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CatUserWidget.h"
-#include "UCatContextWidget.generated.h"
+#include "CatContextWidget.generated.h"
 
 /// @brief UCatUserWidget		base class for user widget
 UCLASS()

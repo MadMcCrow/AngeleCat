@@ -2,16 +2,16 @@
 
 #pragma once
 
-#include "CatUserWidget.h"
+#include "CatTextDisplayWidget.h"
 #include "Components/Button.h"
-#include "UCatContextWidget.generated.h"
+#include "CatButtonWidget.generated.h"
 
 class UTextBlock;
 
 
 /// @brief UCatUserWidget		base class for user widget
 UCLASS(ClassGroup=(UI))
-class CAT_UI_API UCatButtonWidget : public UCatUserWidget
+class CAT_UI_API UCatButtonWidget : public UCatTextDisplayWidget
 {
 	GENERATED_BODY()
 
@@ -21,10 +21,7 @@ public:
 protected:
 
     UPROPERTY(meta = (BindWidget), BlueprintReadWrite, Category= "widget")
-    UTextBlock * WButtonText;
-
-    UPROPERTY(meta = (BindWidget), BlueprintReadWrite, Category= "widget")
-    UButton * WButtonText;
+    UButton * WButton;
 
 public:
 
