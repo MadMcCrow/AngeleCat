@@ -16,12 +16,22 @@ class CAT_UI_API UCatUserWidget : public UUserWidet
 public:
 
     template<typename WidgetT, typename OwnerT>
-    static WidgetT * CreateWidget(OwnerT * Owner, TSubclassOf< UCatUserWidget > UserWidgetClass);
+    static WidgetT * CreateWidget(OwnerT * owner, TSubclassOf< UCatUserWidget > userWidgetClass);
+    UFUNCTION(BlueprintCallable, Category = "WidgetStatics")
+    static UCatUserWidget * CreateWidget(UObject * owner, TSubclassOf< UCatUserWidget > userWidgetClass)
+    {return CreateWidget<UCatUserWidget, UObject>(owner, userWidgetClass);}
 
-
+    
     template<typename WidgetCompT>
-    static WidgetCompT * CreateWidgetComponent(AActor * Owner, TSubclassOf< UCatUserWidget > UserWidgetClass, TSubclassOf< WidgetCompT > ComponentClass, bool worldSpace = false);
+    static WidgetCompT * CreateWidgetComponent(AActor * owner, TSubclassOf< UCatUserWidget > userWidgetClass, TSubclassOf< WidgetCompT > componentClass, bool worldSpace = false);
+    UFUNCTION(BlueprintCallable, Category = "WidgetStatics")
+    static UWidgetComponent* CreateWidgetComponent(AActor * owner, TSubclassOf< UCatUserWidget > userWidgetClass, TSubclassOf< WidgetCompT > componentClass, bool worldSpace = false)
+    {return CreateWidgetComponent<UWidgetComponent>(owner, userWidgetClass, componentClass, worldSpace);}
+   
 
+    UFUNCTION(BlueprintCallable, Category = "WidgetStatics")
+    static void SetWidgetComponent(UWidgetComponent * comp, TSubclassOf< UCatUserWidget > userWidgetClass,  bool worldSpace = false);
 
+    
 
 };

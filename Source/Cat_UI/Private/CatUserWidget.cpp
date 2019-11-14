@@ -13,7 +13,7 @@ WidgetT * UCatUserWidget::CreateWidget(OwnerT * owner, TSubclassOf< UCatUserWidg
 }
 
 template<typename WidgetCompT>
-static WidgetCompT * UCatUserWidget::CreateWidgetComponent(AActor * owner, TSubclassOf< UCatUserWidget > userWidgetClass, TSubclassOf< WidgetCompT > componentClass, bool worldSpace)
+WidgetCompT * UCatUserWidget::CreateWidgetComponent(AActor * owner, TSubclassOf< UCatUserWidget > userWidgetClass, TSubclassOf< WidgetCompT > componentClass, bool worldSpace)
 {
     if(!userWidgetClass.Get() || !owner || !WidgetCompT->IsChildOf<UWidgetComponent>())
         return nullptr;
@@ -24,16 +24,22 @@ static WidgetCompT * UCatUserWidget::CreateWidgetComponent(AActor * owner, TSubc
     if(!newcomp)
         return nullptr;
 
-    const auto widget = CreateWidget(newcomp,UserWidgetClass);
-
-    widgetcomp = static_cast<UWidgetComponent*>(newcomp);
+    auto widgetcomp = static_cast<UWidgetComponent*>(newcomp);
     widgetcomp->RegisterComponent();        //You must ConstructObject with a valid Outer that has world, see above	 
     widgetcomp->SetWorldLocation(Location); 
     widgetcomp->SetWorldRotation(Rotation); 
     widgetcomp->AttachTo(GetRootComponent(),SocketName,EAttachLocation::KeepWorldPosition); 
-    widgetcomp->SetWidget(widget);
-    widgetcomp->SetWidgetSpace(worldSpace ? EWidgetSpace::World : EWidgetSpace::Screen);
+    SetWidgetComponent(widgetcomp,userWidgetClass);
 
     return newcomp;     
 }
+
+ void UCatUserWidget::SetWidgetComponent(UWidgetComponent * comp, TSubclassOf< UCatUserWidget > userWidgetClass,  bool worldSpace = false)
+ {
+    if(!comp)
+        return;
+    auto widget = CreateWidget(comp,UserWidgetClass);
+    widgetcomp->SetWidget(widget);
+    widgetcomp->SetWidgetSpace(worldSpace ? EWidgetSpace::World : EWidgetSpace::Screen);
+ }
     
