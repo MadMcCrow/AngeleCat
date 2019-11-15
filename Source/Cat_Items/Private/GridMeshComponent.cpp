@@ -11,6 +11,7 @@ bool UGridMeshComponent::HideInstance(int32 InstanceIndex)
     {
         HiddenInstances.Add(InstanceIndex, *InstT);
         VisibleInstances.Remove(InstanceIndex);
+        RemoveInstance(InstanceIndex);
         return true;
     }
     return false;
