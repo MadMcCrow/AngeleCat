@@ -70,7 +70,9 @@ bool AGrid::FindLookedAtPositionFromScreen(const FVector2D &screenPosition, cons
 	const FVector Start = position;
 	const FVector End = ((direction * 1000.f) + position);
 	FCollisionQueryParams CollisionParams;
-	if(!GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams)) 
+	FCollisionObjectQueryParams ObjectCollisionParams;
+	ObjectCollisionParams.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldStatic);
+	if(!GetWorld()->LineTraceTestByObjectType(OutHit, Start, End, ECC_Visibility, CollisionParams)) 
 		return false;
 
  
