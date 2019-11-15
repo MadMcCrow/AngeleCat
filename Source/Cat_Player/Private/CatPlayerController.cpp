@@ -5,12 +5,13 @@
 #include "PlayerGridInteraction.h"
 #include "Components/Widget.h"
 #include "CatPlayerStatics.h"
+#include "CatPlayerCameraPawn.h"
 //#include "Engine/World.h"
 //#include "GameFramework/Character.h"
 //#include "Kismet/GameplayStatics.h"
 
 
-ACatPlayerController::ACatPlayerController(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
+ACatPlayerController::ACatPlayerController(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer), MouseWheelSpeed(1.f)
 {
     GridInteractComp = ObjectInitializer.CreateDefaultSubobject<UPlayerGridInteraction>(this, TEXT("GridInteractionComponent"));
 }
@@ -19,6 +20,7 @@ void ACatPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
     InputComponent->BindAction(ClickActionName, EInputEvent::IE_Pressed, this, &ACatPlayerController::OnClick);
+    InputComponent->BindAxis(MouseWheelAxisName, this, &ACatPlayerController::OnMouseWheel);
 }
 
 void ACatPlayerController::Tick(float deltaTime)
@@ -44,12 +46,24 @@ void ACatPlayerController::EnableMouse(UWidget * inWidgetToFocus)
     UCatPlayerStatics::SetPlayerInputMode(this,EUIInputMode::UI_Game, inWidgetToFocus, false);
 }
 
+ACatPlayerCameraPawn * ACatPlayerController::GetCameraPawn() const
+{
+    return Cast<ACatPlayerCameraPawn>(GetPawn());
+}
+
+
 void ACatPlayerController::OnClick()
 {
     if(GridInteractComp)
     {
         GridInteractComp->TrySelect();
     }
+}
+
+void ACatPlayerController::OnMouseWheel(float value)
+{
+    if(GetCameraPawn())
+        GetCameraPawn()->Zoom(value, MouseWheelSpeed);
 }
 
 void ACatPlayerController::UpdateGridInteractionCursorPosition()
@@ -65,3 +79,4 @@ void ACatPlayerController::UpdateGridInteractionCursorPosition()
 
     GridInteractComp->SetCursorScreenPosition(pos);
 }
+

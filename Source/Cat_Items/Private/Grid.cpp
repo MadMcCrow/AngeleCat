@@ -3,9 +3,13 @@
 #include "Grid.h"
 #include "Cat_ItemsPCH.h"
 #include "Runtime/Core/Public/Async/ParallelFor.h"
-#include "Components/HierarchicalInstancedStaticMeshComponent.h"
+#include "GridMeshComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Components/BoxComponent.h"
+#if WITH_EDITOR
+#include "Kismet/KismetSystemLibrary.h"
+#endif // WITH_EDITOR
+
 
  AGrid::AGrid(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -17,7 +21,7 @@
 	// Create Components
 	GlobalGridCollision = ObjectInitializer.CreateDefaultSubobject<UBoxComponent>(this, TEXT("CollisionBox"));
 	RootComponent = GlobalGridCollision;
-	SlotMeshes = ObjectInitializer.CreateDefaultSubobject<UHierarchicalInstancedStaticMeshComponent>(this, TEXT("SlotMeshes"));
+	SlotMeshes = ObjectInitializer.CreateDefaultSubobject<UGridMeshComponent>(this, TEXT("SlotMeshes"));
 	SlotMeshes->SetupAttachment(RootComponent);
 	
 	// Slots
@@ -26,20 +30,29 @@
 	SelectedSlotMesh->SetupAttachment(RootComponent);
 	HoveredSlotMesh->SetupAttachment(RootComponent);
 
-
-	// Init slots
-    Slots.Init(FGridItemSlot(), GridSize.X * GridSize.Y);
-    ParallelFor(Slots.Num(), [&](int32 Idx) {
-    	Slots[Idx].SetCoordinate(Idx,GridSize.X , GridSize.Y );
-    });
+	InitSlotArray();
 
 }
 
 void AGrid::OnConstruction(const FTransform& transform)
 {
     Super::OnConstruction(transform);
-    
+
+	SelectedSlot = -1;
+	HoveredSlot = -1;
+	// init slots
+	InitSlotArray();
     SetBoundingBox();
+	DrawSlots();
+}
+
+void AGrid::InitSlotArray()
+{
+    Slots.Empty();
+	Slots.Init(FGridItemSlot(), GridSize.X * GridSize.Y);
+    ParallelFor(Slots.Num(), [&](int32 Idx) {
+    	Slots[Idx].SetCoordinate(Idx,GridSize.X , GridSize.Y );
+    });
 
 }
 
@@ -47,7 +60,6 @@ void AGrid::OnConstruction(const FTransform& transform)
 void AGrid::BeginPlay()
 {
 	Super::BeginPlay();
-	DrawSlots();
 }
 
 FVector2D AGrid::GetLocalGridPosition(const FIntPoint &pos) const
@@ -59,21 +71,38 @@ FVector2D AGrid::GetLocalGridPosition(const FIntPoint &pos) const
 
 bool AGrid::FindLookedAtPositionFromScreen(const FVector2D &screenPosition, const APlayerController* player, FIntPoint &outSlot)
 {
+	if(!player)
+	return false;
+
 	FVector position, direction;
 	bool valid = false;
 	valid = player->DeprojectScreenPositionToWorld(screenPosition.X, screenPosition.Y, position, direction );
 	
+	
+	FVector CamLoc; FRotator CamRot;
+	player->PlayerCameraManager->GetCameraViewPoint(CamLoc,CamRot);
+
 	if(!valid)
 		return false;
 	
 	FHitResult OutHit;
-	const FVector Start = position;
-	const FVector End = ((direction * 1000.f) + position);
+	const FVector Start = CamLoc;
+	const FVector End = ((direction * 10000.f) + position);
 	FCollisionQueryParams CollisionParams;
 	FCollisionObjectQueryParams ObjectCollisionParams;
 	ObjectCollisionParams.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldStatic);
-	if(!GetWorld()->LineTraceSingleByObjectType(OutHit, Start, End, ObjectCollisionParams, CollisionParams)) 
+	ObjectCollisionParams.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldDynamic);
+	ObjectCollisionParams.AddObjectTypesToQuery(ECollisionChannel::ECC_PhysicsBody);
+	valid = GetWorld()->LineTraceSingleByObjectType(OutHit, Start, End, ObjectCollisionParams, CollisionParams);
+
+#if WITH_EDITOR
+	if(bDebug)
+		UKismetSystemLibrary::DrawDebugLine(this, Start,End, valid ? FColor::Blue : FColor::Red, 1.f, 0.5f);
+#endif
+
+	if(!valid)
 		return false;
+	
 
 	if(OutHit.IsValidBlockingHit())
 	{
@@ -238,15 +267,18 @@ void AGrid::HoverSlot(FVector WorldPosition)
 
  FIntPoint AGrid::CoordFromWorldSpace(const FVector &WorldPosition)
  {
-     /*
-	const auto ClosestPoint = FVector::PointPlaneProject(WorldPosition, GetActorLocation() + GridOffset, GetActorUpVector());
-	FTransform ActorT = GetActorTransform();
-	ActorT.AddToTranslation(GridOffset);
-	const auto Local = ActorT.InverseTransformPosition(ClosestPoint);
-    return FIntPoint(ClosestPoint.X / ElementSize.X,ClosestPoint.Y / ElementSize.Y);
-	*/
+	 
+	int32 Coord;
+	
+	if(!SlotMeshes)
+		return FIntPoint();
+
     // let's use instanced mesh to do that:
     FBox NewBox = FBox::BuildAABB (WorldPosition, FVector(ElementSize, ElementSize.X));
+
+
+
+
     TArray<int32> Idxs = SlotMeshes->GetInstancesOverlappingBox(NewBox, true);
     Idxs.Sort([&WorldPosition, this](const int32 &idxA, const int32 &idxB){
         FTransform instanceA;
@@ -255,22 +287,24 @@ void AGrid::HoverSlot(FVector WorldPosition)
         SlotMeshes->GetInstanceTransform(idxA, instanceB, true);
         return FVector::Dist(instanceA.GetTranslation(), WorldPosition) < FVector::Dist(instanceB.GetTranslation(), WorldPosition);
     });
-    if(!Idxs.IsValidIndex(0))
-        return FIntPoint(0,0);
-    
-    
-    return FGridItemSlot::CoordFromIdx(Idxs[0], GridSize.X , GridSize.Y);
-	// we should now only consider X and Y for position on the grid.
+    if(Idxs.IsValidIndex(0))
+        Coord = Idxs[0];
 
+	#if WITH_EDITOR
+	if(bDebug)
+		UKismetSystemLibrary::DrawDebugBox(this,NewBox.GetCenter(), NewBox.GetExtent(), Idxs.IsValidIndex(0) ? FLinearColor::Green : FLinearColor::Red, FRotator(), 0.2f, 1.f );
+	#endif
+
+    return FGridItemSlot::CoordFromIdx(Coord, GridSize.X , GridSize.Y);
  }
 
 void AGrid::HideSlotInstanceMesh(int32 idx, bool hide)
 {
     // Set to actual transform of the idx
     FTransform insttransform;
-    SlotMeshes->GetInstanceTransform(idx, insttransform, true);
-    insttransform.SetScale3D(hide ? FVector::ZeroVector: FVector::OneVector);
-    // apply it
-    SlotMeshes->UpdateInstanceTransform( idx, insttransform, true /*bWorldSpace*/, true/*bMarkRenderStateDirty*/,false /*bTeleport*/);
+	if(hide)
+    	SlotMeshes->HideInstance(idx);
+	else
+		SlotMeshes->ShowInstance(idx);
     // enjoy
 }

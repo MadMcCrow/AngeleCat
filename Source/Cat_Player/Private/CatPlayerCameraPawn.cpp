@@ -74,7 +74,6 @@ void ACatPlayerCameraPawn::Tick(float DeltaTime)
 void ACatPlayerCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 UPawnMovementComponent* ACatPlayerCameraPawn::GetMovementComponent() const

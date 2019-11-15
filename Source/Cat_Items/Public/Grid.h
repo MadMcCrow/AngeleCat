@@ -7,7 +7,7 @@
 #include "Grid.generated.h"
 
 // forward declaration
-class UHierarchicalInstancedStaticMeshComponent;
+class UGridMeshComponent;
 class UStaticMeshComponent;
 class UBoxComponent;
 
@@ -79,7 +79,7 @@ protected:
 private:
     ///	@brief SlotMeshes		The meshes drawn to represent the Grid in real world
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = true))
-	    UHierarchicalInstancedStaticMeshComponent * SlotMeshes;
+	    UGridMeshComponent * SlotMeshes;
 
     ///	@brief SelectedSlotMesh The meshes drawn to represent the selected grid slot in real world
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = true))
@@ -95,6 +95,11 @@ private:
 
 
 public:
+
+#if WITH_EDITORONLY_DATA 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+    bool bDebug;
+#endif // WITH_EDITORONLY_DATA 
 
     UFUNCTION(BlueprintCallable, Category = "Interaction")
     bool FindLookedAtPositionFromScreen(const FVector2D &screenPosition, const APlayerController* player, FIntPoint &outSlot);
@@ -177,8 +182,9 @@ private :
 
     bool bSlotIsSelected;
 
+    UPROPERTY()
     TArray<FGridItemSlot> Slots;
+    void InitSlotArray();
 
     void HideSlotInstanceMesh(int32 idx, bool hide = true);
-
 };
