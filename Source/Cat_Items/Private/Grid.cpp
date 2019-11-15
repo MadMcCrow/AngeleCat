@@ -60,7 +60,7 @@ FVector2D AGrid::GetLocalGridPosition(const FIntPoint &pos) const
 bool AGrid::FindLookedAtPositionFromScreen(const FVector2D &screenPosition, const APlayerController* player, FIntPoint &outSlot)
 {
 	FVector position, direction;
-	bool valid = true;
+	bool valid = false;
 	valid = player->DeprojectScreenPositionToWorld(screenPosition.X, screenPosition.Y, position, direction );
 	
 	if(!valid)
@@ -72,10 +72,9 @@ bool AGrid::FindLookedAtPositionFromScreen(const FVector2D &screenPosition, cons
 	FCollisionQueryParams CollisionParams;
 	FCollisionObjectQueryParams ObjectCollisionParams;
 	ObjectCollisionParams.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldStatic);
-	if(!GetWorld()->LineTraceTestByObjectType(OutHit, Start, End, ECC_Visibility, CollisionParams)) 
+	if(!GetWorld()->LineTraceSingleByObjectType(OutHit, Start, End, ObjectCollisionParams, CollisionParams)) 
 		return false;
 
- 
 	if(OutHit.IsValidBlockingHit())
 	{
 		outSlot = CoordFromWorldSpace(OutHit.ImpactPoint);
@@ -248,8 +247,8 @@ void AGrid::HoverSlot(FVector WorldPosition)
 	*/
     // let's use instanced mesh to do that:
     FBox NewBox = FBox::BuildAABB (WorldPosition, FVector(ElementSize, ElementSize.X));
-    const auto Idxs = SlotMeshes->GetInstancesOverlappingBox(const FBox& Box, true);
-    Idxs.Sort([&WorldPosition](const int32 &idxA, const int32 &idxB){
+    TArray<int32> Idxs = SlotMeshes->GetInstancesOverlappingBox(NewBox, true);
+    Idxs.Sort([&WorldPosition, this](const int32 &idxA, const int32 &idxB){
         FTransform instanceA;
         FTransform instanceB;
         SlotMeshes->GetInstanceTransform(idxA, instanceA, true);
@@ -260,7 +259,7 @@ void AGrid::HoverSlot(FVector WorldPosition)
         return FIntPoint(0,0);
     
     
-    return FGridItemSlot::CoordFromIdx(Idxs[]);
+    return FGridItemSlot::CoordFromIdx(Idxs[0], GridSize.X , GridSize.Y);
 	// we should now only consider X and Y for position on the grid.
 
  }

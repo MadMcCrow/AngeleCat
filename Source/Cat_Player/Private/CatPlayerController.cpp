@@ -4,6 +4,7 @@
 #include "CatPlayerController.h"
 #include "PlayerGridInteraction.h"
 #include "Components/Widget.h"
+#include "CatPlayerStatics.h"
 //#include "Engine/World.h"
 //#include "GameFramework/Character.h"
 //#include "Kismet/GameplayStatics.h"
@@ -40,14 +41,7 @@ bool ACatPlayerController::IsUsingMouse() const
 
 void ACatPlayerController::EnableMouse(UWidget * inWidgetToFocus)
 {
-    FInputModeGameAndUI inputmode;
-	inputmode.SetLockMouseToViewportBehavior(EMouseLockMode::LockOnCapture);
-	inputmode.SetHideCursorDuringCapture(false);
-	if (inWidgetToFocus != nullptr)
-	{
-		inputmode.SetWidgetToFocus(inWidgetToFocus->TakeWidget());
-	}
-	SetInputMode(inputmode);
+    UCatPlayerStatics::SetPlayerInputMode(this,EUIInputMode::UI_Game, inWidgetToFocus, false);
 }
 
 void ACatPlayerController::OnClick()

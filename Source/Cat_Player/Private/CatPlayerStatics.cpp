@@ -3,6 +3,8 @@
 
 #include "CatPlayerStatics.h"
 #include "WidgetLayoutLibrary.h"
+#include "Widget.h"
+#include "GameFramework/PlayerController.h"
 
 FVector2D UCatPlayerStatics::MouseScreenBorderMove(UObject * WorldContextObject, float xThreshold,float yThreshold, bool invertXY, bool allowOutsideMovement)
 {
@@ -43,3 +45,49 @@ FVector2D UCatPlayerStatics::MouseScreenBorderMove(UObject * WorldContextObject,
 
 }
 
+void UCatPlayerStatics::SetPlayerInputMode(APlayerController * player, EUIInputMode inputMode,UWidget * inWidgetToFocus, bool bHideCursorDuringCapture)
+{
+	if (player == nullptr)	
+		return;
+
+	EMouseLockMode inMouseLockMode = EMouseLockMode::LockInFullscreen;
+		
+	switch(inputMode)
+	{
+	case EUIInputMode::UI_Only :
+		{
+			FInputModeUIOnly mode;
+			mode.SetLockMouseToViewportBehavior(inMouseLockMode);
+
+			if (inWidgetToFocus != nullptr)
+			{
+				mode.SetWidgetToFocus(inWidgetToFocus->TakeWidget());
+			}
+			player->SetInputMode(mode);
+		}
+		player->bShowMouseCursor = true;
+	break;
+	case EUIInputMode::UI_Game :
+		{
+			FInputModeGameAndUI mode;
+			mode.SetLockMouseToViewportBehavior(inMouseLockMode);
+			mode.SetHideCursorDuringCapture(bHideCursorDuringCapture);
+			if (inWidgetToFocus != nullptr)
+			{
+				mode.SetWidgetToFocus(inWidgetToFocus->TakeWidget());
+			}
+			player->SetInputMode(mode);
+		}
+		player->bShowMouseCursor = true;
+	break;
+	case EUIInputMode::Game_Only :
+		{
+			FInputModeGameOnly mode;
+			player->SetInputMode(mode);
+		}
+		player->bShowMouseCursor = false;
+	break;
+	default:
+	return;
+	};
+}
