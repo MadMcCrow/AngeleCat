@@ -15,9 +15,6 @@ class CAT_UI_API UCatTextDisplayWidget : public UCatUserWidget
 {
 	GENERATED_BODY()
 
-public:
-
-    virtual void OnWidgetRebuilt() override;
 protected:
 
     UPROPERTY(meta = (BindWidget),VisibleAnywhere, BlueprintReadOnly, Category= "Widget")

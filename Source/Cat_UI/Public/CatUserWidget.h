@@ -14,6 +14,10 @@ UCLASS(ClassGroup=(UI))
 class CAT_UI_API UCatUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+	virtual void SetVisibility(ESlateVisibility inVisibility) override;
+
 public:
 
     template<typename WidgetT, typename OwnerT>
@@ -37,6 +41,13 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "WidgetStatics")
     static void SetWidgetComponent(UWidgetComponent * comp, TSubclassOf< UCatUserWidget > userWidgetClass,  bool worldSpace = false);
-   
+
+protected:
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
+	void OnVisibilityChanged(ESlateVisibility &inVisibility);
+
+
+
 
 };

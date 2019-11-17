@@ -3,6 +3,10 @@
 #include "CatUserWidget.h"
 #include "Components/WidgetComponent.h"
 
+void UCatUserWidget::SetVisibility(ESlateVisibility inVisibility)
+{
+	Super::SetVisibility(inVisibility);
+}
 
 UCatUserWidget * UCatUserWidget::NewWidget(UActorComponent * owner, TSubclassOf< UCatUserWidget > userWidgetClass)
 {

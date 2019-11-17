@@ -1,17 +1,18 @@
 // Noe Perard-Gayot <noe.perard@gmail.com> 2019 - All Rights Reserved
 
-#include "Grid.h"
+#include "GridActor.h"
 #include "Cat_ItemsPCH.h"
 #include "Runtime/Core/Public/Async/ParallelFor.h"
 #include "GridMeshComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Components/BoxComponent.h"
+#include "SlotWidgetComponent.h"
 #if WITH_EDITOR
 #include "Kismet/KismetSystemLibrary.h"
 #endif // WITH_EDITOR
 
 
- AGrid::AGrid(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
+ AGridActor::AGridActor(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
 {
 	// default values
 	GridSize= FIntPoint(25,25);
@@ -31,11 +32,16 @@
 	SelectedSlotMesh->SetupAttachment(RootComponent);
 	HoveredSlotMesh->SetupAttachment(RootComponent);
 
-	InitSlotArray();
+	// SlotWidget
+	ActiveSlotWidget = ObjectInitializer.CreateDefaultSubobject <USlotWidgetComponent> (this, TEXT("SelectedSlotWidget"));
+	ActiveSlotWidget->SetupAttachment(RootComponent);
+	ActiveSlotWidget->SetGrid(this);
+
+ 	InitSlotArray();
 
 }
 
-void AGrid::OnConstruction(const FTransform& transform)
+void AGridActor::OnConstruction(const FTransform& transform)
 {
     Super::OnConstruction(transform);
 
@@ -47,7 +53,7 @@ void AGrid::OnConstruction(const FTransform& transform)
 	DrawSlots();
 }
 
-void AGrid::InitSlotArray()
+void AGridActor::InitSlotArray()
 {
     Slots.Empty();
 	Slots.Init(FGridItemSlot(), GridSize.X * GridSize.Y);
@@ -58,19 +64,19 @@ void AGrid::InitSlotArray()
 }
 
 
-void AGrid::BeginPlay()
+void AGridActor::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-FVector2D AGrid::GetLocalGridPosition(const FIntPoint &pos) const
+FVector2D AGridActor::GetLocalGridPosition(const FIntPoint &pos) const
 {
 	const float X = (pos.X * ElementSize.X) +(ElementSize.X * 0.5);
 	const float Y = (pos.Y * ElementSize.Y) +(ElementSize.Y * 0.5);
     return FVector2D( X, Y);
 }
 
-bool AGrid::FindLookedAtPositionFromScreen(const FVector2D &screenPosition, const APlayerController* player, FIntPoint &outSlot)
+bool AGridActor::FindLookedAtPositionFromScreen(const FVector2D &screenPosition, const APlayerController* player, FIntPoint &outSlot)
 {
 	if(!player)
 	return false;
@@ -116,7 +122,7 @@ bool AGrid::FindLookedAtPositionFromScreen(const FVector2D &screenPosition, cons
 	return valid;
 }
 
-void AGrid::DrawSlots()
+void AGridActor::DrawSlots()
 {
 	if(SlotMeshes)
 	{
@@ -129,7 +135,7 @@ void AGrid::DrawSlots()
 	}
 }
 
-void AGrid::UpdateSlots()
+void AGridActor::UpdateSlots()
 {
     // we always remove selected and hovered slot.
     // if Selected == hovered. we only do selected.
@@ -137,8 +143,16 @@ void AGrid::UpdateSlots()
     {
         SelectedSlotMesh->SetHiddenInGame(false /*hidden*/, true/*Propagate to children*/);
         SelectedSlotMesh->SetWorldTransform(GetSlotIdxWorldSpace(SelectedSlot));
+
+		// widget
+		ActiveSlotWidget->SetHiddenInGame(false);
+    	ActiveSlotWidget->Reveal();
+		ActiveSlotWidget->InitFromSlot(Slots[SelectedSlot]);
+		ActiveSlotWidget->SetWorldTransform(GetSlotIdxWorldSpace(SelectedSlot));
     }else
     {
+		ActiveSlotWidget->SetHiddenInGame(true);
+		ActiveSlotWidget->Collapse();
         SelectedSlotMesh->SetHiddenInGame(true /*hidden*/, true/*Propagate to children*/);
     }
     if(HoveredSlot != -1 && HoveredSlot != SelectedSlot)
@@ -152,7 +166,7 @@ void AGrid::UpdateSlots()
     }
 }
 
-void AGrid::SetBoundingBox()
+void AGridActor::SetBoundingBox()
 {
     // Get real actor dimensions :
     const FVector2D size2d = FVector2D(GridSize.X * ElementSize.X, GridSize.Y * ElementSize.Y);
@@ -167,7 +181,7 @@ void AGrid::SetBoundingBox()
 
 }
 
-FTransform AGrid::GetSlotIdxWorldSpace(int32 idx) const
+FTransform AGridActor::GetSlotIdxWorldSpace(int32 idx) const
 {
     const FTransform ActorT = GetActorTransform();
 	const FVector2D Local2D = GetLocalGridPosition(FGridItemSlot::CoordFromIdx(idx, GridSize.X , GridSize.Y));
@@ -176,7 +190,7 @@ FTransform AGrid::GetSlotIdxWorldSpace(int32 idx) const
 	return FTransform(ActorT.Rotator(), WorldLocation , ActorT.GetScale3D());
 }
 
-void AGrid::SelectSlot(int32 idx)
+void AGridActor::SelectSlot(int32 idx)
 {
     // ignore no change
     if(SelectedSlot == idx)
@@ -196,29 +210,29 @@ void AGrid::SelectSlot(int32 idx)
     UpdateSlots();
 }
 
-void AGrid::SelectSlot(int32 X, int32 Y)
+void AGridActor::SelectSlot(int32 X, int32 Y)
 {
 	SelectSlot(FGridItemSlot::IndexFromCoord(FIntPoint(X,Y), GridSize.X , GridSize.Y ));
 }
 
-void AGrid::SelectSlot(FIntPoint coord)
+void AGridActor::SelectSlot(FIntPoint coord)
 {
 	SelectSlot(FGridItemSlot::IndexFromCoord(coord, GridSize.X , GridSize.Y ));
 }
 
-void AGrid::SelectSlot(FVector WorldPosition)
+void AGridActor::SelectSlot(FVector WorldPosition)
 {
 	SelectSlot(CoordFromWorldSpace(WorldPosition));
 }
 
-void AGrid::DeselectSlot()
+void AGridActor::DeselectSlot()
 {
     PreviousSelectedSlot = SelectedSlot;
 	SelectedSlot = -1;
 	bSlotIsSelected = false;
 }
 
-void AGrid::HoverSlot(int32 idx)
+void AGridActor::HoverSlot(int32 idx)
 {
     // ignore no change
     if(HoveredSlot == idx)
@@ -234,25 +248,25 @@ void AGrid::HoverSlot(int32 idx)
     UpdateSlots();
 }
 
-void AGrid::HoverSlot(int32 X, int32 Y)
+void AGridActor::HoverSlot(int32 X, int32 Y)
 {
 	HoverSlot(FGridItemSlot::IndexFromCoord(FIntPoint(X,Y), GridSize.X , GridSize.Y ));
 }
 
-void AGrid::HoverSlot(FIntPoint coord)
+void AGridActor::HoverSlot(FIntPoint coord)
 {
 	HoverSlot(FGridItemSlot::IndexFromCoord(coord, GridSize.X , GridSize.Y ));
 }
 
-void AGrid::HoverSlot(FVector WorldPosition)
+void AGridActor::HoverSlot(FVector WorldPosition)
 {
 	HoverSlot(CoordFromWorldSpace(WorldPosition));
 }
 
- FIntPoint AGrid::CoordFromWorldSpace(const FVector &WorldPosition)
+ FIntPoint AGridActor::CoordFromWorldSpace(const FVector &WorldPosition)
  {
 	 
-	int32 Coord;
+	int32 Coord = -1;
 	
 	if(!SlotMeshes)
 		return FIntPoint();
@@ -282,7 +296,7 @@ void AGrid::HoverSlot(FVector WorldPosition)
     return FGridItemSlot::CoordFromIdx(Coord, GridSize.X , GridSize.Y);
  }
 
-void AGrid::HideSlotInstanceMesh(int32 idx, bool hide)
+void AGridActor::HideSlotInstanceMesh(int32 idx, bool hide)
 {
     // Set to actual transform of the idx
     FTransform insttransform;

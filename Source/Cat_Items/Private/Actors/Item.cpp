@@ -19,7 +19,6 @@ void AItem::SetFromData(const FItemStaticData &in)
     {
         StaticMesh->SetStaticMesh(Info.GetMesh());
     }
-
 }
 
 void AItem::SetFromDataAsset(const UItemData * in)

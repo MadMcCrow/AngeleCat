@@ -4,21 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Grid.generated.h"
+#include "GridActor.generated.h"
 
 // forward declaration
 class UGridMeshComponent;
 class UStaticMeshComponent;
 class UBoxComponent;
+class USlotWidgetComponent;
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FGridItemSlot
 {
     GENERATED_BODY()
 protected:
 
     UPROPERTY()
-    FIntPoint coordinate;
+    FIntPoint Coordinate;
 
     UPROPERTY()
     bool bIsEmpty;
@@ -28,10 +29,10 @@ protected:
 
 public:
 
-    FGridItemSlot(FIntPoint coord = FIntPoint(0,0), bool empty = true, AActor * obj = nullptr) : coordinate(coord), bIsEmpty(empty), Item(obj)
+    FGridItemSlot(FIntPoint coord = FIntPoint(0,0), bool empty = true, AActor * obj = nullptr) : Coordinate(coord), bIsEmpty(empty), Item(obj)
     {}
 
-	void SetCoordinate(int32 idx, int32 XDim, int32 YDim)	{coordinate = CoordFromIdx(idx, XDim, YDim);}
+	void SetCoordinate(int32 idx, int32 XDim, int32 YDim)	{ Coordinate = CoordFromIdx(idx, XDim, YDim);}
 
     static FIntPoint CoordFromIdx(int32 idx, int32 XDim, int32 YDim)
     {
@@ -45,17 +46,20 @@ public:
         return (coord.Y % YDim) * XDim + (coord.X % XDim);
     }
 
+	bool IsEmpty() const { return bIsEmpty; }
+	AActor * GetItem() const { return Item; }
+	FIntPoint GetCoordinate() const { return Coordinate; }
 };
 
 
 UCLASS()
-class CAT_ITEMS_API AGrid : public AActor
+class CAT_ITEMS_API AGridActor : public AActor
 {
 	GENERATED_BODY()
 
 public:
 
-    AGrid(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
+    AGridActor(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
 
     virtual void OnConstruction(const FTransform& transform) override;
     virtual void BeginPlay() override;
@@ -92,6 +96,10 @@ private:
     ///	@brief HoveredSlotMesh	The meshes drawn to represent the hovered grid slot in real world
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = true))
 	    UBoxComponent * GlobalGridCollision;
+
+	///	@brief HoveredSlotMesh	The meshes drawn to represent the hovered grid slot in real world
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widget", meta = (AllowPrivateAccess = true))
+		USlotWidgetComponent * ActiveSlotWidget;
 
 
 public:

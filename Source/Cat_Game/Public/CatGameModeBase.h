@@ -15,5 +15,10 @@ class CAT_GAME_API ACatGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 	ACatGameModeBase(const FObjectInitializer &ObjectInitializer);
+
+public:
+
+	
+
 	
 };

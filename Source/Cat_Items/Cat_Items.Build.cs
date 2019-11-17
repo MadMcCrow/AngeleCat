@@ -15,6 +15,9 @@ public class Cat_Items : ModuleRules
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine" });
         PublicDependencyModuleNames.AddRange(new string[] { "Cat_Character" });
 
+        // UI base widget specialized in this module through child widgets
+        PrivateDependencyModuleNames.AddRange(new string[] { "Cat_UI" });
+
         //The path for the header files
         PublicIncludePaths.AddRange(new string[] { "Cat_Items/Public" });
 

@@ -3,5 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+// default player classes
 #include "CatPlayerController.h"
 #include "CatPlayerCameraPawn.h"
+#include "CatPlayerState.h"

@@ -5,6 +5,8 @@
 #include "CatUserWidget.h"
 #include "CatContextWidget.generated.h"
 
+class UTextBlock;
+
 /// @brief UCatUserWidget		base class for user widget
 UCLASS()
 class CAT_UI_API UCatContextWidget : public UCatUserWidget
@@ -12,10 +14,13 @@ class CAT_UI_API UCatContextWidget : public UCatUserWidget
 	GENERATED_BODY()
 protected:
 
-    UPROPERTY(meta = (BindWidget),VisibleAnywhere, BlueprintReadOnly, Category= "Widget")
+    UPROPERTY(meta = (BindWidget), EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
     UTextBlock * WTitle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Text", meta = (BlueprintSetter = "SetTitle"))
+	FText TitleText;
     
-    UPROPERTY(meta = (BindWidget),VisibleAnywhere, BlueprintReadOnly, Category= "Widget")
+    UPROPERTY(meta = (BindWidget), EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
     UPanelWidget * WSubWidgetContainer;
 
 public:
@@ -28,5 +33,9 @@ public:
     {
         return CreateChild<UUserWidget>(UserWidgetClass,WidgetName);
     }
+
+	UFUNCTION(BlueprintCallable, BlueprintSetter, Category = "Widget")
+	void SetTitle(const FText &in);
+
 
 };

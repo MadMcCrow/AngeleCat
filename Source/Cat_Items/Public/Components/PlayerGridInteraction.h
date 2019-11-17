@@ -7,7 +7,7 @@
 #include "PlayerGridInteraction.generated.h"
 
 
-class AGrid;
+class AGridActor;
 class APlayerController;
 
 UCLASS( ClassGroup=(PlayerController), meta=(BlueprintSpawnableComponent) )
@@ -34,7 +34,7 @@ public:
 	virtual void TrySelect();
 
 	UFUNCTION(BlueprintPure, Category = "Selection")
-	virtual bool GetSelected(AGrid * &outGrid, FIntPoint &outCoord);
+	virtual bool GetSelected(AGridActor * &outGrid, FIntPoint &outCoord);
 
 protected:
 
@@ -49,13 +49,13 @@ protected:
 private:
 
 	UPROPERTY()
-	TArray<AGrid *> GridActors;
+	TArray<AGridActor *> GridActors;
 
 	UPROPERTY(transient)
-	TMap<AGrid *, FIntPoint> GridActorsPosition;
+	TMap<AGridActor *, FIntPoint> GridActorsPosition;
 	
 	UPROPERTY(transient)
-	AGrid * SelectedGrid;
+	AGridActor * SelectedGrid;
 
 	UPROPERTY(transient)
 	FIntPoint SelectedGridPosition;

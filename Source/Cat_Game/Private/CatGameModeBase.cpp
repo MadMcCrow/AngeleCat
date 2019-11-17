@@ -9,4 +9,5 @@ ACatGameModeBase::ACatGameModeBase(const FObjectInitializer &ObjectInitializer) 
 {
     DefaultPawnClass = ACatPlayerCameraPawn::StaticClass();
     PlayerControllerClass = ACatPlayerController::StaticClass();
+	PlayerStateClass = ACatPlayerState::StaticClass();
 }

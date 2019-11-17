@@ -3,7 +3,7 @@
 
 #include "PlayerGridInteraction.h"
 #include "EngineUtils.h"
-#include "Grid.h"
+#include "GridActor.h"
 
 // Sets default values for this component's properties
 UPlayerGridInteraction::UPlayerGridInteraction()
@@ -42,7 +42,7 @@ void UPlayerGridInteraction::TrySelect()
 	}
 }
 
-bool UPlayerGridInteraction::GetSelected(AGrid * &outGrid, FIntPoint &outCoord)
+bool UPlayerGridInteraction::GetSelected(AGridActor * &outGrid, FIntPoint &outCoord)
 {
 	if(SelectedGrid)
 	{
@@ -93,9 +93,9 @@ void UPlayerGridInteraction::UpdateGrids()
 void UPlayerGridInteraction::InitGrids()
 {
 	const auto World = GetWorld(); 
-	for(TActorIterator<AGrid> It(World, AGrid::StaticClass()); It; ++It)
+	for(TActorIterator<AGridActor> It(World, AGridActor::StaticClass()); It; ++It)
 	{
-		AGrid* Actor = *It;
+		AGridActor* Actor = *It;
 		GridActors.Add(Actor);
 	}
 }
