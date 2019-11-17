@@ -7,12 +7,15 @@
 		{
 			"Name": "AngeleCat",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
 		},
 		{
 			"Name": "Cat_Character",
 			"Type": "Runtime",
-			"LoadingPhase": "Default",
+			"LoadingPhase": "PostEngineInit",
 			"AdditionalDependencies": [
 				"AIModule",
 				"Engine"
@@ -24,19 +27,24 @@
 			"LoadingPhase": "Default"
 		},
 		{
+			"Name": "Cat_UI",
+			"Type": "Runtime",
+			"LoadingPhase": "PreEarlyLoadingScreen",
+			"AdditionalDependencies": [
+				"UMG"
+			]
+		},
+		{
 			"Name": "Cat_Game",
 			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"Engine"
-			]
+			"LoadingPhase": "Default"
 		},
 		{
 			"Name": "Cat_Items",
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"Engine"
+				"UMG"
 			]
 		}
 	]
