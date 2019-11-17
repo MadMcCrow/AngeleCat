@@ -8,8 +8,7 @@
 #include "GridActor.h"
 #include "SlotWidgetComponent.generated.h"
 
-class UCatContextWidget;
-
+class USlotWidget;
 
 /**
  * 
@@ -28,7 +27,7 @@ public:
 	virtual void InitWidget() override;
 
 	UFUNCTION(BlueprintPure, Category = "Widget")
-	UCatContextWidget * GetContextWidget() const;
+	USlotWidget * GetContextWidget() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Widget")
 	void InitFromSlot(const FGridItemSlot &Slot);
@@ -64,7 +63,7 @@ protected:
 private:
 
 	UPROPERTY()
-	UCatContextWidget * ContextWidget;
+	USlotWidget * ContextWidget;
 
 	UPROPERTY()
 	FIntPoint SlotCoordinate;

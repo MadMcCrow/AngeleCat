@@ -1,7 +1,7 @@
 // Noe Perard-Gayot <noe.perard@gmail.com> 2019 - All Rights Reserved
 
 #include "SlotWidgetComponent.h"
-#include "CatContextWidget.h"
+#include "Widgets/SlotWidget.h"
 
 #define LOCTEXT_NAMESPACE "SlotWidget"
 
@@ -14,10 +14,10 @@ USlotWidgetComponent::USlotWidgetComponent() : Super()
 void USlotWidgetComponent::InitWidget()
 {
 	Super::InitWidget();
-	ContextWidget = Cast<UCatContextWidget>(GetUserWidgetObject());
+	ContextWidget = Cast<USlotWidget>(GetUserWidgetObject());
 }
 
-UCatContextWidget* USlotWidgetComponent::GetContextWidget() const
+USlotWidget* USlotWidgetComponent::GetContextWidget() const
 {
 	return ContextWidget;
 }
