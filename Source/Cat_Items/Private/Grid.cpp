@@ -23,6 +23,7 @@
 	RootComponent = GlobalGridCollision;
 	SlotMeshes = ObjectInitializer.CreateDefaultSubobject<UGridMeshComponent>(this, TEXT("SlotMeshes"));
 	SlotMeshes->SetupAttachment(RootComponent);
+	SlotMeshes->SetHiddenInGame(true); // it should be invisible and only used for collisions
 	
 	// Slots
 	SelectedSlotMesh	= ObjectInitializer.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("SelectedSlotMesh"));
@@ -125,17 +126,6 @@ void AGrid::DrawSlots()
 			const FTransform InstanceTransform = GetSlotIdxWorldSpace(Idx);
 			SlotMeshes->AddInstanceWorldSpace(InstanceTransform);
 		}
-		// this crashes
-		/*
-		FCriticalSection Mutex;
-		ParallelFor(Slots.Num(), [this, &Mutex](int32 Idx) {
-			const FTransform InstanceTransform = GetSlotIdxWorldSpace(Idx);
-			// Add instance mesh
-			Mutex.Lock();
-			SlotMeshes->AddInstanceWorldSpace(InstanceTransform);
-			Mutex.Unlock();
-		});
-		*/
 	}
 }
 
@@ -147,9 +137,6 @@ void AGrid::UpdateSlots()
     {
         SelectedSlotMesh->SetHiddenInGame(false /*hidden*/, true/*Propagate to children*/);
         SelectedSlotMesh->SetWorldTransform(GetSlotIdxWorldSpace(SelectedSlot));
-        HideSlotInstanceMesh(SelectedSlot, true);
-        if(PreviousSelectedSlot != -1)
-            HideSlotInstanceMesh(PreviousSelectedSlot, false);
     }else
     {
         SelectedSlotMesh->SetHiddenInGame(true /*hidden*/, true/*Propagate to children*/);
@@ -157,10 +144,7 @@ void AGrid::UpdateSlots()
     if(HoveredSlot != -1 && HoveredSlot != SelectedSlot)
     {
         HoveredSlotMesh->SetHiddenInGame(false /*hidden*/, true/*Propagate to children*/);
-        HoveredSlotMesh->SetWorldTransform(GetSlotIdxWorldSpace(HoveredSlot));
-        HideSlotInstanceMesh(HoveredSlot, true);
-        if(PreviousHoveredSlot != -1)
-            HideSlotInstanceMesh(PreviousHoveredSlot, false);
+		HoveredSlotMesh->SetWorldTransform(GetSlotIdxWorldSpace(HoveredSlot);
     }
     else
     {
