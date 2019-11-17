@@ -144,7 +144,7 @@ void AGrid::UpdateSlots()
     if(HoveredSlot != -1 && HoveredSlot != SelectedSlot)
     {
         HoveredSlotMesh->SetHiddenInGame(false /*hidden*/, true/*Propagate to children*/);
-		HoveredSlotMesh->SetWorldTransform(GetSlotIdxWorldSpace(HoveredSlot);
+		HoveredSlotMesh->SetWorldTransform(GetSlotIdxWorldSpace(HoveredSlot));
     }
     else
     {

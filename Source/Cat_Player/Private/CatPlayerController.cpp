@@ -14,6 +14,8 @@
 ACatPlayerController::ACatPlayerController(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer), MouseWheelSpeed(1.f)
 {
     GridInteractComp = ObjectInitializer.CreateDefaultSubobject<UPlayerGridInteraction>(this, TEXT("GridInteractionComponent"));
+	ClickActionName = TEXT("Select");
+	MouseWheelAxisName = TEXT("Zoom");
 }
 
 void ACatPlayerController::SetupInputComponent()
