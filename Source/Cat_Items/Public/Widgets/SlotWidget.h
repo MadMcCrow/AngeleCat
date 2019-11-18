@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "ItemData.h"
-#include "SlotWidgetComponent.generated.h"
+#include "SlotWidget.generated.h"
 
 class UCatContextWidget;
 class USlotWidgetComponent;
@@ -20,18 +20,11 @@ class CAT_ITEMS_API USlotWidget : public UUserWidget
 	
 	friend USlotWidgetComponent;
 
+    virtual void OnWidgetRebuilt() override;
+
 public:
 
     virtual void SetVisibility(ESlateVisibility inVisibility) override;
-
-
-protected:
-
-    UPROPERTY(meta = (BindWidget), EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
-    UCatContextWidget * WMainSlotWindow;
-
-    UPROPERTY(meta = (BindWidget), EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
-    UCatContextWidget * WItemListWindow;
 
     UFUNCTION(BlueprintCallable, Category = "ItemList")
     void ShowItemList(bool Visible);
@@ -41,6 +34,25 @@ protected:
 
     UFUNCTION(BlueprintCallable, Category = "Init")
     void SetFromData(const FItemStaticData &data);
+
+    UFUNCTION(BlueprintCallable, Category = "Init")
+    void SetFromEmptySlot();
+
+    UFUNCTION(BlueprintCallable, Category = "Init")
+    void SetTitle(const FText &title);
+
+
+protected:
+
+    UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category= "Widget")
+    UCatContextWidget * WMainSlotWindow;
+
+    UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category= "Widget")
+    UCatContextWidget * WItemListWindow;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Item")
+    bool bCanShowItemList;
+
 
 private:
 

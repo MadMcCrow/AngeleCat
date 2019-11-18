@@ -2,23 +2,17 @@
 
 #pragma once
 
-#include "CatUserWidget.h"
+#include "CatTextDisplayWidget.h"
 #include "CatContextWidget.generated.h"
 
 class UTextBlock;
 
 /// @brief UCatUserWidget		base class for user widget
 UCLASS()
-class CAT_UI_API UCatContextWidget : public UCatUserWidget
+class CAT_UI_API UCatContextWidget : public UCatTextDisplayWidget
 {
 	GENERATED_BODY()
 protected:
-
-    UPROPERTY(meta = (BindWidget), EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
-    UTextBlock * WTitle;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Text", meta = (BlueprintSetter = "SetTitle"))
-	FText TitleText;
     
     UPROPERTY(meta = (BindWidget), EditDefaultsOnly, BlueprintReadOnly, Category= "Widget")
     UPanelWidget * WSubWidgetContainer;
@@ -34,8 +28,8 @@ public:
         return CreateChild<UUserWidget>(UserWidgetClass,WidgetName);
     }
 
-	UFUNCTION(BlueprintCallable, BlueprintSetter, Category = "Widget")
-	void SetTitle(const FText &in);
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	void SetTitle(const FText &in) {SetText(in);}
 
 
 };

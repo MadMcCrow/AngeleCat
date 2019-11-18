@@ -40,7 +40,12 @@ protected:
 
 public:
 
-    UStaticMesh * GetMesh() const {return VisibleMesh;}
+    FORCEINLINE UStaticMesh * GetMesh() const   {return VisibleMesh;}
+    FORCEINLINE FText GetTextName() const       {return LocalizedName;}
+    FORCEINLINE FText GetDescription() const    {return Description;}
+    FORCEINLINE int32 GetCost() const           {return Cost;}
+    FORCEINLINE ECatNeed GetType() const        {return NeedType;}
+    FORCEINLINE float GetEfficiency() const     {return MaxEfficiency;}
 };
 
 UCLASS()
@@ -68,6 +73,9 @@ public:
 
 	virtual FVector GetCatNeedLocation() const override { return UseLocation; }
     virtual void Use(float Amount, AAICatController * Controller) override;
+
+    UFUNCTION(BlueprintCallable, Category = "Setup")
+    FORCEINLINE FItemStaticData GetStaticData() const {return Info;}
 
 
 protected:

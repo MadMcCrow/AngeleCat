@@ -122,6 +122,16 @@ bool AGridActor::FindLookedAtPositionFromScreen(const FVector2D &screenPosition,
 	return valid;
 }
 
+AActor * AGridActor::GetItemAtCoordinate(const FIntPoint &coord)
+{
+	const FGridItemSlot * griditemslot = Slots.FindByPredicate([&coord](const FGridItemSlot &itr){
+		return itr.GetCoordinate() == coord;
+	});
+	if(griditemslot)
+		return griditemslot->GetItem();
+	return nullptr;
+}
+
 void AGridActor::DrawSlots()
 {
 	if(SlotMeshes)

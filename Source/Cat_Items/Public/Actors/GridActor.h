@@ -115,6 +115,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "Navigation" )
     FORCEINLINE int32 IdxFromCoordinate(const FIntPoint &coord) { return FGridItemSlot::IndexFromCoord(coord, GridSize.X, GridSize.Y);}
 
+    UFUNCTION(BlueprintPure, Category = "Get")
+    AActor * GetItemAtCoordinate(const FIntPoint &coord);
+
     UFUNCTION(BlueprintCallable, Category = "Rendering")
     void DrawSlots();
 

@@ -4,6 +4,12 @@
 #include "Cat_UIPCH.h"
 
 
+void UCatTextDisplayWidget::NativeConstruct()
+{
+    Super::NativeConstruct();
+    SetText(DisplayText);
+}
+
 void UCatTextDisplayWidget::SetText(const FText &inText)
 {
     if(WDisplayText)

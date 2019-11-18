@@ -17,10 +17,3 @@ WidgetT * UCatContextWidget::CreateChild(TSubclassOf< UUserWidget > UserWidgetCl
 
     return widget;
 }
-
- void UCatContextWidget::SetTitle(const FText &in)
-{
-	 TitleText = in;
-	 if (WTitle)
-		 WTitle->SetText(in);
-}

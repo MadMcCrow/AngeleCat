@@ -2,15 +2,17 @@
 
 #include "CatButtonWidget.h"
 
+#define RESETDYNAMIC(x,y,z) y.RemoveDynamic( x, z); y.AddDynamic(x, z);
+
 void UCatButtonWidget::OnWidgetRebuilt()
 {
     Super::OnWidgetRebuilt();
     if(WButton)
     {
-        WButton->OnClicked.AddDynamic(this,  &UCatButtonWidget::OnClicked_impl);
-        WButton->OnPressed.AddDynamic(this,  &UCatButtonWidget::OnPressed_impl);
-        WButton->OnReleased.AddDynamic(this, &UCatButtonWidget::OnReleased_impl);
-        WButton->OnHovered.AddDynamic(this,  &UCatButtonWidget::OnHovered_impl);
+        RESETDYNAMIC( this, WButton->OnClicked,  &UCatButtonWidget::OnClicked_impl);
+        RESETDYNAMIC( this, WButton->OnPressed,  &UCatButtonWidget::OnPressed_impl);
+        RESETDYNAMIC( this, WButton->OnReleased, &UCatButtonWidget::OnReleased_impl);
+        RESETDYNAMIC( this, WButton->OnHovered,  &UCatButtonWidget::OnHovered_impl);
     }
 }
 

@@ -3,7 +3,7 @@
 #include "SlotWidgetComponent.h"
 #include "Widgets/SlotWidget.h"
 
-#define LOCTEXT_NAMESPACE "SlotWidget"
+#define LOCTEXT_NAMESPACE "SlotWidgetComponent"
 
 USlotWidgetComponent::USlotWidgetComponent() : Super()
 {
@@ -25,11 +25,6 @@ USlotWidget* USlotWidgetComponent::GetContextWidget() const
 void USlotWidgetComponent::InitFromSlot(const FGridItemSlot& Slot)
 {
 	SlotCoordinate = Slot.GetCoordinate();
-	if (GetContextWidget())
-	{
-		const FText Source = FText::Format(LOCTEXT("TitleText	", " Item At {0} {1}"), SlotCoordinate.X, SlotCoordinate.Y);
-		GetContextWidget()->SetTitle(Source);
-	}
 
 
 	if(Slot.IsEmpty())
@@ -74,14 +69,28 @@ void USlotWidgetComponent::BuyData(const FItemStaticData& Data)
 
 }
 
-
-
 void USlotWidgetComponent::InitFromFilledSlot()
 {
+	if(Grid)
+	{
+		AActor *  target = Grid->GetItemAtCoordinate(SlotCoordinate);
+		if(!target)
+			return;
+		AItem * item = Cast<AItem>(target);
+		if(!item)
+			return;
+	
+		const auto Data = item->GetStaticData();
+		const FText Source = FText::Format(LOCTEXT("TitleText", " {0} ({1},{2})"),Data.GetTextName(), SlotCoordinate.X, SlotCoordinate.Y);
+		GetContextWidget()->SetFromData(item->GetStaticData());
+	}
 }
 
 void USlotWidgetComponent::InitFromEmptySlot()
 {
+		const FText Source = FText::Format(LOCTEXT("TitleText", " Empty slot ({0},{1})"), SlotCoordinate.X, SlotCoordinate.Y);
+		GetContextWidget()->SetTitle(Source);
+		GetContextWidget()->SetFromEmptySlot();
 }
 
 #undef LOCTEXT_NAMESPACE
