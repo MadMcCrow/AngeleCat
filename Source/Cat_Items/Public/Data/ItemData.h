@@ -32,5 +32,6 @@ public:
     UFUNCTION(BlueprintPure, Category = "Statics")
     static int32 GetCost(const FItemStaticData &in) {return in.GetCost();}
 
+    bool GetAllItemAssets(TArray<UItemData *> Assets, UItemData* Asset);
 
 };
