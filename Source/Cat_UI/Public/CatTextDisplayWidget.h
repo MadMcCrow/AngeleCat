@@ -17,7 +17,8 @@ class CAT_UI_API UCatTextDisplayWidget : public UCatUserWidget
 
 public :
 
-virtual void NativeConstruct() override;
+    virtual void NativeConstruct() override;
+    virtual void OnWidgetRebuilt() override;
 
 protected:
 

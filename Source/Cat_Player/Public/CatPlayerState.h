@@ -22,21 +22,21 @@ class CAT_PLAYER_API ACatPlayerState : public APlayerState
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Funds")
-	float MoneyScore;
+	int32 MoneyScore;
 
 public:
 
 	UFUNCTION(BlueprintPure, Category = "Funds")
-	float GetMoney() const;
+	int32 GetMoney() const;
 
 	UFUNCTION(BlueprintPure, Category = "Funds|Purchase")
-	bool CanSpend(float amount) const;
+	bool CanSpend(int32 amount) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Funds|Purchase")
-	bool TrySpend(float amount);
+	bool TrySpend(int32 amount);
 
 	UFUNCTION(BlueprintCallable, Category = "Funds|Earn")
-	void Earn(float amount);
+	void Earn(int32 amount);
 
 	UPROPERTY(BlueprintAssignable, Category = "Funds|Events")
 	FFundChange OnIncreasedEvent;

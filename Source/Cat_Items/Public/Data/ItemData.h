@@ -26,5 +26,11 @@ public:
     UFUNCTION(BlueprintPure)
     FItemStaticData GetData() const {return Data;}
 
+    UFUNCTION(BlueprintPure, Category = "Statics")
+    static FText GetName(const FItemStaticData &in) {return in.GetTextName();}
+
+    UFUNCTION(BlueprintPure, Category = "Statics")
+    static int32 GetCost(const FItemStaticData &in) {return in.GetCost();}
+
 
 };

@@ -29,7 +29,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Screen Position")
 	virtual void SetCursorScreenPosition(const FVector2D &in);
-
+	
 	UFUNCTION()
 	virtual void TrySelect();
 

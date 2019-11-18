@@ -10,6 +10,12 @@ void UCatTextDisplayWidget::NativeConstruct()
     SetText(DisplayText);
 }
 
+void UCatTextDisplayWidget::OnWidgetRebuilt()
+{
+    Super::OnWidgetRebuilt();
+    SetText(DisplayText);
+}
+
 void UCatTextDisplayWidget::SetText(const FText &inText)
 {
     if(WDisplayText)

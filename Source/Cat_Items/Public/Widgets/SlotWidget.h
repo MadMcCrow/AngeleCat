@@ -41,6 +41,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Init")
     void SetTitle(const FText &title);
 
+    UFUNCTION(BlueprintCallable, Category = "Widget")
+	virtual void Collapse();
+
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	virtual void Reveal();
+
 
 protected:
 

@@ -64,8 +64,18 @@ void USlotWidget::SetFromEmptySlot()
 
 void USlotWidget::SetTitle(const FText &title)
 {
-
+    WMainSlotWindow->SetTitle(title);
 }
 
+
+void USlotWidget::Collapse()
+{
+    SetVisibility(ESlateVisibility::Collapsed);
+}
+
+void USlotWidget::Reveal()
+{
+    SetVisibility(ESlateVisibility::Visible);
+}
 
 #undef LOCTEXT_NAMESPACE

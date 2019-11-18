@@ -2,16 +2,18 @@
 
 #include "CatPlayerState.h"
 
-float ACatPlayerState::GetMoney() const
+#define MONEYMAX 2147483648
+
+int32 ACatPlayerState::GetMoney() const
 {
 	return MoneyScore;
 }
-bool ACatPlayerState::CanSpend(float amount) const
+bool ACatPlayerState::CanSpend(int32 amount) const
 {
 	return (amount <= GetMoney());
 }
 
-bool ACatPlayerState::TrySpend(float amount)
+bool ACatPlayerState::TrySpend(int32 amount)
 {
 	if(CanSpend(amount))
 	{
@@ -22,8 +24,9 @@ bool ACatPlayerState::TrySpend(float amount)
 	return false;
 }
 
-void ACatPlayerState::Earn(float amount)
+void ACatPlayerState::Earn(int32 amount)
 {
-	MoneyScore += amount;
+	if(MoneyScore + amount <=MONEYMAX)
+		MoneyScore += amount;
 	OnIncreasedEvent.Broadcast();
 }

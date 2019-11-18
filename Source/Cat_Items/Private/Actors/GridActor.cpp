@@ -149,22 +149,27 @@ void AGridActor::UpdateSlots()
 {
     // we always remove selected and hovered slot.
     // if Selected == hovered. we only do selected.
-    if(SelectedSlot != -1)
-    {
-        SelectedSlotMesh->SetHiddenInGame(false /*hidden*/, true/*Propagate to children*/);
-        SelectedSlotMesh->SetWorldTransform(GetSlotIdxWorldSpace(SelectedSlot));
+	if(SelectedSlot != PreviousSelectedSlot)
+	{
+		PreviousSelectedSlot = SelectedSlot; // avoid doing this twice
+		if(SelectedSlot != -1)
+		{
+			SelectedSlotMesh->SetHiddenInGame(false /*hidden*/, true/*Propagate to children*/);
+			SelectedSlotMesh->SetWorldTransform(GetSlotIdxWorldSpace(SelectedSlot));
 
-		// widget
-		ActiveSlotWidget->SetHiddenInGame(false);
-    	ActiveSlotWidget->Reveal();
-		ActiveSlotWidget->InitFromSlot(Slots[SelectedSlot]);
-		ActiveSlotWidget->SetWorldTransform(GetSlotIdxWorldSpace(SelectedSlot));
-    }else
-    {
-		ActiveSlotWidget->SetHiddenInGame(true);
-		ActiveSlotWidget->Collapse();
-        SelectedSlotMesh->SetHiddenInGame(true /*hidden*/, true/*Propagate to children*/);
-    }
+			// widget
+			ActiveSlotWidget->SetHiddenInGame(false);
+			ActiveSlotWidget->Reveal();
+			ActiveSlotWidget->InitFromSlot(Slots[SelectedSlot]);
+			ActiveSlotWidget->SetWorldTransform(GetSlotIdxWorldSpace(SelectedSlot));
+		}else
+		{
+			ActiveSlotWidget->SetHiddenInGame(true);
+			ActiveSlotWidget->Collapse();
+			SelectedSlotMesh->SetHiddenInGame(true /*hidden*/, true/*Propagate to children*/);
+		}
+	}
+	if(HoveredSlot != PreviousHoveredSlot)
     if(HoveredSlot != -1 && HoveredSlot != SelectedSlot)
     {
         HoveredSlotMesh->SetHiddenInGame(false /*hidden*/, true/*Propagate to children*/);
@@ -202,11 +207,11 @@ FTransform AGridActor::GetSlotIdxWorldSpace(int32 idx) const
 
 void AGridActor::SelectSlot(int32 idx)
 {
+	PreviousSelectedSlot = SelectedSlot;
     // ignore no change
     if(SelectedSlot == idx)
         return;
 
-    PreviousSelectedSlot = Slots.IsValidIndex(SelectedSlot) ? SelectedSlot : -1;
 	if(Slots.IsValidIndex(idx))
 	{
 		SelectedSlot = idx;
@@ -237,7 +242,6 @@ void AGridActor::SelectSlot(FVector WorldPosition)
 
 void AGridActor::DeselectSlot()
 {
-    PreviousSelectedSlot = SelectedSlot;
 	SelectedSlot = -1;
 	bSlotIsSelected = false;
 }
@@ -247,6 +251,8 @@ void AGridActor::HoverSlot(int32 idx)
     // ignore no change
     if(HoveredSlot == idx)
         return;
+
+	PreviousHoveredSlot = HoveredSlot;
 	if(Slots.IsValidIndex(idx))
 	{
 		HoveredSlot = idx;
