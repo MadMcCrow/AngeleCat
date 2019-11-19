@@ -125,7 +125,7 @@ public:
     AActor * GetItemAtCoordinate(const FIntPoint &coord);
 
     UFUNCTION(BlueprintPure, Category = "Get")
-    TSubclassOf<AItem>  GetItemBaseClass();
+    virtual TSubclassOf<AItem>  GetItemBaseClass() {return BaseItemClass; }
 
     UFUNCTION(BlueprintCallable, Category = "Item")
     void SetActorInSlot(AActor * actor, const FIntPoint &coord);

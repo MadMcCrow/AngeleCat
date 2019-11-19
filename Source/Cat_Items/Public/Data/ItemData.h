@@ -18,12 +18,12 @@ class CAT_ITEMS_API UItemData : public UPrimaryDataAsset
 	GENERATED_BODY()
 protected:
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data", meta = (ShowOnlyInnerProperties) )
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data", meta = (ShowOnlyInnerProperties, AssetBundles = "Items"),  AssetRegistrySearchable)
     FItemStaticData Data;
 
 public:
 
-    UFUNCTION(BlueprintPure)
+    UFUNCTION(BlueprintPure,Category = "Data")
     FItemStaticData GetData() const {return Data;}
 
     UFUNCTION(BlueprintPure, Category = "Statics")
@@ -32,6 +32,11 @@ public:
     UFUNCTION(BlueprintPure, Category = "Statics")
     static int32 GetCost(const FItemStaticData &in) {return in.GetCost();}
 
-    bool GetAllItemAssets(TArray<UItemData *> Assets, UItemData* Asset);
+    UFUNCTION(BlueprintCallable, Category = "Statics|Assets")
+    static bool GetAllItemAssetsByClass(TArray<UItemData *> &Assets, UItemData* Asset);
+
+    UFUNCTION(BlueprintCallable, Category = "Statics|Assets")
+    static bool GetAllItemAssets(TArray<UItemData *> &Assets);
+
 
 };

@@ -49,10 +49,10 @@ public:
 protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Buy")
-	void BuyAsset(UItemData * Data);
+	bool BuyAsset(UItemData * Data);
 
 	UFUNCTION(BlueprintCallable, Category = "Buy")
-	void BuyData(const FItemStaticData &Data);
+	bool BuyData(const FItemStaticData &Data);
 
 
 	virtual void InitFromEmptySlot();

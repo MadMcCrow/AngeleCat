@@ -139,7 +139,7 @@ void AGridActor::SetActorInSlot(AActor * actor, const FIntPoint &coord)
         return;
 
     
-    const FGridItemSlot * griditemslot = Slots.FindByPredicate([&coord](const FGridItemSlot &itr){
+    FGridItemSlot * griditemslot = Slots.FindByPredicate([&coord](const FGridItemSlot &itr){
 		return itr.GetCoordinate() == coord;
 	});    
     if(griditemslot)

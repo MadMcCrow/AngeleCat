@@ -2,6 +2,7 @@
 
 #include "SlotWidgetComponent.h"
 #include "Widgets/SlotWidget.h"
+#include "CatPlayerState.h"
 
 #define LOCTEXT_NAMESPACE "SlotWidgetComponent"
 
@@ -63,14 +64,15 @@ void USlotWidgetComponent::SetGrid(AGridActor* grid)
 bool USlotWidgetComponent::BuyAsset(UItemData* Data)
 {
     if(Data)
-        return BuyData(Data->GetStaticData());
+        return BuyData(Data->GetData());
     return false;
 }
 
 bool USlotWidgetComponent::BuyData(const FItemStaticData& Data)
 {
     if(!GetContextWidget())
-    return;
+    return false;
+
 	auto PS = GetContextWidget()->GetOwningPlayerState<ACatPlayerState>(true);
     if(PS && PS->CanSpend(Data.GetCost()))
     {

@@ -2,6 +2,7 @@
 
 #include "SlotWidget.h"
 #include "CatContextWidget.h"
+#include "SlotWidgetComponent.h"
 
 
 #define LOCTEXT_NAMESPACE "SlotWidget"

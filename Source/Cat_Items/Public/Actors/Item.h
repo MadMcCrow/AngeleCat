@@ -58,7 +58,7 @@ public:
     AItem(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
 
     UFUNCTION(BlueprintCallable, Category = "Create")
-    static AItem * CreateItem(AActor * Owner, const TSubclassOf<AItem> inItemClass,const FItemData &inDataAsset);
+    static AItem * CreateItem(AActor * newOwner, const TSubclassOf<AItem> inItemClass,const FItemStaticData &inDataAsset);
 
     UFUNCTION(BlueprintCallable, Category = "Setup")
     void SetFromData(const FItemStaticData &in);
