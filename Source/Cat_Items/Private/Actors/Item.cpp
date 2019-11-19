@@ -12,6 +12,17 @@ AItem::AItem(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitiali
     RootComponent = StaticMesh;
 }
 
+AItem * AItem::CreateItem(AActor * Owner, const TSubclassOf<AItem> inItemClass,const FItemData &inDataAsset)
+{
+    const FName name = MakeUniqueObjectName(Owner,inItemClass,inDataAsset.GetName();
+    const AActor * spawned = Owner->GetWorld()->SpawnActor( inItemClass,name ,
+    FVector(), FRotator(), /*Template*/ nullptr, /*bNoCollisionFail*/ false,
+    /*bRemoteOwned*/ false, Owner,/*  APawn* Instigator*/ nullptr, 
+    /* bNoFail */ false, /*OverrideLevel*/ nullptr, /* bDeferConstruction*/ false);
+    auto item = Cast<AItem>(spawned);
+    return item;
+}
+
 void AItem::SetFromData(const FItemStaticData &in)
 {
     Info = in;

@@ -42,6 +42,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Grid")
 	virtual AGridActor * GetGrid() const;
 
+    UFUNCTION(BlueprintPure, Category = "Grid")
+	FIntPoint GetCoordinate() const {return SlotCoordinate;}
+
 
 protected:
 

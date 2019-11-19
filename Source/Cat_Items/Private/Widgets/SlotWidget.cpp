@@ -13,6 +13,20 @@ void USlotWidget::OnWidgetRebuilt()
     
 }
 
+void USlotWidget::SetSlotWidgetComponent(USlotWidgetComponent * widgetComponent)
+{
+    if(widgetComponent)
+    {
+            OwningWidgetComponent = widgetComponent;
+    }
+    else
+    {
+        if(GetOuter() && Cast<USlotWidgetComponent>(GetOuter()))
+            OwningWidgetComponent = Cast<USlotWidgetComponent>(GetOuter());
+    }
+
+}
+
 void USlotWidget::SetVisibility(ESlateVisibility inVisibility)
 {
     Super::SetVisibility(inVisibility);
@@ -40,7 +54,6 @@ void USlotWidget::ShowItemList(bool Visible)
         WItemListWindow->SetVisibility(Visible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
     }
 }
-
 
 void USlotWidget::SetFromSlot(AItem *slotItem)
 {

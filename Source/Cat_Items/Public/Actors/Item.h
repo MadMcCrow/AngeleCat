@@ -41,6 +41,7 @@ protected:
 public:
 
     FORCEINLINE UStaticMesh * GetMesh() const   {return VisibleMesh;}
+    FORCEINLINE FName GetName() const           {return StaticName;}
     FORCEINLINE FText GetTextName() const       {return LocalizedName;}
     FORCEINLINE FText GetDescription() const    {return Description;}
     FORCEINLINE int32 GetCost() const           {return Cost;}
@@ -55,6 +56,9 @@ class AItem : public AActor, public ICatNeedInterface
 
 public:
     AItem(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
+
+    UFUNCTION(BlueprintCallable, Category = "Create")
+    static AItem * CreateItem(AActor * Owner, const TSubclassOf<AItem> inItemClass,const FItemData &inDataAsset);
 
     UFUNCTION(BlueprintCallable, Category = "Setup")
     void SetFromData(const FItemStaticData &in);
@@ -93,5 +97,7 @@ public:
 private:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
     UStaticMeshComponent * StaticMesh;
+
+
 
 };

@@ -26,6 +26,8 @@ public:
 
     virtual void SetVisibility(ESlateVisibility inVisibility) override;
 
+    virtual void SetSlotWidgetComponent(USlotWidgetComponent * widgetComponent);
+
     UFUNCTION(BlueprintCallable, Category = "ItemList")
     void ShowItemList(bool Visible);
 
@@ -59,11 +61,13 @@ protected:
     UPROPERTY(BlueprintReadWrite, Category = "Item")
     bool bCanShowItemList;
 
-
 private:
 
     UPROPERTY()
     bool bItemListVisible;
+
+    UPROPERTY()
+    USlotWidgetComponent * OwningWidgetComponent;
 
 };
 

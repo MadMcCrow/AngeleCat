@@ -132,6 +132,24 @@ AActor * AGridActor::GetItemAtCoordinate(const FIntPoint &coord)
 	return nullptr;
 }
 
+
+void AGridActor::SetActorInSlot(AActor * actor, const FIntPoint &coord)
+{
+    if(!actor)
+        return;
+
+    
+    const FGridItemSlot * griditemslot = Slots.FindByPredicate([&coord](const FGridItemSlot &itr){
+		return itr.GetCoordinate() == coord;
+	});    
+    if(griditemslot)
+    {
+        actor->SetActorTransform(GetSlotIdxWorldSpace(FGridItemSlot::IndexFromCoord(coord, GridSize.X , GridSize.Y )));
+        griditemslot->Item = actor;
+    }
+}
+
+
 void AGridActor::DrawSlots()
 {
 	if(SlotMeshes)

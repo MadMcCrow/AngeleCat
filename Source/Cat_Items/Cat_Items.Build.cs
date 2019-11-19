@@ -17,6 +17,7 @@ public class Cat_Items : ModuleRules
 
         // UI base widget specialized in this module through child widgets
         PrivateDependencyModuleNames.AddRange(new string[] { "Cat_UI" });
+        PrivateDependencyModuleNames.AddRange(new string[] { "Cat_Player" });
 
         //The path for the header files
         PublicIncludePaths.AddRange(new string[] { "Cat_Items/Public" });

@@ -15,6 +15,7 @@ void USlotWidgetComponent::InitWidget()
 {
 	Super::InitWidget();
 	ContextWidget = Cast<USlotWidget>(GetUserWidgetObject());
+    ContextWidget->SetSlotWidgetComponent(this);
 }
 
 USlotWidget* USlotWidgetComponent::GetContextWidget() const
@@ -59,14 +60,37 @@ void USlotWidgetComponent::SetGrid(AGridActor* grid)
 	Grid = grid;
 }
 
-void USlotWidgetComponent::BuyAsset(UItemData* Data)
+bool USlotWidgetComponent::BuyAsset(UItemData* Data)
 {
-	
+    if(Data)
+        return BuyData(Data->GetStaticData());
+    return false;
 }
 
-void USlotWidgetComponent::BuyData(const FItemStaticData& Data)
+bool USlotWidgetComponent::BuyData(const FItemStaticData& Data)
 {
+    if(!GetContextWidget())
+    return;
+	auto PS = GetContextWidget()->GetOwningPlayerState<ACatPlayerState>(true);
+    if(PS && PS->CanSpend(Data.GetCost()))
+    {
+        if(GetGrid())
+        {
 
+            auto item = AItem::CreateItem(GetGrid(), GetGrid()->GetItemBaseClass(),Data);
+            if(item)
+            {
+                if(!PS->TrySpend(Data.GetCost()))
+                {
+                    item->BeginDestroy(); // we could not pay.
+                    return false;
+                }
+                GetGrid()->SetActorInSlot(item, GetCoordinate());
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void USlotWidgetComponent::InitFromFilledSlot()

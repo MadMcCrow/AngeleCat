@@ -7,6 +7,7 @@
 #include "GridActor.generated.h"
 
 // forward declaration
+class AGridActor;
 class UGridMeshComponent;
 class UStaticMeshComponent;
 class UBoxComponent;
@@ -16,6 +17,8 @@ USTRUCT(BlueprintType)
 struct FGridItemSlot
 {
     GENERATED_BODY()
+    friend AGridActor;
+    
 protected:
 
     UPROPERTY()
@@ -80,6 +83,9 @@ protected:
 
     FVector2D GetLocalGridPosition(const FIntPoint &pos) const;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item")
+    TSubclassOf<AItem> BaseItemClass;
+
 private:
     ///	@brief SlotMeshes		The meshes drawn to represent the Grid in real world
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = true))
@@ -117,6 +123,12 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "Get")
     AActor * GetItemAtCoordinate(const FIntPoint &coord);
+
+    UFUNCTION(BlueprintPure, Category = "Get")
+    TSubclassOf<AItem>  GetItemBaseClass();
+
+    UFUNCTION(BlueprintCallable, Category = "Item")
+    void SetActorInSlot(AActor * actor, const FIntPoint &coord);
 
     UFUNCTION(BlueprintCallable, Category = "Rendering")
     void DrawSlots();
