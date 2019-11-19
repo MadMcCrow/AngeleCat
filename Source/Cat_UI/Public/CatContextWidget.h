@@ -28,6 +28,11 @@ public:
         return CreateChild<UUserWidget>(UserWidgetClass,WidgetName);
     }
 
+    void AddChild( UWidget * widget);
+
+    UFUNCTION(BlueprintCallable, Category = "Context", DisplayName = "AddChild")
+    void AddChild_BP( UUserWidget *widget) {AddChild(widget);}
+
 	UFUNCTION(BlueprintCallable, Category = "Widget")
 	void SetTitle(const FText &in) {SetText(in);}
 

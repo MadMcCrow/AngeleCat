@@ -61,6 +61,9 @@ protected:
     UPROPERTY(BlueprintReadWrite, Category = "Item")
     bool bCanShowItemList;
 
+    UFUNCTION(BlueprintPure, Category = "Owner")
+    USlotWidgetComponent * GetOwningWidgetComponent() const {return OwningWidgetComponent;}
+
 private:
 
     UPROPERTY()

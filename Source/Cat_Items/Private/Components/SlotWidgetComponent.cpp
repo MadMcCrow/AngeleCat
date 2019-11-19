@@ -3,6 +3,7 @@
 #include "SlotWidgetComponent.h"
 #include "Widgets/SlotWidget.h"
 #include "CatPlayerState.h"
+#include "Kismet/GameplayStatics.h"
 
 #define LOCTEXT_NAMESPACE "SlotWidgetComponent"
 
@@ -70,10 +71,23 @@ bool USlotWidgetComponent::BuyAsset(UItemData* Data)
 
 bool USlotWidgetComponent::BuyData(const FItemStaticData& Data)
 {
+	ACatPlayerState *PS = nullptr;
     if(!GetContextWidget())
-    return false;
+	{
+		//if(!GetOwnerPlayer() || !GetOwnerPlayer()->GetControllerId())
+		//	return false;
 
-	auto PS = GetContextWidget()->GetOwningPlayerState<ACatPlayerState>(true);
+		auto PC = UGameplayStatics::GetPlayerController(GetGrid(), 0);
+		if(!PC)
+			return false;
+
+		PS = Cast<ACatPlayerState>(PC->PlayerState);
+	}
+	else
+	{
+		PS = GetContextWidget()->GetOwningPlayerState<ACatPlayerState>(true);
+	}
+
     if(PS && PS->CanSpend(Data.GetCost()))
     {
         if(GetGrid())

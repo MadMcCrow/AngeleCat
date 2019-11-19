@@ -32,6 +32,12 @@ public:
     UFUNCTION(BlueprintPure, Category = "Statics")
     static int32 GetCost(const FItemStaticData &in) {return in.GetCost();}
 
+    UFUNCTION(BlueprintPure, Category = "Statics")
+    static UStaticMesh * GetMesh(const FItemStaticData &in) {return in.GetMesh();}
+
+    UFUNCTION(BlueprintPure, Category = "Statics")
+    static FText GetDescription(const FItemStaticData &in) {return in.GetDescription();}
+
     UFUNCTION(BlueprintCallable, Category = "Statics|Assets")
     static bool GetAllItemAssetsByClass(TArray<UItemData *> &Assets, UItemData* Asset);
 

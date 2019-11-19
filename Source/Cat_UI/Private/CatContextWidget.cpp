@@ -10,10 +10,15 @@ WidgetT * UCatContextWidget::CreateChild(TSubclassOf< UUserWidget > UserWidgetCl
         return nullptr;
 
     auto widget = CreateWidget<WidgetT, UCatContextWidget>(this, UserWidgetClass, WidgetName);
-    if(widget)
-    {
-        WSubWidgetContainer->AddChild(widget);
-    }
-
+    AddChild(widget);
     return widget;
 }
+
+void UCatContextWidget::AddChild( UWidget * widget)
+{
+    if(widget && WSubWidgetContainer)
+    {
+        WSubWidgetContainer->AddChild(static_cast<UWidget *>(widget));
+    }
+}
+

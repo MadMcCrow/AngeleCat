@@ -66,7 +66,7 @@ protected:
 private:
 
 	UPROPERTY()
-	USlotWidget * ContextWidget;
+	mutable USlotWidget * ContextWidget;
 
 	UPROPERTY()
 	FIntPoint SlotCoordinate;
