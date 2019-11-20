@@ -180,7 +180,8 @@ void AGridActor::UpdateSlots()
 			ActiveSlotWidget->Reveal();
 			ActiveSlotWidget->InitFromSlot(Slots[SelectedSlot]);
 			ActiveSlotWidget->SetWorldTransform(GetSlotIdxWorldSpace(SelectedSlot));
-		}else
+		}
+		else
 		{
 			ActiveSlotWidget->SetHiddenInGame(true);
 			ActiveSlotWidget->Collapse();
@@ -188,15 +189,17 @@ void AGridActor::UpdateSlots()
 		}
 	}
 	if(HoveredSlot != PreviousHoveredSlot)
-    if(HoveredSlot != -1 && HoveredSlot != SelectedSlot)
-    {
-        HoveredSlotMesh->SetHiddenInGame(false /*hidden*/, true/*Propagate to children*/);
-		HoveredSlotMesh->SetWorldTransform(GetSlotIdxWorldSpace(HoveredSlot));
-    }
-    else
-    {
-        HoveredSlotMesh->SetHiddenInGame(true /*hidden*/, true/*Propagate to children*/);
-    }
+	{
+		if(HoveredSlot != -1 && HoveredSlot != SelectedSlot)
+		{
+			HoveredSlotMesh->SetHiddenInGame(false /*hidden*/, true/*Propagate to children*/);
+			HoveredSlotMesh->SetWorldTransform(GetSlotIdxWorldSpace(HoveredSlot));
+		}
+		else
+		{
+			HoveredSlotMesh->SetHiddenInGame(true /*hidden*/, true/*Propagate to children*/);
+		}
+	}
 }
 
 void AGridActor::SetBoundingBox()

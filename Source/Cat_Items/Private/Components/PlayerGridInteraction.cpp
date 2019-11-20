@@ -4,6 +4,7 @@
 #include "PlayerGridInteraction.h"
 #include "EngineUtils.h"
 #include "GridActor.h"
+#include "GameFramework/PlayerController.h"
 
 // Sets default values for this component's properties
 UPlayerGridInteraction::UPlayerGridInteraction()

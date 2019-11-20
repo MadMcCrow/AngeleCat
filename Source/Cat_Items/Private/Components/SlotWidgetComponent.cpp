@@ -62,41 +62,44 @@ void USlotWidgetComponent::SetGrid(AGridActor* grid)
 	Grid = grid;
 }
 
-bool USlotWidgetComponent::BuyAsset(UItemData* Data)
+bool USlotWidgetComponent::BuyAsset(UItemData* data, APlayerController * player)
 {
-    if(Data)
-        return BuyData(Data->GetData());
+    if(data)
+        return BuyData(data->GetData(), player);
     return false;
 }
 
-bool USlotWidgetComponent::BuyData(const FItemStaticData& Data)
+bool USlotWidgetComponent::BuyData(const FItemStaticData& data, APlayerController * player)
 {
 	ACatPlayerState *PS = nullptr;
-    if(!GetContextWidget())
+	if(player)
 	{
-		//if(!GetOwnerPlayer() || !GetOwnerPlayer()->GetControllerId())
-		//	return false;
-
-		auto PC = UGameplayStatics::GetPlayerController(GetGrid(), 0);
-		if(!PC)
-			return false;
-
-		PS = Cast<ACatPlayerState>(PC->PlayerState);
+		PS = Cast<ACatPlayerState>(player->PlayerState);
 	}
 	else
 	{
-		PS = GetContextWidget()->GetOwningPlayerState<ACatPlayerState>(true);
+		if(GetContextWidget())
+		{
+			PS = GetContextWidget()->GetOwningPlayerState<ACatPlayerState>(true);
+		}
+		else
+		{
+			auto PC = UGameplayStatics::GetPlayerController(this, 0);
+			if(!PC)
+				return false;
+			PS = Cast<ACatPlayerState>(PC->PlayerState);
+		}
 	}
-
-    if(PS && PS->CanSpend(Data.GetCost()))
+   
+    if(PS && PS->CanSpend(data.GetCost()))
     {
         if(GetGrid())
         {
 
-            auto item = AItem::CreateItem(GetGrid(), GetGrid()->GetItemBaseClass(),Data);
+            auto item = AItem::CreateItem(player ? player :  GetGrid(), GetGrid(), GetGrid()->GetItemBaseClass(),data);
             if(item)
             {
-                if(!PS->TrySpend(Data.GetCost()))
+                if(!PS->TrySpend(data.GetCost()))
                 {
                     item->BeginDestroy(); // we could not pay.
                     return false;

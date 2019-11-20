@@ -57,8 +57,8 @@ class AItem : public AActor, public ICatNeedInterface
 public:
     AItem(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
 
-    UFUNCTION(BlueprintCallable, Category = "Create")
-    static AItem * CreateItem(AActor * newOwner, const TSubclassOf<AItem> inItemClass,const FItemStaticData &inDataAsset);
+    UFUNCTION(BlueprintCallable, Category = "Create", meta = (WorldContext="worldContextObject"))
+    static AItem * CreateItem(const UObject * worldContextObject, AActor * newOwner, const TSubclassOf<AItem> inItemClass,const FItemStaticData &inDataAsset);
 
     UFUNCTION(BlueprintCallable, Category = "Setup")
     void SetFromData(const FItemStaticData &in);

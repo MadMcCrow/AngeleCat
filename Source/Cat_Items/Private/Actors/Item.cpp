@@ -12,16 +12,22 @@ AItem::AItem(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitiali
     RootComponent = StaticMesh;
 }
 
-AItem * AItem::CreateItem(AActor * newOwner, const TSubclassOf<AItem> inItemClass,const FItemStaticData &inDataAsset)
+AItem * AItem::CreateItem(const UObject * worldContextObject, AActor * newOwner, const TSubclassOf<AItem> inItemClass,const FItemStaticData &inDataAsset)
 {
     if(!newOwner)
-    return nullptr;
+        return nullptr;
 
+    UWorld * world = newOwner->GetWorld() ? newOwner->GetWorld() : worldContextObject->GetWorld();
+    if(!world)
+        return nullptr;
+        
+    const auto itemclass = inItemClass.Get() ? inItemClass : AItem::StaticClass();
     FActorSpawnParameters params;
-    params.Name = MakeUniqueObjectName(newOwner,inItemClass,inDataAsset.GetName());
+    params.Name = MakeUniqueObjectName(newOwner, itemclass ,inDataAsset.GetName());
     params.bNoFail = false;
     params.Owner = newOwner;
     params.bAllowDuringConstructionScript = true;
+
     // Template nullptr,
     // bNoCollisionFail false,
     // bRemoteOwned false
@@ -29,13 +35,19 @@ AItem * AItem::CreateItem(AActor * newOwner, const TSubclassOf<AItem> inItemClas
     // bNoFail */ false,
     // OverrideLevel*/ nullptr
     // bDeferConstruction*/ false
-    AItem * item = newOwner->GetWorld()->SpawnActor<AItem>( inItemClass,
-     params);
-    if(item)
+
+    AActor * actor = newOwner->GetWorld()->SpawnActorAbsolute( itemclass, FTransform(), params);
+    
+    if(actor)
     {
-        item->SetFromData(inDataAsset);
+        AItem * item = Cast<AItem>(actor);
+        if(item)
+        {
+             item->SetFromData(inDataAsset);
+             return item;
+        } 
     }
-    return item;
+    return nullptr;
 }
 
 void AItem::SetFromData(const FItemStaticData &in)

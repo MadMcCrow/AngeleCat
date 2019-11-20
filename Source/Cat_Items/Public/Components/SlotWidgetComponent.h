@@ -9,6 +9,7 @@
 #include "SlotWidgetComponent.generated.h"
 
 class USlotWidget;
+class APlayerController;
 
 /**
  * 
@@ -49,10 +50,10 @@ public:
 protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Buy")
-	bool BuyAsset(UItemData * Data);
+	bool BuyAsset(UItemData * data, APlayerController * player = nullptr);
 
 	UFUNCTION(BlueprintCallable, Category = "Buy")
-	bool BuyData(const FItemStaticData &Data);
+	bool BuyData(const FItemStaticData &data, APlayerController *  player = nullptr);
 
 
 	virtual void InitFromEmptySlot();
