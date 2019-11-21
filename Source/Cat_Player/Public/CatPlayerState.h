@@ -19,6 +19,10 @@ class CAT_PLAYER_API ACatPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 
+public:
+
+    virtual void BeginPlay() override;
+
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Funds")

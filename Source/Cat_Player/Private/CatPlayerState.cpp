@@ -1,8 +1,17 @@
 // Noe Perard-Gayot <noe.perard@gmail.com> 2019 - All Rights Reserved
 
 #include "CatPlayerState.h"
+#include "CatUserWidget.h"
+#include "Widgets/PlayerWidget.h"
 
 #define MONEYMAX 2147483648
+
+void ACatPlayerState::BeginPlay()
+{
+    Super::BeginPlay();
+    UCatUserWidget::NewWidget<UPlayerWidget>();
+}
+
 
 int32 ACatPlayerState::GetMoney() const
 {
