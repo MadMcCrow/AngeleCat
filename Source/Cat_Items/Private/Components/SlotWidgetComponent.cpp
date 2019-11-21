@@ -54,12 +54,7 @@ void USlotWidgetComponent::Reveal()
 
 AGridActor* USlotWidgetComponent::GetGrid() const
 {
-	return Grid;
-}
-
-void USlotWidgetComponent::SetGrid(AGridActor* grid)
-{
-	Grid = grid;
+	return Cast<AGridActor>(GetOwner());
 }
 
 bool USlotWidgetComponent::BuyAsset(UItemData* data, APlayerController * player)
@@ -95,8 +90,8 @@ bool USlotWidgetComponent::BuyData(const FItemStaticData& data, APlayerControlle
     {
         if(GetGrid())
         {
-
-            auto item = AItem::CreateItem(player ? player :  GetGrid(), GetGrid(), GetGrid()->GetItemBaseClass(),data);
+			AActor * worldcontext = player ? static_cast<AActor * >(player) :  static_cast<AActor *>(GetGrid());
+            auto item = AItem::CreateItem(worldcontext, GetGrid(), GetGrid()->GetItemBaseClass(),data);
             if(item)
             {
                 if(!PS->TrySpend(data.GetCost()))

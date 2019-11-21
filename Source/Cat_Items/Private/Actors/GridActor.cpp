@@ -35,7 +35,6 @@
 	// SlotWidget
 	ActiveSlotWidget = ObjectInitializer.CreateDefaultSubobject <USlotWidgetComponent> (this, TEXT("SelectedSlotWidget"));
 	ActiveSlotWidget->SetupAttachment(RootComponent);
-	ActiveSlotWidget->SetGrid(this);
 
  	InitSlotArray();
 

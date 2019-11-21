@@ -172,11 +172,10 @@ bool AAICatController::FindClosestNeed(ECatNeed need, FVector &location,  AActor
         needActor = nullptr;
         return false;
     }
-
-    needActor = NeedActors[0];
+    
+    needActor = NeedActors.IsValidIndex(0) ? NeedActors[0] : nullptr;
     location = NeedActors.IsValidIndex(0) ? NeedActors[0]->GetActorLocation() : ThisLocation ;
-    return NeedActors.IsValidIndex(0);
-
+    return NeedActors.IsValidIndex(0);  
 }
 
 void  AAICatController::InitNeedsStats()

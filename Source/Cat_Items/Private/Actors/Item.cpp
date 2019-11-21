@@ -36,7 +36,7 @@ AItem * AItem::CreateItem(const UObject * worldContextObject, AActor * newOwner,
     // OverrideLevel*/ nullptr
     // bDeferConstruction*/ false
 
-    AActor * actor = newOwner->GetWorld()->SpawnActorAbsolute( itemclass, FTransform(), params);
+    AActor * actor = world->SpawnActorAbsolute( itemclass, FTransform(), params);
     
     if(actor)
     {

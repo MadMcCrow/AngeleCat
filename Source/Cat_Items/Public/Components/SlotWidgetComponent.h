@@ -60,8 +60,6 @@ protected:
 
 	virtual void InitFromFilledSlot();
 
-	UFUNCTION(BlueprintCallable, Category = "Grid")
-	virtual void SetGrid(AGridActor * grid);
 
 
 private:
