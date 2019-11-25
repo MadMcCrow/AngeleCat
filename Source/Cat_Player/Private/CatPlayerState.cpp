@@ -9,7 +9,6 @@
 void ACatPlayerState::BeginPlay()
 {
     Super::BeginPlay();
-    UCatUserWidget::NewWidget<UPlayerWidget>();
 }
 
 

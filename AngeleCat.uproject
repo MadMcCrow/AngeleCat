@@ -24,7 +24,10 @@
 		{
 			"Name": "Cat_Player",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
 		},
 		{
 			"Name": "Cat_UI",
