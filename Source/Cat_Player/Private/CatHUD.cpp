@@ -2,4 +2,14 @@
 
 
 #include "CatHUD.h"
+#include "UserWidget.h"
 
+
+void ACatHUD::SpawnHUDWidget()
+{
+    if(MainwidgetClass.Get())
+    {
+            MainHUDWidget = CreateWidget<UUserWidget>( GetOwningPlayerController(), MainwidgetClass);
+    }
+
+}
