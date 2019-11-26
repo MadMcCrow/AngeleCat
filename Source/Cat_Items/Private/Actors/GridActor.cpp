@@ -49,7 +49,7 @@ void AGridActor::OnConstruction(const FTransform& transform)
 	// init slots
 	InitSlotArray();
     SetBoundingBox();
-	DrawSlots();
+	//DrawSlots();
 }
 
 void AGridActor::InitSlotArray()
