@@ -2,25 +2,26 @@
 
 using UnrealBuildTool;
 
-public class Cat_Game : ModuleRules
+public class Cat_Actors : ModuleRules
 
 {
-    public Cat_Game(ReadOnlyTargetRules Target) : base(Target)
+    public Cat_Actors(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-        PrivatePCHHeaderFile = "Private/Cat_GamePCH.h";
+        PrivatePCHHeaderFile = "Private/Cat_ActorsPCH.h";
         //Public module names that this module uses.
         //In case you would like to add various classes that you're going to use in your game
         //you should add the core,coreuobject and engine dependencies.
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine"});
-        PrivateDependencyModuleNames.AddRange(new string[] { "Cat_Player" });
-        PrivateDependencyModuleNames.AddRange(new string[] { "Cat_Character" });
+        PublicDependencyModuleNames.AddRange(new string[] { "UMG"});
+        
+        //PrivateDependencyModuleNames.AddRange(new string[] { "Cat_Player" });
 
         //The path for the header files
-        PublicIncludePaths.AddRange(new string[] { "Cat_Game/Public" });
+        PublicIncludePaths.AddRange(new string[] { "Cat_Actors/Public" });
 
         //The path for the source files
-        PrivateIncludePaths.AddRange(new string[] { "Cat_Game/Private" });
+        PrivateIncludePaths.AddRange(new string[] { "Cat_Actors/Private" });
     }
 }
  

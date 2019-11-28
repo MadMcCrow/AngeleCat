@@ -6,7 +6,7 @@
 #include "Widget.h"
 #include "GameFramework/PlayerController.h"
 
-FVector2D UCatPlayerStatics::MouseScreenBorderMove(UObject * WorldContextObject, float xThreshold,float yThreshold, bool invertXY, bool allowOutsideMovement)
+FVector2D UCatPlayerStatics::GetMouseBorderOverlap(UObject * WorldContextObject, float xThreshold,float yThreshold, bool invertXY, bool allowOutsideMovement)
 {
 	auto MousePos = UWidgetLayoutLibrary::GetMousePositionOnViewport(WorldContextObject);
 	MousePos *= UWidgetLayoutLibrary::GetViewportScale(WorldContextObject);

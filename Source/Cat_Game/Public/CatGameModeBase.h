@@ -7,18 +7,14 @@
 #include "CatGameModeBase.generated.h"
 
 /**
- * 
+ * 	Base class for all game modes
  */
-UCLASS()
+UCLASS(Category = "GameMode", ClassGroup="Cat_Game")
 class CAT_GAME_API ACatGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 
+public:
 	ACatGameModeBase(const FObjectInitializer &ObjectInitializer);
 
-public:
-
-	
-
-	
 };

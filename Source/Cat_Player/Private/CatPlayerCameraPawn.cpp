@@ -63,7 +63,7 @@ void ACatPlayerCameraPawn::Tick(float DeltaTime)
 	if (bRotateMode)
 		return;
 
-	const auto BorderMove = FVector(UCatPlayerStatics::MouseScreenBorderMove(this, 0.1f, 0.1f, true /* Camera is always rotated*/, false), 0.f); // 0.1 is arbitrary
+	const auto BorderMove = FVector(UCatPlayerStatics::GetMouseBorderOverlap(this, 0.1f, 0.1f, true /* Camera is always rotated*/, false), 0.f); // 0.1 is arbitrary
 	MoveCamera(BorderMove, (ZoomDistance* ZoomDistance) / 1500000.f); // 1500000 is arbitrary
 
 	if (ActorToFollow)

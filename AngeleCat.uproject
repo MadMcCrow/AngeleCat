@@ -42,13 +42,10 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		},
-		{
-			"Name": "Cat_Items",
+			{
+			"Name": "Cat_Actors",
 			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"UMG"
-			]
+			"LoadingPhase": "Default"
 		}
 	]
 }

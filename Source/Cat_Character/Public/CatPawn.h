@@ -6,9 +6,7 @@
 #include "GameFramework/Character.h"
 #include "CatPawn.generated.h"
 
-class AAICatController;
-
-UCLASS()
+UCLASS(ClassGroup = "Cat_Character", Category = "Pawn")
 class CAT_CHARACTER_API ACatPawn : public ACharacter
 {
 	GENERATED_BODY()
@@ -17,20 +15,12 @@ public:
 	// Sets default values for this character's properties
 	ACatPawn();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	/**	MoveForward : Add movement input inthe forward axis (X) */
+	UFUNCTION()
+	virtual void MoveForward(float inValue);
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-    UFUNCTION(BlueprintPure, Category = "Controller")
-    virtual AAICatController * GetCatController() const;
-
-
+	/**	MoveRight : Add movement input in the right axis (Y) */
+	UFUNCTION()
+	virtual void MoveRight(float inValue);
 
 };

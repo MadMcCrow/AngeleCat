@@ -9,7 +9,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class UFloatingPawnMovement;
 
-UCLASS(Category = "Player")
+UCLASS(ClassGroup = "Cat_Player", Category = "Pawn")
 class CAT_PLAYER_API ACatPlayerCameraPawn : public APawn
 {
 	GENERATED_BODY()

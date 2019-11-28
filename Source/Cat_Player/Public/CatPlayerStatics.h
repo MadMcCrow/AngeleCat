@@ -18,7 +18,7 @@ enum class EUIInputMode : uint8
 /**
  *	@brief UCatPlayerStatics		Static class to add more functions related to Player interactions
  */
-UCLASS(Category = "Player")
+UCLASS(ClassGroup = "Cat_Player", Category = "Statics")
 class CAT_PLAYER_API UCatPlayerStatics : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
@@ -26,7 +26,7 @@ class CAT_PLAYER_API UCatPlayerStatics : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
-	static FVector2D MouseScreenBorderMove(UObject * WorldContextObject, float xThreshold,float yThreshold, bool invertXY = false, bool allowOutsideMovement = true);
+	static FVector2D GetMouseBorderOverlap(UObject * WorldContextObject, float xThreshold,float yThreshold, bool invertXY = false, bool allowOutsideMovement = true);
 	
 
 	UFUNCTION(BlueprintCallable)

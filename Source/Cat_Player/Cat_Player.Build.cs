@@ -14,7 +14,6 @@ public class Cat_Player : ModuleRules
         //you should add the core,coreuobject and engine dependencies.
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine"});
         PrivateDependencyModuleNames.AddRange(new string[] { "UMG" });
-        PrivateDependencyModuleNames.AddRange(new string[] { "Cat_Items" });
         PrivateDependencyModuleNames.AddRange(new string[] { "Cat_UI" });
 
         //The path for the header files

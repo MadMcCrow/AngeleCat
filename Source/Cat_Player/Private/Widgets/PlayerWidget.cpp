@@ -12,20 +12,6 @@
 void UPlayerWidget::OnWidgetRebuilt()
 {
     Super::OnWidgetRebuilt();
-    const auto playerstate = Cast<ACatPlayerState>(GetOwningPlayer()->PlayerState);
-    if(playerstate)
-    {
-        OwningPlayerState = playerstate;
-        UpdateFunds();
-        RESETDYNAMIC(this, OwningPlayerState->OnIncreasedEvent, &UPlayerWidget::UpdateFunds);
-        RESETDYNAMIC(this, OwningPlayerState->OnDecreasedEvent, &UPlayerWidget::UpdateFunds);
-    }
-}
-
-void UPlayerWidget::UpdateFunds()
-{
-    if(OwningPlayerState)
-        FundsWidget->SetValueAsCurrency(OwningPlayerState->GetMoney());
 }
 
 #undef LOCTEXT_NAMESPACE

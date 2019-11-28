@@ -21,18 +21,8 @@ class CAT_PLAYER_API UPlayerWidget : public UUserWidget
 
     virtual void OnWidgetRebuilt() override;
 
-public:
-
-	UPROPERTY(meta = (BindWidget), BlueprintReadOnly, Category= "Widget")
-	UCatValueWidget * FundsWidget;
-
-	UFUNCTION(BlueprintCallable, Category = "Funds")
-	virtual void UpdateFunds();
-
 private:
 
-	UPROPERTY()
-	ACatPlayerState * OwningPlayerState;
 
 	
 

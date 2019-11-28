@@ -4,9 +4,9 @@
 
 #include "ModuleManager.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogCat_Items, All, All);
+DECLARE_LOG_CATEGORY_EXTERN(Log_Cat_Actors, All, All);
 
-class FCat_Items : public IModuleInterface
+class FCat_Actors : public IModuleInterface
 {
 public:
 
