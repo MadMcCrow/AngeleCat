@@ -13,5 +13,6 @@ public class AngeleCatTarget : TargetRules
         ExtraModuleNames.Add("Cat_UI");
 		ExtraModuleNames.Add("Cat_Game");
         ExtraModuleNames.Add("Cat_Character");
+		ExtraModuleNames.Add("Cat_Actors");
     }
 }
