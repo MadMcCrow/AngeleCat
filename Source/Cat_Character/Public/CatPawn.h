@@ -23,4 +23,20 @@ public:
 	UFUNCTION()
 	virtual void MoveRight(float inValue);
 
+	
+	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inputs")
+	float BaseTurnRate;
+
+	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inputs")
+	float BaseLookUpRate;
+
+	/** Base Character rotation rate, in deg/sec. only applies in yaw */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inputs")
+	float BaseRotationRate;
+
+
+
+
 };

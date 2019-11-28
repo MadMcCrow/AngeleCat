@@ -7,5 +7,5 @@
 #include "Engine/World.h"
 #include "Curves/CurveFloat.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameFramework/PawnMovementComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
