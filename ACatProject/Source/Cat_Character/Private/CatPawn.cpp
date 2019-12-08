@@ -36,3 +36,8 @@ void ACatPawn::MoveRight(float inValue)
 }
 
 
+UCatMovementComponent * ACatPawn::GetCatMovementComponent() const
+{
+	return Cast<UCatMovementComponent>(GetCharacterMovement());
+}
+

@@ -3,18 +3,28 @@
 
 #include "CatAnimInstance.h"
 #include "Cat_CharacterPCH.h"
+#include "CatMovementComponent.h"
 #include "CatPawn.h"
 
 
 void UCatAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
     Super::NativeUpdateAnimation(DeltaSeconds);
-
     auto cat = TryGetOwningCat();
-    Velocity = cat->GetVelocity();
-    bIsJumping = cat->GetMovementComponent()->IsFalling();
-    bIsCrouching = cat->GetMovementComponent()->IsCrouching();
-
+    if(cat && cat->GetCatMovementComponent())
+    {
+        Velocity = cat->GetVelocity();
+        bIsJumping = cat->GetCatMovementComponent()->IsFalling();
+        bIsCrouching = cat->GetCatMovementComponent()->IsCrouching();
+        bIsSitting =  cat->GetCatMovementComponent()->IsSitting();
+    }
+    else
+    {
+        Velocity = FVector::ZeroVector;
+        bIsSitting = true;
+        bIsJumping = false;
+        bIsCrouching = true;
+    }
 }
 
 ACatPawn *  UCatAnimInstance::TryGetOwningCat(bool &isValid) const

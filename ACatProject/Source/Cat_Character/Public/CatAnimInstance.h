@@ -22,30 +22,50 @@ public :
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-public:
+protected:
 
-	UFUNCTION(BlueprintPure, Category = "Speed")
+	/** Get velocity's vector */
+	UFUNCTION(BlueprintPure, Category = "Movement|Speed")
 	FORCEINLINE FVector GetVelocity() const {return Velocity; }
 
-	UFUNCTION(BlueprintPure, Category = "Speed")
+	/** Get velocity's vector's length*/
+	UFUNCTION(BlueprintPure, Category = "Movement|Speed")
 	FORCEINLINE float GetSpeed() const {return GetVelocity().Size();}
 
+	/** Get crouching info stored in this instance */
+	UFUNCTION(BlueprintPure, Category = "Movement|Speed")
+	FORCEINLINE bool GetIsCrouching() const {return bIsCrouching;}
+
+	/** Get jumping info stored in this instance */
+	UFUNCTION(BlueprintPure, Category = "Movement|Speed")
+	FORCEINLINE bool GetIsJumping() const {return bIsJumping;}
+
+	/** Get sitting info stored in this instance */
+	UFUNCTION(BlueprintPure, Category = "Movement|Speed")
+	FORCEINLINE bool GetIsSitting() const {return bIsSitting;}
+
+	/**Try to get owning cat character */
 	UFUNCTION(BlueprintPure, Category = "Owner")
 	ACatPawn * TryGetOwningCat(bool &isValid) const;
-
 	ACatPawn * TryGetOwningCat() const;
-
 
 private:
 
-	UPROPERTY()
+	/**	Skeleton movement speed	weighted direction	*/
+	UPROPERTY(transient)
 	FVector Velocity;
 
-	UPROPERTY()
+	/**	Is character crouching	*/
+	UPROPERTY(transient)
 	bool bIsCrouching;
 
-	UPROPERTY()
+	/**	Is character jumping	*/
+	UPROPERTY(transient)
 	bool bIsJumping;
+
+	/**	Is character sitting	*/
+	UPROPERTY(transient)
+	bool bIsSitting;
 
 	
 };

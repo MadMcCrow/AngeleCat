@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "CatPawn.generated.h"
 
+class UCatMovementComponent;
+
 UCLASS(ClassGroup = "Cat_Character", Category = "Pawn")
 class CAT_CHARACTER_API ACatPawn : public ACharacter
 {
@@ -31,6 +33,9 @@ public:
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inputs")
 	float BaseLookUpRate;
+
+	UFUNCTION(BlueprintPure, Category = "Movement")
+	virtual UCatMovementComponent * GetCatMovementComponent() const;
 
 
 
