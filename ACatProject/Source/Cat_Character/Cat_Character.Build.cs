@@ -14,6 +14,7 @@ public class Cat_Character : ModuleRules
         //you should add the core,coreuobject and engine dependencies.
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine" });
         PrivateDependencyModuleNames.AddRange(new string[] { "Cat_Player" });
+        PrivateDependencyModuleNames.AddRange(new string[] { "PhysX"});
 
         //The path for the header files
         PublicIncludePaths.AddRange(new string[] { "Cat_Character/Public" });
