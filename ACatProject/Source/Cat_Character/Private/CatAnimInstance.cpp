@@ -6,6 +6,7 @@
 #include "CatMovementComponent.h"
 #include "CatPawn.h"
 
+float UCatAnimInstance::MinWalkSpeed = KINDA_SMALL_NUMBER;
 
 void UCatAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {

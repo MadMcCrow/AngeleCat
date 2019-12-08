@@ -11,7 +11,7 @@
 class ACatPawn;
 
 /**
- * 
+ * 	Base Class for cat animations bluprints. provide helpers for state machines
  */
 UCLASS(ClassGroup = "Cat_Character", Category = "Animation")
 class CAT_CHARACTER_API UCatAnimInstance : public UAnimInstance
@@ -25,24 +25,32 @@ public :
 protected:
 
 	/** Get velocity's vector */
-	UFUNCTION(BlueprintPure, Category = "Movement|Speed")
+	UFUNCTION(BlueprintPure, Category = "Movement|Speed", meta = (BlueprintThreadSafe))
 	FORCEINLINE FVector GetVelocity() const {return Velocity; }
 
 	/** Get velocity's vector's length*/
-	UFUNCTION(BlueprintPure, Category = "Movement|Speed")
+	UFUNCTION(BlueprintPure, Category = "Movement|Speed", meta = (BlueprintThreadSafe))
 	FORCEINLINE float GetSpeed() const {return GetVelocity().Size();}
 
+		/** Get velocity's vector's length*/
+	UFUNCTION(BlueprintPure, Category = "Movement|State Machine", meta = (BlueprintThreadSafe))
+	FORCEINLINE bool IsMoving() const {return GetVelocity().Size() >= MinWalkSpeed;}
+
 	/** Get crouching info stored in this instance */
-	UFUNCTION(BlueprintPure, Category = "Movement|Speed")
-	FORCEINLINE bool GetIsCrouching() const {return bIsCrouching;}
+	UFUNCTION(BlueprintPure,Category = "Movement|State Machine", meta = (BlueprintThreadSafe))
+	FORCEINLINE bool IsCrouching() const {return bIsCrouching;}
 
 	/** Get jumping info stored in this instance */
-	UFUNCTION(BlueprintPure, Category = "Movement|Speed")
-	FORCEINLINE bool GetIsJumping() const {return bIsJumping;}
+	UFUNCTION(BlueprintPure, Category = "Movement|State Machine", meta = (BlueprintThreadSafe))
+	FORCEINLINE bool IsJumping() const {return bIsJumping;}
 
 	/** Get sitting info stored in this instance */
-	UFUNCTION(BlueprintPure, Category = "Movement|Speed")
-	FORCEINLINE bool GetIsSitting() const {return bIsSitting;}
+	UFUNCTION(BlueprintPure, Category = "Movement|State Machine", meta = (BlueprintThreadSafe))
+	FORCEINLINE bool IsSitting() const {return bIsSitting;}
+
+	/** Get sitting  and crouching info stored in this instance */
+	UFUNCTION(BlueprintPure, Category = "Movement|State Machine", meta = (BlueprintThreadSafe))
+	FORCEINLINE bool IsStanding() const {return !bIsSitting && !bIsCrouching;}
 
 	/**Try to get owning cat character */
 	UFUNCTION(BlueprintPure, Category = "Owner")
@@ -67,5 +75,7 @@ private:
 	UPROPERTY(transient)
 	bool bIsSitting;
 
+	/**	minimum speed to take into consideration	*/
+	static float MinWalkSpeed;
 	
 };
