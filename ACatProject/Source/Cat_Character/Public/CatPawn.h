@@ -13,7 +13,7 @@ class CAT_CHARACTER_API ACatPawn : public ACharacter
 
 public:
 	// Sets default values for this character's properties
-	ACatPawn();
+	ACatPawn(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	/**	MoveForward : Add movement input inthe forward axis (X) */
 	UFUNCTION()
@@ -32,9 +32,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inputs")
 	float BaseLookUpRate;
 
-	/** Base Character rotation rate, in deg/sec. only applies in yaw */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inputs")
-	float BaseRotationRate;
+
 
 
 

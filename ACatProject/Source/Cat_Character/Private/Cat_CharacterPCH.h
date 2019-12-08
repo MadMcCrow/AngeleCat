@@ -5,7 +5,8 @@
 #include "Cat_Character.h"
 #include "CoreMinimal.h"
 #include "Engine/World.h"
-#include "Curves/CurveFloat.h"
-#include "Kismet/GameplayStatics.h"
+//#include "Curves/CurveFloat.h"
+//#include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
+
 
