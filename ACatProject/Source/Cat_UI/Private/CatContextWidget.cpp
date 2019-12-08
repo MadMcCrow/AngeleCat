@@ -14,6 +14,8 @@ WidgetT * UCatContextWidget::CreateChild(TSubclassOf< UUserWidget > UserWidgetCl
     return widget;
 }
 
+template UUserWidget * UCatContextWidget::CreateChild<UUserWidget>(TSubclassOf<UUserWidget> UserWidgetClass, FName WidgetName);
+
 void UCatContextWidget::AddChild( UWidget * widget)
 {
     if(widget && WSubWidgetContainer)

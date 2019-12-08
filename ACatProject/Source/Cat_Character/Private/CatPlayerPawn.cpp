@@ -4,6 +4,8 @@
 #include "Cat_CharacterPCH.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "CatInputComponent.h"
+#include "GameFramework/PlayerController.h"
 
 
 FName ACatPlayerPawn::SpringArmName = TEXT("CameraBoom");
@@ -23,26 +25,29 @@ ACatPlayerPawn::ACatPlayerPawn() : Super()
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 }
 
+UInputComponent * ACatPlayerPawn::CreatePlayerInputComponent()
+{
+	// Super does this :
+	//	static const FName InputComponentName(TEXT("PawnInputComponent0"));
+	//	return NewObject<UInputComponent>(this, InputComponentName);
+
+	// We could try to do something like this :
+	// auto PC = Cast<APlayerController>(GetOwner());
+	// if(PC)
+	// {
+	//	return PC->GetInputComponent();
+	// }
+	static const FName InputComponentName(TEXT("PawnInputComponent0"));
+	return NewObject<UCatInputComponent>(this, InputComponentName);
+}
+
 // Called to bind functionality to input
 void ACatPlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	// Set up gameplay key bindings
-	// check(PlayerInputComponent);
-	// PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	// PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-
-	// PlayerInputComponent->BindAxis("MoveForward", this, &ACatPlayerPawn::MoveForward);
-	// PlayerInputComponent->BindAxis("MoveRight", this, &ACatPlayerPawn::MoveRight);
- 
-	// // We have 2 versions of the rotation bindings to handle different kinds of devices differently
-	// // "turn" handles devices that provide an absolute delta, such as a mouse.
-	// // "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-	// PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	// PlayerInputComponent->BindAxis("TurnRate", this, &ACatPlayerPawn::TurnAtRate);
-	// PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	// PlayerInputComponent->BindAxis("LookUpRate", this, &ACatPlayerPawn::LookUpAtRate);
-
+	auto catinput = Cast<UCatInputComponent>(PlayerInputComponent);
+	if(catinput)
+		catinput->BindInputsToCharacter(this);
 }
 
 void ACatPlayerPawn::TurnAtRate(float Rate)

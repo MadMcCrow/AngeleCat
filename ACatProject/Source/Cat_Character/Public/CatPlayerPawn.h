@@ -19,7 +19,7 @@ public:
 
 	ACatPlayerPawn();
 
-	// Called to bind functionality to input
+	virtual UInputComponent* CreatePlayerInputComponent() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	static FName SpringArmName;
@@ -35,7 +35,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
 
-protected:
+public:
 
 	/** 
 	 * Called via input to turn at a given rate. 

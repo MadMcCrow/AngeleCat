@@ -13,7 +13,6 @@ public class Cat_Interaction : ModuleRules
         //In case you would like to add various classes that you're going to use in your game
         //you should add the core,coreuobject and engine dependencies.
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine"});
-        PublicDependencyModuleNames.AddRange(new string[] { "UMG"});
         
         //PrivateDependencyModuleNames.AddRange(new string[] { "Cat_Player" });
 

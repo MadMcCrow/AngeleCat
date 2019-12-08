@@ -15,6 +15,7 @@ public class Cat_Player : ModuleRules
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine"});
         PrivateDependencyModuleNames.AddRange(new string[] { "UMG" });
         PrivateDependencyModuleNames.AddRange(new string[] { "Cat_UI" });
+        PrivateDependencyModuleNames.AddRange(new string[] { "Cat_Character" }); // to pass inputs to pawn
 
         //The path for the header files
         PublicIncludePaths.AddRange(new string[] { "Cat_Player/Public" });
