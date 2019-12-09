@@ -8,14 +8,14 @@
 
 UCatInputComponent::UCatInputComponent(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
 {
-    JumpAction = TEXT("Jump");
-    MoveForwardAxis = TEXT("MoveForward");
-    MoveRightAxis  = TEXT("MoveRight");
-    TurnAction = TEXT("Turn");
-    TurnRateAction = TEXT("TurnRate");
-    LookUpAction = TEXT("LookUp");
-    LookUpRateAction = TEXT("LookUpRate");
-
+    JumpAction       = TEXT("Jump");
+    RunAction        = TEXT("Run");
+    MoveForwardAxis  = TEXT("MoveForward");
+    MoveRightAxis    = TEXT("MoveRight");
+    TurnAxis         = TEXT("Turn");
+    TurnRateAxis     = TEXT("TurnRate");
+    LookUpAxis       = TEXT("LookUp");
+    LookUpRateAxis   = TEXT("LookUpRate");
 }
 
 
@@ -28,8 +28,8 @@ void UCatInputComponent::BindInputsToCharacter(ACharacter * characterTarget)
 	BindAction(JumpAction, IE_Released, characterTarget, &ACharacter::StopJumping);
 
     
-	BindAxis(TurnAction,        characterTarget, &APawn::AddControllerYawInput);
-	BindAxis(LookUpAction,      characterTarget, &APawn::AddControllerPitchInput);
+	BindAxis(TurnAxis,        characterTarget, &APawn::AddControllerYawInput);
+	BindAxis(LookUpAxis,      characterTarget, &APawn::AddControllerPitchInput);
 
     auto cat = Cast<ACatPlayerPawn>(characterTarget);
     if(cat != nullptr)
@@ -39,8 +39,12 @@ void UCatInputComponent::BindInputsToCharacter(ACharacter * characterTarget)
         // // We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	    // // "turn" handles devices that provide an absolute delta, such as a mouse.
 	    // // "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-        BindAxis(TurnRateAction,    cat, &ACatPlayerPawn::TurnAtRate);
-        BindAxis(LookUpRateAction,  cat, &ACatPlayerPawn::LookUpAtRate);
+        BindAxis(TurnRateAxis,    cat, &ACatPlayerPawn::TurnAtRate);
+        BindAxis(LookUpRateAxis,  cat, &ACatPlayerPawn::LookUpAtRate);
+
+        // Running
+        BindAction(RunAction, IE_Pressed, cat, &ACatPlayerPawn::Run);
+        BindAction(RunAction, IE_Pressed, cat, &ACatPlayerPawn::StopRunning);
     }
 }
 

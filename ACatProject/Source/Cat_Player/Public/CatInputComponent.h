@@ -32,25 +32,31 @@ public:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, Category = "Input Names")
+	UPROPERTY(EditDefaultsOnly, Category = "Input Names|Actions")
 	FName JumpAction;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Input Names")
+	UPROPERTY(EditDefaultsOnly, Category = "Input Names|Actions")
+	FName RunAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input Names|Actions")
+	FName CrouchAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input Names|Axis")
 	FName MoveForwardAxis;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Input Names")
+	UPROPERTY(EditDefaultsOnly, Category = "Input Names|Axis")
 	FName MoveRightAxis;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Input Names")
-	FName TurnAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input Names|Axis")
+	FName TurnAxis;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Input Names")
-	FName TurnRateAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input Names|Axis")
+	FName TurnRateAxis;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Input Names")
-	FName LookUpAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input Names|Axis")
+	FName LookUpAxis;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Input Names")
-	FName LookUpRateAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input Names|Axis")
+	FName LookUpRateAxis;
 
 };

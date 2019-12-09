@@ -18,14 +18,25 @@ public:
 	ACatPawn(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	/**	MoveForward : Add movement input inthe forward axis (X) */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Movement")
 	virtual void MoveForward(float inValue);
 
 	/**	MoveRight : Add movement input in the right axis (Y) */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Movement")
 	virtual void MoveRight(float inValue);
 
-	
+	/**	Run : Set movement to running */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	virtual void Run();
+
+	/**	StopRunning : Set movement to walking */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	virtual void StopRunning();
+
+	/**	ToggleCrouch : Set movement to crouching */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	virtual void ToggleCrouch();
+
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inputs")
 	float BaseTurnRate;
@@ -37,9 +48,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Movement")
 	virtual UCatMovementComponent * GetCatMovementComponent() const;
 
+private:
 
+	/**	Variable used for toggling running */
+	UPROPERTY(transient)
+	bool bIsRunning;
 
+	/**	Variable used for toggling crouching */
+	UPROPERTY(transient)
+	bool bIsCrouching;
 
-
-
+	
 };

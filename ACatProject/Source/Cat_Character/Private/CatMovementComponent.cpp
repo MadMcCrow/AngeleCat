@@ -7,7 +7,16 @@ float UCatMovementComponent::MinMovingSpeed = KINDA_SMALL_NUMBER;
 
 UCatMovementComponent::UCatMovementComponent() : Super()
 {
+	bCanMove = true;
 	BaseRotationRate = 450.f;
+	MaxWalkSpeedCrouched = 30.f;
+	MaxWalkSpeed = 60;
+	MaxRunSpeed	 = 100.f;
+
+	MaxAcceleration = 50.f;
+	BrakingDecelerationWalking = 0.5;
+	bUseSeparateBrakingFriction =true;
+	
     // base configuration : 
 	bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	RotationRate = FRotator(0.0f, BaseRotationRate, 0.0f); // ...at this rotation rate
@@ -61,7 +70,30 @@ void UCatMovementComponent::UpdateCharacterStateAfterMovement(float DeltaSeconds
 	return bIsMoving;
 }
 
+void UCatMovementComponent::AddInputVector(FVector WorldVector,bool bForce)
+{
+	if(bCanMove)
+	{
+		Super::AddInputVector(WorldVector,bForce);
+	}
+}
 
+float UCatMovementComponent::GetMaxSpeed() const
+{
+	switch(MovementMode)
+	{
+	case MOVE_Walking:
+	case MOVE_NavWalking:
+		return IsCrouching() ? MaxWalkSpeedCrouched : bIsRunning ? MaxRunSpeed : MaxWalkSpeed;
+	case MOVE_Falling:
+	case MOVE_Swimming:
+	case MOVE_Flying:
+	case MOVE_Custom:
+	case MOVE_None:
+	default:
+		return Super::GetMaxSpeed();
+	}
+}
 
 
 bool UCatMovementComponent::IsSitting() const
@@ -72,6 +104,11 @@ bool UCatMovementComponent::IsSitting() const
 void UCatMovementComponent::RequestSit(bool bNewSit)
 {
 	bWantsToSit = bNewSit;
+}
+
+void UCatMovementComponent::RequestRun(bool bNewRun)
+{
+	bIsRunning = CanRunInCurrentState() && bNewRun;
 }
 
 void UCatMovementComponent::Sit()
@@ -100,3 +137,7 @@ bool UCatMovementComponent::CanSitInCurrentState() const
 	return (IsFalling() || IsMovingOnGround()) && UpdatedComponent && !UpdatedComponent->IsSimulatingPhysics();
 }
 
+bool UCatMovementComponent::CanRunInCurrentState() const
+{
+	return (IsFalling() || IsMovingOnGround()) && UpdatedComponent && !UpdatedComponent->IsSimulatingPhysics();
+}

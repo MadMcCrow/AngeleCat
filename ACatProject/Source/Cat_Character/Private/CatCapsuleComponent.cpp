@@ -11,6 +11,8 @@
 #include "PhysicsEngine/BodySetup.h"
 #include "PrimitiveSceneProxy.h"
 
+const FRotator UCatCapsuleComponent::Rotation = FRotator(90.f,0.f,0.f);
+
 // From Engine\Source\Runtime\Engine\Private\Components\CapsuleComponent.cpp
 template <EShapeBodySetupHelper UpdateBodySetupAction>
 bool InvalidateOrUpdateCatCapsuleBodySetup(UBodySetup*& ShapeBodySetup, bool bUseArchetypeBodySetup, float CapsuleRadius, float CapsuleHalfHeight)
@@ -24,8 +26,8 @@ bool InvalidateOrUpdateCatCapsuleBodySetup(UBodySetup*& ShapeBodySetup, bool bUs
 	if (UpdateBodySetupAction == EShapeBodySetupHelper::UpdateBodySetup)
 	{
         FTransform Custom = FTransform::Identity;
-        Custom.SetRotation(FQuat(FRotator(90.f,0.f,0.f)));
-		SE->SetTransform(FTransform::Identity);
+        Custom.SetRotation(UCatCapsuleComponent::QuatRotation());
+		SE->SetTransform(Custom);
 		SE->Radius = CapsuleRadius;
 		SE->Length = Length;
 	}
@@ -40,6 +42,84 @@ bool InvalidateOrUpdateCatCapsuleBodySetup(UBodySetup*& ShapeBodySetup, bool bUs
 	
 	return bUseArchetypeBodySetup;
 }
+
+
+FPrimitiveSceneProxy* UCatCapsuleComponent::CreateSceneProxy()
+{
+	/** Represents a UCapsuleComponent to the scene manager. */
+	class FDrawCylinderSceneProxy final : public FPrimitiveSceneProxy
+	{
+	public:
+		SIZE_T GetTypeHash() const override
+		{
+			static size_t UniquePointer;
+			return reinterpret_cast<size_t>(&UniquePointer);
+		}
+
+		FDrawCylinderSceneProxy(const UCatCapsuleComponent* InComponent)
+			:	FPrimitiveSceneProxy(InComponent)
+			,	bDrawOnlyIfSelected( InComponent->bDrawOnlyIfSelected )
+			,	CapsuleRadius( InComponent->CapsuleRadius )
+			,	CapsuleHalfHeight( InComponent->CapsuleHalfHeight )
+			,	ShapeColor( InComponent->ShapeColor )
+		{
+			bWillEverBeLit = false;
+		}
+
+		virtual void GetDynamicMeshElements(const TArray<const FSceneView*>& Views, const FSceneViewFamily& ViewFamily, uint32 VisibilityMap, FMeshElementCollector& Collector) const override
+		{
+			QUICK_SCOPE_CYCLE_COUNTER( STAT_GetDynamicMeshElements_DrawDynamicElements );
+
+		
+			const FMatrix &LocalToWorld = GetLocalToWorld();
+			FTransform Custom = FTransform(LocalToWorld);
+			FRotator Rot = UCatCapsuleComponent::Rotation + FRotator(Custom.GetRotation());
+			Rot.Normalize();
+			Custom.SetRotation(FQuat(Rot));
+			const FMatrix &LocalToWorldFixed = Custom.ToMatrixWithScale();
+			const int32 CapsuleSides =  FMath::Clamp<int32>(CapsuleRadius/4.f, 16, 64);
+
+			for (int32 ViewIndex = 0; ViewIndex < Views.Num(); ViewIndex++)
+			{
+
+				if (VisibilityMap & (1 << ViewIndex))
+				{
+					const FSceneView* View = Views[ViewIndex];
+					const FLinearColor DrawCapsuleColor = GetViewSelectionColor(ShapeColor, *View, IsSelected(), IsHovered(), false, IsIndividuallySelected() );
+
+					FPrimitiveDrawInterface* PDI = Collector.GetPDI(ViewIndex);
+					DrawWireCapsule( PDI, LocalToWorld.GetOrigin(), LocalToWorldFixed.GetScaledAxis( EAxis::X ), LocalToWorldFixed.GetScaledAxis( EAxis::Y ), LocalToWorldFixed.GetScaledAxis( EAxis::Z ), DrawCapsuleColor, CapsuleRadius, CapsuleHalfHeight, CapsuleSides, SDPG_World );
+				}
+			}
+		}
+
+		virtual FPrimitiveViewRelevance GetViewRelevance(const FSceneView* View) const override
+		{
+			const bool bProxyVisible = !bDrawOnlyIfSelected || IsSelected();
+
+			// Should we draw this because collision drawing is enabled, and we have collision
+			const bool bShowForCollision = View->Family->EngineShowFlags.Collision && IsCollisionEnabled();
+
+			FPrimitiveViewRelevance Result;
+			Result.bDrawRelevance = (IsShown(View) && bProxyVisible) || bShowForCollision;
+			Result.bDynamicRelevance = true;
+			Result.bShadowRelevance = IsShadowCast(View);
+			Result.bEditorPrimitiveRelevance = UseEditorCompositing(View);
+			return Result;
+		}
+		virtual uint32 GetMemoryFootprint( void ) const override { return( sizeof( *this ) + GetAllocatedSize() ); }
+		uint32 GetAllocatedSize( void ) const { return( FPrimitiveSceneProxy::GetAllocatedSize() ); }
+
+	private:
+		const uint32	bDrawOnlyIfSelected:1;
+		const float		CapsuleRadius;
+		const float		CapsuleHalfHeight;
+		const FColor	ShapeColor;
+	};
+
+	return new FDrawCylinderSceneProxy( this );
+}
+
 
 void UCatCapsuleComponent::UpdateBodySetup()
 {
@@ -75,9 +155,12 @@ void UCatCapsuleComponent::CreateShapeBodySetupIfNeededSphyl()
 		{
 			ShapeBodySetup->ClearInternalFlags(EInternalObjectFlags::Async);
 		}
-		
+		FTransform Custom = FTransform::Identity;
+        Custom.SetRotation(QuatRotation());
+		FKSphylElem newsphyl;
+		newsphyl.SetTransform(Custom);
 		ShapeBodySetup->CollisionTraceFlag = CTF_UseSimpleAsComplex;
-		ShapeBodySetup->AggGeom.SphylElems.Add(FKSphylElem());
+		ShapeBodySetup->AggGeom.SphylElems.Add(newsphyl);
 		ShapeBodySetup->bNeverNeedsCookedCollisionData = true;
 		bUseArchetypeBodySetup = false;	//We're making our own body setup, so don't use the archetype's.
 

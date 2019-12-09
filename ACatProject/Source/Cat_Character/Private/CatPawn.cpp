@@ -2,11 +2,13 @@
 
 #include "CatPawn.h"
 #include "CatMovementComponent.h"
+#include "CatCapsuleComponent.h"
 #include "Cat_CharacterPCH.h"
 
 
 // Sets default values
-ACatPawn::ACatPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UCatMovementComponent>(ACharacter::CharacterMovementComponentName))
+ACatPawn::ACatPawn(const FObjectInitializer& ObjectInitializer) : 
+Super(ObjectInitializer.SetDefaultSubobjectClass<UCatMovementComponent>(ACharacter::CharacterMovementComponentName).SetDefaultSubobjectClass<UCatCapsuleComponent>(ACharacter::CapsuleComponentName))
 {
 	PrimaryActorTick.bCanEverTick = false; // need for tick
 
@@ -20,6 +22,9 @@ ACatPawn::ACatPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectIn
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
+
+	// our running toggle variable
+	bIsRunning = false;
 
 }
 
@@ -35,6 +40,27 @@ void ACatPawn::MoveRight(float inValue)
 		GetCharacterMovement()->AddInputVector( GetActorRightVector() * inValue, false);
 }
 
+ void ACatPawn::Run()
+ {
+	 bIsRunning = true;
+	 if(GetCatMovementComponent())
+	 	GetCatMovementComponent()->RequestRun(bIsRunning);
+ }
+
+  void ACatPawn::StopRunning()
+ {
+	 bIsRunning = false;
+	 if(GetCatMovementComponent())
+	 	GetCatMovementComponent()->RequestRun(bIsRunning);
+ }
+
+
+void ACatPawn::ToggleCrouch()
+{
+	bIsCrouching = !bIsCrouching;
+	if(GetCharacterMovement())
+	 	GetCharacterMovement()->bWantsToCrouch = bIsCrouching;
+}
 
 UCatMovementComponent * ACatPawn::GetCatMovementComponent() const
 {

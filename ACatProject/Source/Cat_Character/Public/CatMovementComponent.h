@@ -23,7 +23,8 @@ public :
 	virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
 	virtual void UpdateCharacterStateAfterMovement(float DeltaSeconds) override;
 	virtual bool ApplyRequestedMove(float DeltaTime, float MaxAccel, float MaxSpeed, float Friction, float BrakingDeceleration, FVector& OutAcceleration, float& OutRequestedSpeed) override;
-
+	virtual void AddInputVector(FVector WorldVector,bool bForce) override;
+	virtual float GetMaxSpeed() const override;
 
 	/** Base Character rotation rate, in deg/sec. only applies in yaw */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement|Rotation")
@@ -35,11 +36,23 @@ public :
 
 	UFUNCTION(BlueprintCallable, Category= "Movement|Sitting")
 	virtual void RequestSit(bool bNewSit = true);
+
+	UFUNCTION(BlueprintCallable, Category= "Movement|Running")
+	virtual void RequestRun(bool bNewRun = true);
+
 protected:
+
+	/**	Run speed for this character */
+	UPROPERTY(Category="Character Movement: Walking", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="0"))
+	float MaxRunSpeed;
 
 	/**	Determine if the cat can sit where he stands */
 	UFUNCTION(BlueprintPure, Category = "Movement|Sitting")
 	virtual bool CanSitInCurrentState() const;
+
+	/**	Determine if the cat can sit where he stands */
+	UFUNCTION(BlueprintPure, Category = "Movement|Running")
+	virtual bool CanRunInCurrentState() const;
 
 	UFUNCTION()
 	virtual bool CanEverSit() const {return true;}
@@ -71,4 +84,10 @@ private:
 	bool bIsMoving;
  
 	static float MinMovingSpeed;
+
+	UPROPERTY(transient)
+	bool bCanMove;
+
+	UPROPERTY(transient)
+	bool bIsRunning;
 };
