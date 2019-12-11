@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "4.23",
+	"EngineAssociation": "{5B9C0C2A-487E-9958-1AA8-39A17023C46F}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -42,7 +42,7 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		},
-			{
+		{
 			"Name": "Cat_Actors",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"

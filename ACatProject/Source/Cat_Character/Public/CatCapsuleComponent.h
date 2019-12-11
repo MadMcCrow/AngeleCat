@@ -15,6 +15,9 @@ class CAT_CHARACTER_API UCatCapsuleComponent : public UCapsuleComponent
 	GENERATED_BODY()
 
 public:
+
+	UCatCapsuleComponent(const FObjectInitializer &ObjectInitializer);
+
 	virtual void UpdateBodySetup() override;
 	//virtual struct FCollisionShape GetCollisionShape(float Inflation = 0.0f) const override;
 
@@ -26,6 +29,9 @@ public:
 	void SetShapeToNewGeomSphyl(const FPhysicsShapeHandle& Shape);
 #endif // WITH_PHYSX
 	
-	static const FRotator Rotation;
-	static const FQuat QuatRotation() {return FQuat(Rotation);}
+	/** Rotation of the */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shape")
+	FRotator Rotation;
+
+	FQuat QuatRotation() {return FQuat(Rotation);}
 };
