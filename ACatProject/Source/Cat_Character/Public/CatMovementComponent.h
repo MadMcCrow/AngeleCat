@@ -25,6 +25,9 @@ public :
 	virtual bool ApplyRequestedMove(float DeltaTime, float MaxAccel, float MaxSpeed, float Friction, float BrakingDeceleration, FVector& OutAcceleration, float& OutRequestedSpeed) override;
 	virtual void AddInputVector(FVector WorldVector,bool bForce) override;
 	virtual float GetMaxSpeed() const override;
+	virtual void ComputeFloorDist(const FVector& CapsuleLocation, float LineDistance, float SweepDistance, FFindFloorResult& OutFloorResult, float SweepRadius, const FHitResult* DownwardSweepResult = NULL) const override;
+
+
 
 	/** Base Character rotation rate, in deg/sec. only applies in yaw */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement|Rotation")

@@ -129,14 +129,14 @@ void UCatCapsuleComponent::UpdateBodySetup()
 {
 	if (PrepareSharedBodySetup<UCapsuleComponent>())
 	{
-		bUseArchetypeBodySetup = InvalidateOrUpdateCatCapsuleBodySetup<EShapeBodySetupHelper::InvalidateSharingIfStale>(ShapeBodySetup, bUseArchetypeBodySetup, CapsuleRadius, CapsuleHalfHeight, QuatRotation);
+		bUseArchetypeBodySetup = InvalidateOrUpdateCatCapsuleBodySetup<EShapeBodySetupHelper::InvalidateSharingIfStale>(ShapeBodySetup, bUseArchetypeBodySetup, CapsuleRadius, CapsuleHalfHeight, QuatRotation());
 	}
 
 	CreateShapeBodySetupIfNeededSphyl();
 
 	if (!bUseArchetypeBodySetup)
 	{
-		InvalidateOrUpdateCatCapsuleBodySetup<EShapeBodySetupHelper::UpdateBodySetup>(ShapeBodySetup, bUseArchetypeBodySetup, CapsuleRadius, CapsuleHalfHeight, QuatRotation);
+		InvalidateOrUpdateCatCapsuleBodySetup<EShapeBodySetupHelper::UpdateBodySetup>(ShapeBodySetup, bUseArchetypeBodySetup, CapsuleRadius, CapsuleHalfHeight, QuatRotation());
 	}
 }
 
