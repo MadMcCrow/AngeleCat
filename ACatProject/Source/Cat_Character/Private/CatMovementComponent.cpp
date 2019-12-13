@@ -113,34 +113,19 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 	float PawnRadius, PawnHalfHeight;
 	auto CatCapsule = Cast<UCatCapsuleComponent>(CharacterOwner->GetCapsuleComponent());
 	CatCapsule->GetScaledCapsuleSize(PawnRadius, PawnHalfHeight);
-	FVector RealZ = CatCapsule->Rotation.RotateVector(FVector::UpVector * PawnHalfHeight);
-	PawnHalfHeight = FMath::Max(RealZ.ProjectOnTo(FVector::UpVector).Size(), PawnRadius);
 
-	bool bSkipSweep = false;
+	FVector ZCapsuleHalf = CatCapsule->Rotation.RotateVector(FVector::UpVector * (PawnHalfHeight - PawnRadius)).ProjectOnTo(FVector::UpVector);
+	PawnHalfHeight = ZCapsuleHalf.Size() + PawnRadius;
+
+ 	bool bSkipSweep = false;
 	if (DownwardSweepResult != NULL && DownwardSweepResult->IsValidBlockingHit())
 	{
-		// Only if the supplied sweep was vertical and downward.
-		if ((DownwardSweepResult->TraceStart.Z > DownwardSweepResult->TraceEnd.Z) &&
-			(DownwardSweepResult->TraceStart - DownwardSweepResult->TraceEnd).SizeSquared2D() <= KINDA_SMALL_NUMBER)
-		{
-			// Reject hits that are barely on the cusp of the radius of the capsule
-			if (IsWithinEdgeTolerance(DownwardSweepResult->Location, DownwardSweepResult->ImpactPoint, PawnRadius))
-			{
-				// Don't try a redundant sweep, regardless of whether this sweep is usable.
-				bSkipSweep = true;
-
-				const bool bIsWalkable = IsWalkable(*DownwardSweepResult);
-				const float FloorDist = (CapsuleLocation.Z - DownwardSweepResult->Location.Z);
-				OutFloorResult.SetFromSweep(*DownwardSweepResult, FloorDist, bIsWalkable);
-
-				if (bIsWalkable)
-				{
-					// Use the supplied downward sweep as the floor hit result.			
-					return;
-				}
-			}
-		}
+		Super::ComputeFloorDist(CapsuleLocation,  LineDistance, SweepDistance, OutFloorResult, SweepRadius, DownwardSweepResult);
 	}
+	
+	Super::ComputeFloorDist(CapsuleLocation, LineDistance, SweepDistance, OutFloorResult, SweepRadius, DownwardSweepResult);
+
+	return;
 
 	// We require the sweep distance to be >= the line distance, otherwise the HitResult can't be interpreted as the sweep result.
 	if (SweepDistance < LineDistance)
@@ -249,6 +234,43 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 	// No hits were acceptable.
 	OutFloorResult.bWalkableFloor = false;
 	OutFloorResult.FloorDist = SweepDistance;
+}
+
+
+bool UCatMovementComponent::CustomFloorSweepTest(
+	FHitResult& OutHit,
+	const FVector& Start,
+	const FVector& End,
+	ECollisionChannel TraceChannel,
+	const struct FCollisionShape& CollisionShape,
+	const struct FCollisionQueryParams& Params,
+	const struct FCollisionResponseParams& ResponseParam
+) const
+{
+	bool bBlockingHit = false;
+
+	if (!bUseFlatBaseForFloorChecks)
+	{
+		bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, Start, End, FQuat::Identity, TraceChannel, CollisionShape, Params, ResponseParam);
+	}
+	else
+	{
+		// Test with a box that is enclosed by the capsule.
+		const float CapsuleRadius = CollisionShape.GetCapsuleRadius();
+		const float CapsuleHeight = CollisionShape.GetCapsuleHalfHeight();
+		const FCollisionShape BoxShape = FCollisionShape::MakeBox(FVector(CapsuleRadius * 0.707f, CapsuleRadius * 0.707f, CapsuleHeight));
+
+		// First test with the box rotated so the corners are along the major axes (ie rotated 45 degrees).
+		bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, Start, End, FQuat(FVector(0.f, 0.f, -1.f), PI * 0.25f), TraceChannel, BoxShape, Params, ResponseParam);
+
+		if (!bBlockingHit)
+		{
+			// Test again with the same box, not rotated.
+			OutHit.Reset(1.f, false);
+			bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, Start, End, FQuat::Identity, TraceChannel, BoxShape, Params, ResponseParam);
+		}
+	}
+	return bBlockingHit;
 }
 
 
