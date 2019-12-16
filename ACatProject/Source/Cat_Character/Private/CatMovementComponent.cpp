@@ -123,9 +123,7 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 		Super::ComputeFloorDist(CapsuleLocation,  LineDistance, SweepDistance, OutFloorResult, SweepRadius, DownwardSweepResult);
 	}
 	
-	Super::ComputeFloorDist(CapsuleLocation, LineDistance, SweepDistance, OutFloorResult, SweepRadius, DownwardSweepResult);
 
-	return;
 
 	// We require the sweep distance to be >= the line distance, otherwise the HitResult can't be interpreted as the sweep result.
 	if (SweepDistance < LineDistance)
@@ -139,6 +137,10 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 	FCollisionResponseParams ResponseParam;
 	InitCollisionParams(QueryParams, ResponseParam);
 	const ECollisionChannel CollisionChannel = UpdatedComponent->GetCollisionObjectType();
+
+	Super::ComputeFloorDist(CapsuleLocation, LineDistance, SweepDistance, OutFloorResult, SweepRadius, DownwardSweepResult);
+
+	return;
 
 	// Sweep test
 	if (!bSkipSweep && SweepDistance > 0.f && SweepRadius > 0.f)
@@ -237,38 +239,39 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 }
 
 
-bool UCatMovementComponent::CustomFloorSweepTest(
-	FHitResult& OutHit,
-	const FVector& Start,
-	const FVector& End,
-	ECollisionChannel TraceChannel,
-	const struct FCollisionShape& CollisionShape,
-	const struct FCollisionQueryParams& Params,
-	const struct FCollisionResponseParams& ResponseParam
-) const
+bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform capsuleTransform, float traceLength, ECollisionChannel TraceChannel,	const struct FCollisionShape& CollisionShape,	const struct FCollisionQueryParams& Params,	const struct FCollisionResponseParams& ResponseParam) const
 {
 	bool bBlockingHit = false;
+	
+	FVector start			= capsuleTransform.GetLocation();
+	FRotator orientation	= capsuleTransform.Rotator();
+	const FVector gravity = FVector::DownVector;
 
-	if (!bUseFlatBaseForFloorChecks)
-	{
-		bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, Start, End, FQuat::Identity, TraceChannel, CollisionShape, Params, ResponseParam);
-	}
-	else
-	{
+	const float CapsuleRadius = CollisionShape.GetCapsuleRadius();
+	const float CapsuleHeight = CollisionShape.GetCapsuleHalfHeight();
+	
+	// Define trace as lambda
+	auto SweepTest = [&](const FVector A )->bool {
 		// Test with a box that is enclosed by the capsule.
-		const float CapsuleRadius = CollisionShape.GetCapsuleRadius();
-		const float CapsuleHeight = CollisionShape.GetCapsuleHalfHeight();
 		const FCollisionShape BoxShape = FCollisionShape::MakeBox(FVector(CapsuleRadius * 0.707f, CapsuleRadius * 0.707f, CapsuleHeight));
-
 		// First test with the box rotated so the corners are along the major axes (ie rotated 45 degrees).
-		bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, Start, End, FQuat(FVector(0.f, 0.f, -1.f), PI * 0.25f), TraceChannel, BoxShape, Params, ResponseParam);
-
+		bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, A, A + (gravity * traceLength), FQuat(FVector(0.f, 0.f, -1.f), PI * 0.25f), TraceChannel, BoxShape, Params, ResponseParam);
 		if (!bBlockingHit)
 		{
 			// Test again with the same box, not rotated.
 			OutHit.Reset(1.f, false);
-			bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, Start, End, FQuat::Identity, TraceChannel, BoxShape, Params, ResponseParam);
+			bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, A, A + (gravity * traceLength), FQuat::Identity, TraceChannel, BoxShape, Params, ResponseParam);
 		}
+	};
+
+	if (!bUseFlatBaseForFloorChecks || orientation == FRotator::ZeroRotator)
+	{
+		bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, start, start + (gravity * traceLength), FQuat::Identity, TraceChannel, CollisionShape, Params, ResponseParam);
+	}
+	else
+	{
+		//TODO :  do front and back test instead of something else.
+		bBlockingHit = SweepTest(start);
 	}
 	return bBlockingHit;
 }

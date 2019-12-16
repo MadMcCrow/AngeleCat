@@ -27,7 +27,7 @@ public :
 	virtual float GetMaxSpeed() const override;
 	virtual void ComputeFloorDist(const FVector& CapsuleLocation, float LineDistance, float SweepDistance, FFindFloorResult& OutFloorResult, float SweepRadius, const FHitResult* DownwardSweepResult = NULL) const override;
 
-	virtual bool CustomFloorSweepTest(FHitResult& OutHit, const FVector& Start, const FVector& End, ECollisionChannel TraceChannel, const struct FCollisionShape& CollisionShape, const struct FCollisionQueryParams& Params, const struct FCollisionResponseParams& ResponseParam) const;
+	virtual bool CustomFloorSweepTest(FHitResult& OutHit, FTransform capsuleTransform, float traceLength, ECollisionChannel TraceChannel, const struct FCollisionShape& CollisionShape, const struct FCollisionQueryParams& Params, const struct FCollisionResponseParams& ResponseParam) const;
 
 	/** Base Character rotation rate, in deg/sec. only applies in yaw */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement|Rotation")
