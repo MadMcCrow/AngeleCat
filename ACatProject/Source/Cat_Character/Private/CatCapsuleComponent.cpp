@@ -199,8 +199,26 @@ void UCatCapsuleComponent::SetShapeToNewGeomSphyl(const FPhysicsShapeHandle& Sha
 {
 	FPhysicsInterface::SetUserData(Shape, (void*)ShapeBodySetup->AggGeom.SphylElems[0].GetUserData());
 }
+#endif // WITH_PHYSX
+
 FTransform UCatCapsuleComponent::GetWorldTransform() const
 {
 	return FTransform(Rotation, GetComponentLocation(), GetComponentScale());
 }
-#endif // WITH_PHYSX
+FVector UCatCapsuleComponent::GetLocalTopLocation(bool bIncludeRadius) const
+{
+	return (Rotation + FRotator(90.f,0.f,0.f)).Vector() * (bIncludeRadius ? CapsuleHalfHeight : CapsuleHalfHeight - CapsuleRadius);
+}
+
+FVector UCatCapsuleComponent::GetLocalBottomLocation(bool bIncludeRadius) const
+{
+	return (Rotation + FRotator(90.f, 0.f, 0.f)).Vector() * -1.f * (bIncludeRadius ? CapsuleHalfHeight : CapsuleHalfHeight - CapsuleRadius);
+}
+FVector UCatCapsuleComponent::GetWorldTopLocation(bool bIncludeRadius) const
+{
+	return GetLocalTopLocation(bIncludeRadius) + GetComponentLocation();
+}
+FVector UCatCapsuleComponent::GetWorldBottomLocation(bool bIncludeRadius) const
+{
+	return GetLocalBottomLocation(bIncludeRadius) + GetComponentLocation();
+}

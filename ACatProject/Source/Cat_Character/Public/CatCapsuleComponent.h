@@ -36,4 +36,19 @@ public:
 	FQuat QuatRotation() {return FQuat(Rotation);}
 
 	virtual FTransform GetWorldTransform() const;
+
+
+	UFUNCTION(BlueprintPure, Category = "Capsule")
+	virtual FVector GetLocalTopLocation(bool bIncludeRadius = false) const;
+
+	UFUNCTION(BlueprintPure, Category = "Capsule")
+	virtual FVector GetLocalBottomLocation(bool bIncludeRadius = false) const;
+
+	UFUNCTION(BlueprintPure, Category = "Capsule")
+	virtual FVector GetWorldTopLocation(bool bIncludeRadius = false) const;
+
+	UFUNCTION(BlueprintPure, Category = "Capsule")
+	virtual FVector GetWorldBottomLocation(bool bIncludeRadius = false) const;
+
+
 };
