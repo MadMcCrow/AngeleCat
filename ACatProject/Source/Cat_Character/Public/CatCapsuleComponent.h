@@ -34,4 +34,6 @@ public:
 	FRotator Rotation;
 
 	FQuat QuatRotation() {return FQuat(Rotation);}
+
+	virtual FTransform GetWorldTransform() const;
 };

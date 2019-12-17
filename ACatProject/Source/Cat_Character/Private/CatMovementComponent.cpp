@@ -33,6 +33,8 @@ UCatMovementComponent::UCatMovementComponent() : Super()
 	JumpZVelocity = 600.f; // cats are known to jump high
 	AirControl = 0.5f; // cats are very agile
 	bIsSitting = false; // we don't start sitting
+
+	bUseFlatBaseForFloorChecks = false;
 }
 
 void UCatMovementComponent::MoveAlongFloor(const FVector& InVelocity, float DeltaSeconds, FStepDownResult* OutStepDownResult)
@@ -111,20 +113,22 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 	OutFloorResult.Clear();
 
 	float PawnRadius, PawnHalfHeight;
-	auto CatCapsule = Cast<UCatCapsuleComponent>(CharacterOwner->GetCapsuleComponent());
-	CatCapsule->GetScaledCapsuleSize(PawnRadius, PawnHalfHeight);
 
+	auto CatCapsule = Cast<UCatCapsuleComponent>(CharacterOwner->GetCapsuleComponent());
+	if (!CatCapsule 
+		|| (DownwardSweepResult != NULL && DownwardSweepResult->IsValidBlockingHit()) 
+		|| CatCapsule->Rotation == FRotator::ZeroRotator)
+	{
+		Super::ComputeFloorDist(CapsuleLocation, LineDistance, SweepDistance, OutFloorResult, SweepRadius, DownwardSweepResult);
+		return;
+	}
+
+	CatCapsule->GetScaledCapsuleSize(PawnRadius, PawnHalfHeight);
+	const auto CapsuleTransform = FTransform(CatCapsule->Rotation, CapsuleLocation, CatCapsule->GetComponentScale());
 	FVector ZCapsuleHalf = CatCapsule->Rotation.RotateVector(FVector::UpVector * (PawnHalfHeight - PawnRadius)).ProjectOnTo(FVector::UpVector);
 	PawnHalfHeight = ZCapsuleHalf.Size() + PawnRadius;
 
  	bool bSkipSweep = false;
-	if (DownwardSweepResult != NULL && DownwardSweepResult->IsValidBlockingHit())
-	{
-		Super::ComputeFloorDist(CapsuleLocation,  LineDistance, SweepDistance, OutFloorResult, SweepRadius, DownwardSweepResult);
-	}
-	
-
-
 	// We require the sweep distance to be >= the line distance, otherwise the HitResult can't be interpreted as the sweep result.
 	if (SweepDistance < LineDistance)
 	{
@@ -138,10 +142,6 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 	InitCollisionParams(QueryParams, ResponseParam);
 	const ECollisionChannel CollisionChannel = UpdatedComponent->GetCollisionObjectType();
 
-	Super::ComputeFloorDist(CapsuleLocation, LineDistance, SweepDistance, OutFloorResult, SweepRadius, DownwardSweepResult);
-
-	return;
-
 	// Sweep test
 	if (!bSkipSweep && SweepDistance > 0.f && SweepRadius > 0.f)
 	{
@@ -154,7 +154,7 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 		FCollisionShape CapsuleShape = FCollisionShape::MakeCapsule(SweepRadius, PawnHalfHeight - ShrinkHeight);
 
 		FHitResult Hit(1.f);
-		bBlockingHit = FloorSweepTest(Hit, CapsuleLocation, CapsuleLocation + FVector(0.f, 0.f, -TraceDist), CollisionChannel, CapsuleShape, QueryParams, ResponseParam);
+		bBlockingHit = CustomFloorSweepTest(Hit, CapsuleTransform, TraceDist, CollisionChannel, CapsuleShape, QueryParams, ResponseParam);
 
 		if (bBlockingHit)
 		{
@@ -172,7 +172,7 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 					CapsuleShape.Capsule.HalfHeight = FMath::Max(PawnHalfHeight - ShrinkHeight, CapsuleShape.Capsule.Radius);
 					Hit.Reset(1.f, false);
 
-					bBlockingHit = FloorSweepTest(Hit, CapsuleLocation, CapsuleLocation + FVector(0.f, 0.f, -TraceDist), CollisionChannel, CapsuleShape, QueryParams, ResponseParam);
+					bBlockingHit = CustomFloorSweepTest(Hit, CapsuleTransform, TraceDist, CollisionChannel, CapsuleShape, QueryParams, ResponseParam);
 				}
 			}
 
@@ -252,6 +252,15 @@ bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform
 	
 	// Define trace as lambda
 	auto SweepTest = [&](const FVector A )->bool {
+		return true;
+	};
+
+	if (!bUseFlatBaseForFloorChecks || orientation == FRotator::ZeroRotator)
+	{
+		bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, start, start + (gravity * traceLength), FQuat::Identity, TraceChannel, CollisionShape, Params, ResponseParam);
+	}
+	else
+	{
 		// Test with a box that is enclosed by the capsule.
 		const FCollisionShape BoxShape = FCollisionShape::MakeBox(FVector(CapsuleRadius * 0.707f, CapsuleRadius * 0.707f, CapsuleHeight));
 		// First test with the box rotated so the corners are along the major axes (ie rotated 45 degrees).
@@ -261,17 +270,9 @@ bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform
 			// Test again with the same box, not rotated.
 			OutHit.Reset(1.f, false);
 			bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, A, A + (gravity * traceLength), FQuat::Identity, TraceChannel, BoxShape, Params, ResponseParam);
+			//TODO :  do front and back test instead of something else.
+			//bBlockingHit = SweepTest(start);
 		}
-	};
-
-	if (!bUseFlatBaseForFloorChecks || orientation == FRotator::ZeroRotator)
-	{
-		bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, start, start + (gravity * traceLength), FQuat::Identity, TraceChannel, CollisionShape, Params, ResponseParam);
-	}
-	else
-	{
-		//TODO :  do front and back test instead of something else.
-		bBlockingHit = SweepTest(start);
 	}
 	return bBlockingHit;
 }

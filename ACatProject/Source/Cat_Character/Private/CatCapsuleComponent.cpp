@@ -199,4 +199,8 @@ void UCatCapsuleComponent::SetShapeToNewGeomSphyl(const FPhysicsShapeHandle& Sha
 {
 	FPhysicsInterface::SetUserData(Shape, (void*)ShapeBodySetup->AggGeom.SphylElems[0].GetUserData());
 }
+FTransform UCatCapsuleComponent::GetWorldTransform() const
+{
+	return FTransform(Rotation, GetComponentLocation(), GetComponentScale());
+}
 #endif // WITH_PHYSX
