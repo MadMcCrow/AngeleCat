@@ -261,15 +261,17 @@ bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform
 	}
 	else
 	{
+		const auto A = capsuleTransform.GetLocation();
+		const auto B = capsuleTransform.GetLocation() + (gravity * traceLength);
 		// Test with a box that is enclosed by the capsule.
 		const FCollisionShape BoxShape = FCollisionShape::MakeBox(FVector(CapsuleRadius * 0.707f, CapsuleRadius * 0.707f, CapsuleHeight));
 		// First test with the box rotated so the corners are along the major axes (ie rotated 45 degrees).
-		bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, A, A + (gravity * traceLength), FQuat(FVector(0.f, 0.f, -1.f), PI * 0.25f), TraceChannel, BoxShape, Params, ResponseParam);
+		bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, A, B, FQuat(FVector(0.f, 0.f, -1.f), PI * 0.25f), TraceChannel, BoxShape, Params, ResponseParam);
 		if (!bBlockingHit)
 		{
 			// Test again with the same box, not rotated.
 			OutHit.Reset(1.f, false);
-			bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, A, A + (gravity * traceLength), FQuat::Identity, TraceChannel, BoxShape, Params, ResponseParam);
+			bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, A, B, FQuat::Identity, TraceChannel, BoxShape, Params, ResponseParam);
 			//TODO :  do front and back test instead of something else.
 			//bBlockingHit = SweepTest(start);
 		}
