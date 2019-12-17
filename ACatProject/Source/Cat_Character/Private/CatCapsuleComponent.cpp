@@ -11,7 +11,7 @@
 #include "PhysicsEngine/BodySetup.h"
 #include "PrimitiveSceneProxy.h"
 
-UCatCapsuleComponent::UCatCapsuleComponent(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer), Rotation(90.f, 0.f, 0.f)
+UCatCapsuleComponent::UCatCapsuleComponent(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer), Rotation(-90.f, 0.f, 0.f)
 {
 }
 

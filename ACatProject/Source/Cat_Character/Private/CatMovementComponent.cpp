@@ -277,16 +277,17 @@ bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform
 #if !UE_BUILD_SHIPPING
 		if (bDebug)
 		{
-			DrawDebugBox(GetWorld(), A, BoxShape.GetExtent(), FColor::Orange, true, 0.3, 0, 1);
-			DrawDebugBox(GetWorld(), B, BoxShape.GetExtent(), retval ? FColor::Green : FColor::Red, true, 0.5, 0, 1);
+			DrawDebugBox(GetWorld(), A, BoxShape.GetExtent(), FColor::Orange, true, 0.1, 0, 1);
+			DrawDebugBox(GetWorld(), B, BoxShape.GetExtent(), retval ? FColor::Green : FColor::Red, true, 0.2, 0, 1);
 		}
 #endif
 		return retval;
 	};
 	//TODO :  do front and back test instead of something else.
-	const auto Cat = Cast<UCatCapsuleComponent>(capsule);
+	const auto cat = Cast<UCatCapsuleComponent>(capsule);
+	const FTransform cattrans = cat->GetOwner() ? cat->GetOwner()->GetActorTransform() : FTransform();
 	
-	bBlockingHit = SweepTest(start + Cat->GetLocalBottomLocation()) || SweepTest(start + Cat->GetLocalTopLocation());
+	bBlockingHit = SweepTest(cattrans.TransformPosition(cat->GetLocalBottomLocation())) || SweepTest( cattrans.TransformPosition(cat->GetLocalTopLocation()));
 		
 	return bBlockingHit;
 }
