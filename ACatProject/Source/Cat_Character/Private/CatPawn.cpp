@@ -26,6 +26,12 @@ Super(ObjectInitializer.SetDefaultSubobjectClass<UCatMovementComponent>(ACharact
 	// our running toggle variable
 	bIsRunning = false;
 
+
+	// Capsule component :
+	Cast<UCatCapsuleComponent>(GetCapsuleComponent())->Rotation = FRotator(-90.f, 0.f, 0.f);
+	GetCapsuleComponent()->SetCapsuleHalfHeight(20.f, false);
+	GetCapsuleComponent()->SetCapsuleRadius(10.f, false);
+
 }
 
 void ACatPawn::MoveForward(float inValue)

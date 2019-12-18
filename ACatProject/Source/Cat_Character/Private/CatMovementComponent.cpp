@@ -23,12 +23,13 @@ UCatMovementComponent::UCatMovementComponent() : Super()
 {
 	bCanMove = true;
 	BaseRotationRate = 450.f;
-	MaxWalkSpeedCrouched = 30.f;
+	MaxWalkSpeedCrouched = 50.f;
 	MaxWalkSpeed = 60;
 	MaxRunSpeed	 = 100.f;
-
+	MinAnalogWalkSpeed = 0.2f;
+	BrakingDecelerationWalking = 30.f;
+	MaxStepHeight = 12.f;
 	MaxAcceleration = 50.f;
-	BrakingDecelerationWalking = 0.5;
 	bUseSeparateBrakingFriction =true;
 	
     // base configuration : 
@@ -38,7 +39,7 @@ UCatMovementComponent::UCatMovementComponent() : Super()
 	AirControl = 0.5f; // cats are very agile
 	bIsSitting = false; // we don't start sitting
 
-	// one fix could just be :
+	// one fix could just be  to set to false:
 	bUseFlatBaseForFloorChecks = true;
 }
 
@@ -159,7 +160,7 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 		FCollisionShape CapsuleShape = FCollisionShape::MakeCapsule(SweepRadius, PawnHalfHeight - ShrinkHeight);
 
 		FHitResult Hit(1.f);
-		bBlockingHit = CustomFloorSweepTest(Hit, CapsuleTransform, CatCapsule, TraceDist, CollisionChannel, CapsuleShape, QueryParams, ResponseParam, true);
+		bBlockingHit = CustomFloorSweepTest(Hit, CapsuleTransform, CatCapsule, TraceDist, CollisionChannel, CapsuleShape, QueryParams, ResponseParam);
 
 		if (bBlockingHit)
 		{
@@ -177,7 +178,7 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 					CapsuleShape.Capsule.HalfHeight = FMath::Max(PawnHalfHeight - ShrinkHeight, CapsuleShape.Capsule.Radius);
 					Hit.Reset(1.f, false);
 
-					bBlockingHit = CustomFloorSweepTest(Hit, CapsuleTransform, CatCapsule, TraceDist, CollisionChannel, CapsuleShape, QueryParams, ResponseParam, true);
+					bBlockingHit = CustomFloorSweepTest(Hit, CapsuleTransform, CatCapsule, TraceDist, CollisionChannel, CapsuleShape, QueryParams, ResponseParam);
 				}
 			}
 
@@ -244,7 +245,7 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 }
 
 
-bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform capsuleTransform, UCapsuleComponent * capsule, float traceLength, ECollisionChannel TraceChannel,	const struct FCollisionShape& CollisionShape,	const struct FCollisionQueryParams& Params,	const struct FCollisionResponseParams& ResponseParam, bool bDebug) const
+bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform capsuleTransform, UCapsuleComponent * capsule, float traceLength, ECollisionChannel TraceChannel,	const struct FCollisionShape& CollisionShape,	const struct FCollisionQueryParams& Params,	const struct FCollisionResponseParams& ResponseParam) const
 {
 	const FRotator orientation	= capsuleTransform.Rotator();
 	FVector start = capsuleTransform.GetLocation();
@@ -274,7 +275,7 @@ bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform
 			retval = GetWorld()->SweepSingleByChannel(OutHit, A, B, FQuat::Identity, TraceChannel, BoxShape, Params, ResponseParam);
 		}
 		
-#if !UE_BUILD_SHIPPING
+#if !UE_BUILD_SHIPPING && WITH_EDITORONLY_DATA
 		if (bDebug)
 		{
 			DrawDebugBox(GetWorld(), A, BoxShape.GetExtent(), FColor::Orange, true, 0.1, 0, 1);
@@ -291,6 +292,41 @@ bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform
 		
 	return bBlockingHit;
 }
+
+bool UCatMovementComponent::CanStepUp(const FHitResult& Hit) const
+{
+	if (!Hit.IsValidBlockingHit() || !HasValidData() || MovementMode == MOVE_Falling)
+	{
+		return false;
+	}
+
+	// No component for "fake" hits when we are on a known good base.
+	const UPrimitiveComponent* HitComponent = Hit.Component.Get();
+	if (!HitComponent)
+	{
+		return true;
+	}
+
+	if (!HitComponent->CanCharacterStepUp(CharacterOwner))
+	{
+		return false;
+	}
+
+	// No actor for "fake" hits when we are on a known good base.
+	const AActor* HitActor = Hit.GetActor();
+	if (!HitActor)
+	{
+		return true;
+	}
+
+	if (!HitActor->CanBeBaseForCharacter(CharacterOwner))
+	{
+		return false;
+	}
+	return true;
+}
+
+
 
 
 bool UCatMovementComponent::IsSitting() const

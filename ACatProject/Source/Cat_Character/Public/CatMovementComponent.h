@@ -29,7 +29,9 @@ public :
 
 	virtual bool CustomFloorSweepTest(FHitResult& OutHit, FTransform capsuleTransform, UCapsuleComponent* capsule, float traceLength, ECollisionChannel
 	                                  TraceChannel, const FCollisionShape& CollisionShape, const FCollisionQueryParams& Params, const
-	                                  FCollisionResponseParams& ResponseParam, bool bDebug) const;
+	                                  FCollisionResponseParams& ResponseParam) const;
+
+	bool CanStepUp(const FHitResult& Hit) const override;
 
 	/** Base Character rotation rate, in deg/sec. only applies in yaw */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement|Rotation")
@@ -46,6 +48,11 @@ public :
 	virtual void RequestRun(bool bNewRun = true);
 
 protected:
+
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(Category = "Character Movement: Walking", EditAnywhere, BlueprintReadWrite)
+	bool bDebug;
+#endif // WITH_EDITORONLY_DATA
 
 	/**	Run speed for this character */
 	UPROPERTY(Category="Character Movement: Walking", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="0"))

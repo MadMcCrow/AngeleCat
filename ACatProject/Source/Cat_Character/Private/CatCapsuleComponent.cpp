@@ -11,8 +11,12 @@
 #include "PhysicsEngine/BodySetup.h"
 #include "PrimitiveSceneProxy.h"
 
-UCatCapsuleComponent::UCatCapsuleComponent(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer), Rotation(-90.f, 0.f, 0.f)
+UCatCapsuleComponent::UCatCapsuleComponent(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
 {
+	// default values for Cat project might be set differently for other projects :
+	Rotation		  = FRotator(-90.f, 0.f, 0.f);
+	CapsuleHalfHeight = 20.f;
+	CapsuleRadius	  = 10.f;
 }
 
 // From Engine\Source\Runtime\Engine\Private\Components\CapsuleComponent.cpp

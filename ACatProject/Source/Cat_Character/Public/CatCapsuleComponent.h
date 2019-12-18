@@ -29,7 +29,7 @@ public:
 	void SetShapeToNewGeomSphyl(const FPhysicsShapeHandle& Shape);
 #endif // WITH_PHYSX
 	
-	/** Rotation of the */
+	/** Rotation of the  capsule*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shape")
 	FRotator Rotation;
 
