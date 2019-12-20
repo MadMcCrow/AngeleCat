@@ -31,12 +31,29 @@ public :
 	                                  TraceChannel, const FCollisionShape& CollisionShape, const FCollisionQueryParams& Params, const
 	                                  FCollisionResponseParams& ResponseParam) const;
 
+	/** Perform rotation over deltaTime */
+	virtual void PhysicsRotation(float DeltaTime) override;
+
 	bool CanStepUp(const FHitResult& Hit) const override;
 
-	/** Base Character rotation rate, in deg/sec. only applies in yaw */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement|Rotation")
-	float BaseRotationRate;
+	/**
+	 * If true, Will enable turn in place animation. Overrides OrientRotationToMovement and bUseControllerDesiredRotation. 
+	 */
+	UPROPERTY(Category = "Character Movement (Rotation Settings)", EditAnywhere, BlueprintReadWrite)
+	uint8 bUseTurnInPlaceRotationRate : 1;
 
+	/**
+	 * If speed is faster than this, we will no apply turn in place
+	 */
+	UPROPERTY(Category = "Character Movement (Rotation Settings)", EditAnywhere, BlueprintReadWrite)
+	float MaxTurnInPlaceSpeed;
+
+	/**
+	 * If Rotation angle is bigger than this, we need to turn in place
+	 */
+	UPROPERTY(Category = "Character Movement (Rotation Settings)", EditAnywhere, BlueprintReadWrite)
+	float MinTurnInPlaceAngle;
+	
 	/**Get current sitting status */
 	UFUNCTION(BlueprintPure, Category = "Movement|Sitting")
 	virtual bool IsSitting() const;
@@ -46,6 +63,16 @@ public :
 
 	UFUNCTION(BlueprintCallable, Category= "Movement|Running")
 	virtual void RequestRun(bool bNewRun = true);
+
+	UFUNCTION(BlueprintPure, Category = "Movement|Walking")
+	virtual bool CanPlayTurnInPlace() const;
+
+	UFUNCTION(BlueprintPure, Category = "Movement|TurnInPlace")
+	virtual FRotator GetTurnInPlaceRotation() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Movement|TurnInPlace")
+	virtual void SetIsInTurnInPlaceAnim(bool bIsInAnim);
+
 
 protected:
 
@@ -76,7 +103,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Movement|Sitting")
 	virtual void Stand();
 
-
 private:
 
 	/**	Is Sitting ? */
@@ -102,4 +128,7 @@ private:
 
 	UPROPERTY(transient)
 	bool bIsRunning;
+
+	UPROPERTY(transient)
+	bool bIsInTurnInPlaceAnimation;
 };

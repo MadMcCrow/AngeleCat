@@ -32,7 +32,23 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Movement|Speed", meta = (BlueprintThreadSafe))
 	FORCEINLINE float GetSpeed() const {return GetVelocity().Size();}
 
-		/** Get velocity's vector's length*/
+	/** Get Direction's vector */
+	UFUNCTION(BlueprintPure, Category = "Movement|Direction", meta = (BlueprintThreadSafe))
+	FORCEINLINE FVector GetDirection() const { return Direction; }
+
+	/** Get Direction's vector */
+	UFUNCTION(BlueprintPure, Category = "Movement|Direction", meta = (BlueprintThreadSafe))
+	FORCEINLINE FVector GetInputDirection() const { return InputDirection; }
+	
+	/** Get velocity's vector */
+	UFUNCTION(BlueprintPure, Category = "Movement|Direction", meta = (BlueprintThreadSafe))
+	FORCEINLINE float GetDirectionDotVelocity() const { return GetDirection() | GetVelocity(); }
+
+	/** Get velocity's vector */
+	UFUNCTION(BlueprintPure, Category = "Movement|Direction", meta = (BlueprintThreadSafe))
+	FORCEINLINE float GetInputDotVelocity() const { return GetInputDirection() | GetVelocity(); }
+
+	/** Get velocity's vector's length*/
 	UFUNCTION(BlueprintPure, Category = "Movement|State Machine", meta = (BlueprintThreadSafe))
 	FORCEINLINE bool IsMoving() const {return GetVelocity().Size() >= MinWalkSpeed;}
 
@@ -52,6 +68,14 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Movement|State Machine", meta = (BlueprintThreadSafe))
 	FORCEINLINE bool IsStanding() const {return !bIsSitting && !bIsCrouching;}
 
+	/** Get sitting  and crouching info stored in this instance */
+	UFUNCTION(BlueprintPure, Category = "Movement|TurnInPlace", meta = (BlueprintThreadSafe))
+	FORCEINLINE bool IsTurnInPlace() const { return bIsInTurnInPlace; }
+
+	/** Get sitting  and crouching info stored in this instance */
+	UFUNCTION(BlueprintPure, Category = "Movement|TurnInPlace", meta = (BlueprintThreadSafe))
+	FORCEINLINE float GetTurnInPlaceAngle() const { return TurnInPlaceAngle; }
+
 	/**Try to get owning cat character */
 	UFUNCTION(BlueprintPure, Category = "Owner")
 	ACatPawn * TryGetOwningCat(bool &isValid) const;
@@ -59,9 +83,17 @@ protected:
 
 private:
 
-	/**	Skeleton movement speed	weighted direction	*/
+	/**	Skeleton movement speed	weighted direction in world space */
 	UPROPERTY(transient)
 	FVector Velocity;
+
+	/**	Actor direction in world space	*/
+	UPROPERTY(transient)
+	FVector Direction;
+
+	/**	Aiming Direction in world space	*/
+	UPROPERTY(transient)
+	FVector InputDirection;
 
 	/**	Is character crouching	*/
 	UPROPERTY(transient)
@@ -74,6 +106,14 @@ private:
 	/**	Is character sitting	*/
 	UPROPERTY(transient)
 	bool bIsSitting;
+
+	/**	Is character doing turn in place	*/
+	UPROPERTY(transient)
+	bool bIsInTurnInPlace;
+
+	/**	Actor direction in world space	*/
+	UPROPERTY(transient)
+	float TurnInPlaceAngle;
 
 	/**	minimum speed to take into consideration	*/
 	static float MinWalkSpeed;

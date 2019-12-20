@@ -5,8 +5,7 @@
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
 #include "CatCapsuleComponent.h"
-//#include "EngineStats.h"
-//#include "Net/PerfCountersHelpers.h"
+#include "GameFramework/Controller.h"
 
 #if !UE_BUILD_SHIPPING
 #include "DrawDebugHelpers.h"
@@ -22,19 +21,20 @@ float UCatMovementComponent::MinMovingSpeed = KINDA_SMALL_NUMBER;
 UCatMovementComponent::UCatMovementComponent() : Super()
 {
 	bCanMove = true;
-	BaseRotationRate = 450.f;
 	MaxWalkSpeedCrouched = 50.f;
 	MaxWalkSpeed = 60;
 	MaxRunSpeed	 = 100.f;
 	MinAnalogWalkSpeed = 0.2f;
 	BrakingDecelerationWalking = 30.f;
-	MaxStepHeight = 12.f;
+	MaxStepHeight = 5.f;
 	MaxAcceleration = 50.f;
 	bUseSeparateBrakingFriction =true;
 	
     // base configuration : 
-	bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	RotationRate = FRotator(0.0f, BaseRotationRate, 0.0f); // ...at this rotation rate
+	bOrientRotationToMovement = false; // Character moves in the direction of input...	
+	RotationRate = FRotator(0.0f, 50.f, 0.0f); // ...at this rotation rate
+	MinTurnInPlaceAngle = 20.f; // we don't need turn in place for less than .. degree
+	bUseTurnInPlaceRotationRate = true; // we wnat turn in place
 	JumpZVelocity = 600.f; // cats are known to jump high
 	AirControl = 0.5f; // cats are very agile
 	bIsSitting = false; // we don't start sitting
@@ -278,7 +278,7 @@ bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform
 #if !UE_BUILD_SHIPPING && WITH_EDITORONLY_DATA
 		if (bDebug)
 		{
-			DrawDebugBox(GetWorld(), A, BoxShape.GetExtent(), FColor::Orange, true, 0.1, 0, 1);
+			//DrawDebugBox(GetWorld(), A, BoxShape.GetExtent(), FColor::Orange, true, 0.1, 0, 1);
 			DrawDebugBox(GetWorld(), B, BoxShape.GetExtent(), retval ? FColor::Green : FColor::Red, true, 0.2, 0, 1);
 		}
 #endif
@@ -289,8 +289,23 @@ bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform
 	const FTransform cattrans = cat->GetOwner() ? cat->GetOwner()->GetActorTransform() : FTransform();
 	
 	bBlockingHit = SweepTest(cattrans.TransformPosition(cat->GetLocalBottomLocation())) || SweepTest( cattrans.TransformPosition(cat->GetLocalTopLocation()));
-		
+
+	// Ultimate safety, try it the hard way
+	if(!bBlockingHit)
+		bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, start, start + gravity * traceLength, FQuat::Identity, TraceChannel, CollisionShape, Params, ResponseParam);
+	
 	return bBlockingHit;
+}
+
+void UCatMovementComponent::PhysicsRotation(float DeltaTime)
+{
+	// Now we want to enable turn in place :
+	// the principle is to use an anim to play to rotate what the root motion did not do.
+	// So we just check if we can rotate or if we need to wait for turn in place to occur : 
+	if (!bUseTurnInPlaceRotationRate || !bIsInTurnInPlaceAnimation)
+		return Super::PhysicsRotation(DeltaTime);
+
+
 }
 
 bool UCatMovementComponent::CanStepUp(const FHitResult& Hit) const
@@ -342,6 +357,57 @@ void UCatMovementComponent::RequestSit(bool bNewSit)
 void UCatMovementComponent::RequestRun(bool bNewRun)
 {
 	bIsRunning = CanRunInCurrentState() && bNewRun;
+}
+
+bool UCatMovementComponent::CanPlayTurnInPlace() const
+{
+	if (!GetCharacterOwner())
+		return false;
+
+	if(IsSitting())
+		return false;
+	
+	if (GetCharacterOwner()->GetVelocity().Size() > MaxTurnInPlaceSpeed)
+		return false;
+	const FRotator CurrentRotation = UpdatedComponent->GetComponentRotation();
+	const FRotator DesiredRotation = GetTurnInPlaceRotation();
+
+	if ((DesiredRotation.Vector() | CurrentRotation.Vector()) <= FMath::Cos(MinTurnInPlaceAngle))
+		return true;
+
+	return false;
+}
+
+FRotator UCatMovementComponent::GetTurnInPlaceRotation() const
+{
+	FRotator DesiredRotation = FRotator::ZeroRotator;
+	if (GetCharacterOwner()->Controller)
+	{
+		DesiredRotation = GetCharacterOwner()->Controller->GetDesiredRotation();
+	}
+	else
+	{
+		return DesiredRotation;
+	}
+
+	if (ShouldRemainVertical())
+	{
+		DesiredRotation.Pitch = 0.f;
+		DesiredRotation.Yaw = FRotator::NormalizeAxis(DesiredRotation.Yaw);
+		DesiredRotation.Roll = 0.f;
+	}
+	else
+	{
+		DesiredRotation.Normalize();
+	}
+	
+	return DesiredRotation;
+}
+
+void UCatMovementComponent::SetIsInTurnInPlaceAnim(bool bIsInAnim)
+{
+	bIsInTurnInPlaceAnimation = bIsInAnim;
+	
 }
 
 void UCatMovementComponent::Sit()

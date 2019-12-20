@@ -40,7 +40,7 @@ void ACatPlayerController::BeginPlay()
 
 bool ACatPlayerController::IsUsingMouse() const
 {
-    return true;
+    return false;
 }
 
 void ACatPlayerController::EnableMouse(UWidget * inWidgetToFocus)

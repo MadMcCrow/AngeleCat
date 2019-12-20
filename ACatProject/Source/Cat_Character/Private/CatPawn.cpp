@@ -42,8 +42,7 @@ void ACatPawn::MoveForward(float inValue)
 
 void ACatPawn::MoveRight(float inValue)
 {
-	if(GetCharacterMovement())
-		GetCharacterMovement()->AddInputVector( GetActorRightVector() * inValue, false);
+	// A Cat does not strafe but turn.
 }
 
  void ACatPawn::Run()
