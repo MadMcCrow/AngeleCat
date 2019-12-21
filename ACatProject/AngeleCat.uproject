@@ -47,5 +47,11 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		}
+	],
+	"Plugins": [
+		{
+			"Name": "SteamController",
+			"Enabled": true
+		}
 	]
 }

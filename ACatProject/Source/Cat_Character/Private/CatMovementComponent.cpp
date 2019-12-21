@@ -284,7 +284,7 @@ bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform
 #endif
 		return retval;
 	};
-	//TODO :  do front and back test instead of something else.
+	
 	const auto cat = Cast<UCatCapsuleComponent>(capsule);
 	const FTransform cattrans = cat->GetOwner() ? cat->GetOwner()->GetActorTransform() : FTransform();
 	
@@ -381,9 +381,11 @@ bool UCatMovementComponent::CanPlayTurnInPlace() const
 FRotator UCatMovementComponent::GetTurnInPlaceRotation() const
 {
 	FRotator DesiredRotation = FRotator::ZeroRotator;
-	if (GetCharacterOwner()->Controller)
+	FRotator CharacterRotation = FRotator::ZeroRotator;
+	if (GetCharacterOwner() && GetCharacterOwner()->Controller)
 	{
-		DesiredRotation = GetCharacterOwner()->Controller->GetDesiredRotation();
+		DesiredRotation = GetCharacterOwner()->Controller->GetControlRotation();
+		CharacterRotation = UpdatedComponent->GetComponentRotation();
 	}
 	else
 	{
@@ -395,13 +397,17 @@ FRotator UCatMovementComponent::GetTurnInPlaceRotation() const
 		DesiredRotation.Pitch = 0.f;
 		DesiredRotation.Yaw = FRotator::NormalizeAxis(DesiredRotation.Yaw);
 		DesiredRotation.Roll = 0.f;
+		CharacterRotation.Pitch = 0.f;
+		CharacterRotation.Yaw = FRotator::NormalizeAxis(CharacterRotation.Yaw);
+		CharacterRotation.Roll = 0.f;
 	}
 	else
 	{
 		DesiredRotation.Normalize();
+		CharacterRotation.Normalize();
 	}
 	
-	return DesiredRotation;
+	return CharacterRotation - DesiredRotation;
 }
 
 void UCatMovementComponent::SetIsInTurnInPlaceAnim(bool bIsInAnim)
