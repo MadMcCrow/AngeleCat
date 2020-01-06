@@ -13,7 +13,13 @@
 
 // TODO : may not be a good think to just copy the define/declares
 DEFINE_LOG_CATEGORY_STATIC(LogCharacterMovement, Log, All);
-//DECLARE_CYCLE_STAT(TEXT("Char FindFloor"), STAT_CharFindFloor, STATGROUP_Character);
+DECLARE_CYCLE_STAT(TEXT("Char CharStepUp"), STAT_CharStepUp, STATGROUP_Character);
+//
+// MAGIC NUMBERS (from CharacterMovementComponent)
+const float MAX_STEP_SIDE_Z = 0.08f;	// maximum z value for the normal on the vertical side of steps
+const float SWIMBOBSPEED = -80.f;
+const float VERTICAL_SLOPE_NORMAL_Z = 0.001f; // Slope is vertical if Abs(Normal.Z) <= this threshold. Accounts for precision problems that sometimes angle normals slightly off horizontal for vertical surface.
+
 
 
 float UCatMovementComponent::MinMovingSpeed = KINDA_SMALL_NUMBER;
@@ -41,6 +47,8 @@ UCatMovementComponent::UCatMovementComponent() : Super()
 
 	// one fix could just be  to set to false:
 	bUseFlatBaseForFloorChecks = true;
+
+	bMaintainHorizontalGroundVelocity = false;
 }
 
 void UCatMovementComponent::MoveAlongFloor(const FVector& InVelocity, float DeltaSeconds, FStepDownResult* OutStepDownResult)
@@ -51,6 +59,7 @@ void UCatMovementComponent::MoveAlongFloor(const FVector& InVelocity, float Delt
 		FloorNormal = OutStepDownResult->FloorResult.HitResult.ImpactNormal;
 		// TODO : Check this
 		bFloorNormalIsValid = OutStepDownResult->FloorResult.bBlockingHit;
+		FindFloorAlignmentNormal(OutStepDownResult->FloorResult.HitResult, FVector(0, 0, -1));
 	}
 }
 
@@ -68,6 +77,14 @@ void UCatMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSecond
 	{
 		Sit();
 	}
+
+	// Avoid not being on floor for some reason
+	if (!CurrentFloor.IsWalkableFloor() )//&& (MovementMode == MOVE_Walking || MovementMode == MOVE_Falling))
+	{
+		FindFloor(UpdatedComponent->GetComponentLocation(), CurrentFloor, false);
+		AdjustFloorHeight();
+		SetBaseFromFloor(CurrentFloor);
+	}
 }
 
 void UCatMovementComponent::UpdateCharacterStateAfterMovement(float DeltaSeconds)
@@ -82,7 +99,7 @@ void UCatMovementComponent::UpdateCharacterStateAfterMovement(float DeltaSeconds
 
  bool UCatMovementComponent::ApplyRequestedMove(float DeltaTime, float MaxAccel, float MaxSpeed, float Friction, float BrakingDeceleration, FVector& OutAcceleration, float& OutRequestedSpeed)
 {
-	bool retval = Super::ApplyRequestedMove(DeltaTime, MaxAccel, MaxSpeed, Friction,  BrakingDeceleration, OutAcceleration, OutRequestedSpeed);
+	const bool retval = Super::ApplyRequestedMove(DeltaTime, MaxAccel, MaxSpeed, Friction,  BrakingDeceleration, OutAcceleration, OutRequestedSpeed);
 	bIsMoving = retval && OutRequestedSpeed >= MinMovingSpeed;
 	return bIsMoving;
 }
@@ -153,8 +170,6 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 	{
 		// Use a shorter height to avoid sweeps giving weird results if we start on a surface.
 		// This also allows us to adjust out of penetrations.
-		const float ShrinkScale = 0.9f;
-		const float ShrinkScaleOverlap = 0.1f;
 		float ShrinkHeight = (PawnHalfHeight - PawnRadius) * (1.f - ShrinkScale);
 		float TraceDist = SweepDistance + ShrinkHeight;
 		FCollisionShape CapsuleShape = FCollisionShape::MakeCapsule(SweepRadius, PawnHalfHeight - ShrinkHeight);
@@ -248,18 +263,17 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform capsuleTransform, UCapsuleComponent * capsule, float traceLength, ECollisionChannel TraceChannel,	const struct FCollisionShape& CollisionShape,	const struct FCollisionQueryParams& Params,	const struct FCollisionResponseParams& ResponseParam) const
 {
 	const FRotator orientation	= capsuleTransform.Rotator();
-	FVector start = capsuleTransform.GetLocation();
+	const FVector start = capsuleTransform.GetLocation();
 	const FVector gravity = FVector::DownVector;
+	bool bBlockingHit = false;
+	
 	if (!capsule || !bUseFlatBaseForFloorChecks || orientation == FRotator::ZeroRotator)
 	{
 		return Super::FloorSweepTest(OutHit, start, start + gravity * traceLength, TraceChannel, CollisionShape, Params, ResponseParam);
 	}
-
-	bool bBlockingHit = false;
 	
 	const float CapsuleRadius = CollisionShape.GetCapsuleRadius();
 	const float CapsuleHeight = CollisionShape.GetCapsuleHalfHeight();
-
 
 	auto SweepTest = [&](const FVector A)->bool {
 		const auto B = A + (gravity * traceLength);
@@ -279,7 +293,7 @@ bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform
 		if (bDebug)
 		{
 			//DrawDebugBox(GetWorld(), A, BoxShape.GetExtent(), FColor::Orange, true, 0.1, 0, 1);
-			DrawDebugBox(GetWorld(), B, BoxShape.GetExtent(), retval ? FColor::Green : FColor::Red, true, 0.2, 0, 1);
+			DrawDebugBox(GetWorld(), B, BoxShape.GetExtent(), retval ? FColor::Green : FColor::Red, false, 0.2, 0, 1);
 		}
 #endif
 		return retval;
@@ -308,39 +322,71 @@ void UCatMovementComponent::PhysicsRotation(float DeltaTime)
 
 }
 
-bool UCatMovementComponent::CanStepUp(const FHitResult& Hit) const
+
+bool UCatMovementComponent::ShouldRemainVertical() const
 {
-	if (!Hit.IsValidBlockingHit() || !HasValidData() || MovementMode == MOVE_Falling)
-	{
-		return false;
-	}
-
-	// No component for "fake" hits when we are on a known good base.
-	const UPrimitiveComponent* HitComponent = Hit.Component.Get();
-	if (!HitComponent)
-	{
-		return true;
-	}
-
-	if (!HitComponent->CanCharacterStepUp(CharacterOwner))
-	{
-		return false;
-	}
-
-	// No actor for "fake" hits when we are on a known good base.
-	const AActor* HitActor = Hit.GetActor();
-	if (!HitActor)
-	{
-		return true;
-	}
-
-	if (!HitActor->CanBeBaseForCharacter(CharacterOwner))
-	{
-		return false;
-	}
-	return true;
+	// Super does this :
+	// return IsMovingOnGround() || IsFalling();
+	return false;
 }
 
+FVector UCatMovementComponent::ComputeGroundMovementDelta(const FVector& Delta, const FHitResult& RampHit, const bool bHitFromLineTrace) const
+{
+	const FVector gravity = FVector(0, 0, -1);
+	const FVector retval		= Super::ComputeGroundMovementDelta(Delta, RampHit, bHitFromLineTrace);
+	const FVector floor_normal   = RampHit.ImpactNormal;
+	const FVector contact_normal = RampHit.Normal;
+
+	// TODO: we must adapt our speed to the floor direction  : 
+
+	return retval;
+
+
+	
+}
+
+FVector UCatMovementComponent::FindFloorAlignmentNormal(const FHitResult& RampHit, const FVector& gravity) const 
+{
+	const float distance = RampHit.bBlockingHit ? RampHit.Distance * 2 : 100;
+	// TODO: we must adapt our alignment to the floor direction  :
+	const auto cat_capsule = Cast<UCatCapsuleComponent>(UpdatedComponent);
+	if (cat_capsule)
+	{
+		AActor * cat = cat_capsule->GetOwner();
+		FVector  cat_normal = FVector(0, 0, 1);
+		if (bAlignToSurfaceWithTrace)
+		{
+			FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(StepUp), false, CharacterOwner);
+			FCollisionResponseParams ResponseParam;
+			InitCollisionParams(QueryParams, ResponseParam);
+			const ECollisionChannel TraceChannel = UpdatedComponent->GetCollisionObjectType();
+
+			auto find_normal = [&TraceChannel, &ResponseParam, &QueryParams, &gravity](UWorld *world, FVector start, float length) -> FVector {
+				FHitResult OutHit;
+				if (world)
+					world->LineTraceSingleByChannel(OutHit, start, start + gravity * length, TraceChannel, QueryParams, ResponseParam);
+				return OutHit.Normal;
+			};
+			const FTransform cat_trans = cat_capsule->GetOwner() ? cat_capsule->GetOwner()->GetActorTransform() : FTransform();
+			const FVector cat_rear = find_normal(GetWorld(), cat_trans.TransformPosition(cat_capsule->GetLocalBottomLocation()), distance);
+			const FVector cat_front = find_normal(GetWorld(), cat_trans.TransformPosition(cat_capsule->GetLocalTopLocation()), distance);
+			cat_normal = (cat_front + cat_rear) / 2;
+		}
+		else
+		{
+			cat_normal = RampHit.ImpactNormal;
+		}
+#if !UE_BUILD_SHIPPING && WITH_EDITORONLY_DATA
+		if (bDebug)
+		{
+			DrawDebugDirectionalArrow(GetWorld(), cat->GetActorLocation(), cat->GetActorLocation() + cat_normal, 10, FColor::Cyan, false, 0.2, 0, 2);
+		}
+#endif
+		return cat_normal;
+
+	}
+	return FVector(0,0,1);
+}
 
 
 

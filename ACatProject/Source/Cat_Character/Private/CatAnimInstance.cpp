@@ -11,7 +11,7 @@ float UCatAnimInstance::MinWalkSpeed = KINDA_SMALL_NUMBER;
 void UCatAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
     Super::NativeUpdateAnimation(DeltaSeconds);
-    auto cat = TryGetOwningCat();
+    const auto cat = TryGetOwningCat();
     if(cat && cat->GetCatMovementComponent())
     {
         Velocity		 = cat->GetVelocity();
@@ -38,13 +38,13 @@ void UCatAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 ACatPawn *  UCatAnimInstance::TryGetOwningCat(bool &isValid) const
 {
-    auto cat = TryGetOwningCat();
+    const auto cat = TryGetOwningCat();
     isValid = cat != nullptr;
     return cat;
 }
 
 ACatPawn *  UCatAnimInstance::TryGetOwningCat() const
 {
-    auto cat = Cast<ACatPawn>(TryGetPawnOwner());
+    const auto cat = Cast<ACatPawn>(TryGetPawnOwner());
     return cat;
 }

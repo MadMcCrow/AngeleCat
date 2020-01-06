@@ -44,7 +44,7 @@ void UCatUserWidget::SetWidgetComponent(UWidgetComponent * comp, TSubclassOf<UCa
 {
    if(!comp)
        return;
-   auto widget = NewWidget(comp,userWidgetClass);
+   const auto widget = NewWidget(comp,userWidgetClass);
    comp->SetWidget(widget);
    comp->SetWidgetSpace(worldSpace ? EWidgetSpace::World : EWidgetSpace::Screen);
 }

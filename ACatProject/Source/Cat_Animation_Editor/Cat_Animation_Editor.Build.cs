@@ -1,4 +1,4 @@
-// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
+// Noe Perard-Gayot <noe.perard@gmail.com> 2019 - All Rights Reserved
 
 using UnrealBuildTool;
 
@@ -9,14 +9,15 @@ public class Cat_Animation_Editor : ModuleRules
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         PrivatePCHHeaderFile = "Private/Cat_Animation_EditorPCH.h";
 
-        //Public module names that this module uses.
-        //In case you would like to add various classes that you're going to use in your game
-        //you should add the core,coreuobject and engine dependencies.
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine" });
+        // UE4 Modules
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine" /*,"AnimGraph"*/});
+        PublicDependencyModuleNames.AddRange(new string[] { "AnimGraph", "BlueprintGraph" });
         
+        // Cat Modules 
+        PublicDependencyModuleNames.AddRange(new string[] { "Cat_Animation" });
+
         //The path for the header files
         PublicIncludePaths.AddRange(new string[] { "Cat_Animation_Editor/Public" });
-
         //The path for the source files
         PrivateIncludePaths.AddRange(new string[] { "Cat_Animation_Editor/Private" });
     }

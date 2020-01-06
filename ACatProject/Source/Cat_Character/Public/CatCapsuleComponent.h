@@ -33,7 +33,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shape")
 	FRotator Rotation;
 
-	FQuat QuatRotation() {return FQuat(Rotation);}
+	FQuat QuatRotation() const {return FQuat(Rotation);}
 
 	virtual FTransform GetWorldTransform() const;
 

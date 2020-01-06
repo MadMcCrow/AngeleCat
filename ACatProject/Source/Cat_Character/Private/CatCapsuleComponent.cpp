@@ -3,13 +3,13 @@
 
 #include "CatCapsuleComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "WorldCollision.h"
 #include "PrimitiveViewRelevance.h"
 #include "PrimitiveSceneProxy.h"
 #include "SceneManagement.h"
 #include "PhysicsEngine/SphylElem.h"
 #include "PhysicsEngine/BodySetup.h"
-#include "PrimitiveSceneProxy.h"
+//#include "PrimitiveSceneProxy.h"
+//#include "WorldCollision.h"
 
 UCatCapsuleComponent::UCatCapsuleComponent(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
 {

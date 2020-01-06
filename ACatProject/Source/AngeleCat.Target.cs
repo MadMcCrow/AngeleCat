@@ -1,4 +1,4 @@
-// Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
+// Noe Perard-Gayot <noe.perard@gmail.com> 2019 - All Rights Reserved
 
 using UnrealBuildTool;
 using System.Collections.Generic;
@@ -16,5 +16,7 @@ public class AngeleCatTarget : TargetRules
 		ExtraModuleNames.Add("Cat_Actors");
 		ExtraModuleNames.Add("Cat_AI");
 		ExtraModuleNames.Add("Cat_Interaction");
+		ExtraModuleNames.Add("Cat_Animation");
+		DefaultBuildSettings = BuildSettingsVersion.V2;
     }
 }

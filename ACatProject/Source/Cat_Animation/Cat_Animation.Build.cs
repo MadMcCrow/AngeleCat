@@ -1,4 +1,4 @@
-// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
+// Noe Perard-Gayot <noe.perard@gmail.com> 2019 - All Rights Reserved
 
 using UnrealBuildTool;
 
@@ -13,7 +13,9 @@ public class Cat_Animation : ModuleRules
         //In case you would like to add various classes that you're going to use in your game
         //you should add the core,coreuobject and engine dependencies.
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine" });
-        
+        PrivateDependencyModuleNames.AddRange(new string[] {  "AnimGraphRunTime"});
+        PrivateDependencyModuleNames.AddRange(new string[] { "AnimGraph", "BlueprintGraph" });
+
         //The path for the header files
         PublicIncludePaths.AddRange(new string[] { "Cat_Animation/Public" });
 
