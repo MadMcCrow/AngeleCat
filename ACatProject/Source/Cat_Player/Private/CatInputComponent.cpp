@@ -31,7 +31,7 @@ void UCatInputComponent::BindInputsToCharacter(ACharacter * characterTarget)
 	BindAxis(TurnAxis,        characterTarget, &APawn::AddControllerYawInput);
 	BindAxis(LookUpAxis,      characterTarget, &APawn::AddControllerPitchInput);
 
-    auto cat = Cast<ACatPlayerPawn>(characterTarget);
+    const auto cat = Cast<ACatPlayerPawn>(characterTarget);
     if(cat != nullptr)
     {
 	    BindAxis(MoveForwardAxis,   cat, &ACatPlayerPawn::MoveForward);

@@ -2,8 +2,8 @@
 
 
 #include "CatPlayerStatics.h"
-#include "WidgetLayoutLibrary.h"
-#include "Widget.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/Widget.h"
 #include "GameFramework/PlayerController.h"
 
 FVector2D UCatPlayerStatics::GetMouseBorderOverlap(UObject * WorldContextObject, float xThreshold,float yThreshold, bool invertXY, bool allowOutsideMovement)
@@ -50,7 +50,7 @@ void UCatPlayerStatics::SetPlayerInputMode(APlayerController * player, EUIInputM
 	if (player == nullptr)	
 		return;
 
-	EMouseLockMode inMouseLockMode = EMouseLockMode::LockInFullscreen;
+	const EMouseLockMode inMouseLockMode = EMouseLockMode::LockInFullscreen;
 		
 	switch(inputMode)
 	{
@@ -82,7 +82,7 @@ void UCatPlayerStatics::SetPlayerInputMode(APlayerController * player, EUIInputM
 	break;
 	case EUIInputMode::Game_Only :
 		{
-			FInputModeGameOnly mode;
+			const FInputModeGameOnly mode;
 			player->SetInputMode(mode);
 		}
 		player->bShowMouseCursor = false;

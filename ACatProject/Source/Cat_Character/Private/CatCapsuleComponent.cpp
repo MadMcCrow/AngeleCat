@@ -3,19 +3,25 @@
 
 #include "CatCapsuleComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "WorldCollision.h"
 #include "PrimitiveViewRelevance.h"
 #include "PrimitiveSceneProxy.h"
 #include "SceneManagement.h"
 #include "PhysicsEngine/SphylElem.h"
 #include "PhysicsEngine/BodySetup.h"
-#include "PrimitiveSceneProxy.h"
+//#include "PrimitiveSceneProxy.h"
+//#include "WorldCollision.h"
 
-const FRotator UCatCapsuleComponent::Rotation = FRotator(90.f,0.f,0.f);
+UCatCapsuleComponent::UCatCapsuleComponent(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
+{
+	// default values for Cat project might be set differently for other projects :
+	Rotation		  = FRotator(-90.f, 0.f, 0.f);
+	CapsuleHalfHeight = 20.f;
+	CapsuleRadius	  = 10.f;
+}
 
 // From Engine\Source\Runtime\Engine\Private\Components\CapsuleComponent.cpp
 template <EShapeBodySetupHelper UpdateBodySetupAction>
-bool InvalidateOrUpdateCatCapsuleBodySetup(UBodySetup*& ShapeBodySetup, bool bUseArchetypeBodySetup, float CapsuleRadius, float CapsuleHalfHeight)
+bool InvalidateOrUpdateCatCapsuleBodySetup(UBodySetup*& ShapeBodySetup, bool bUseArchetypeBodySetup, float CapsuleRadius, float CapsuleHalfHeight, const FQuat &Rotation)
 {
 	check((bUseArchetypeBodySetup && UpdateBodySetupAction == EShapeBodySetupHelper::InvalidateSharingIfStale) || (!bUseArchetypeBodySetup && UpdateBodySetupAction == EShapeBodySetupHelper::UpdateBodySetup));
 	check(ShapeBodySetup->AggGeom.SphylElems.Num() == 1);
@@ -26,7 +32,7 @@ bool InvalidateOrUpdateCatCapsuleBodySetup(UBodySetup*& ShapeBodySetup, bool bUs
 	if (UpdateBodySetupAction == EShapeBodySetupHelper::UpdateBodySetup)
 	{
         FTransform Custom = FTransform::Identity;
-        Custom.SetRotation(UCatCapsuleComponent::QuatRotation());
+        Custom.SetRotation(Rotation);
 		SE->SetTransform(Custom);
 		SE->Radius = CapsuleRadius;
 		SE->Length = Length;
@@ -57,7 +63,8 @@ FPrimitiveSceneProxy* UCatCapsuleComponent::CreateSceneProxy()
 		}
 
 		FDrawCylinderSceneProxy(const UCatCapsuleComponent* InComponent)
-			:	FPrimitiveSceneProxy(InComponent)
+			: FPrimitiveSceneProxy(InComponent)
+			,	Rotation(InComponent->Rotation)
 			,	bDrawOnlyIfSelected( InComponent->bDrawOnlyIfSelected )
 			,	CapsuleRadius( InComponent->CapsuleRadius )
 			,	CapsuleHalfHeight( InComponent->CapsuleHalfHeight )
@@ -73,7 +80,7 @@ FPrimitiveSceneProxy* UCatCapsuleComponent::CreateSceneProxy()
 		
 			const FMatrix &LocalToWorld = GetLocalToWorld();
 			FTransform Custom = FTransform(LocalToWorld);
-			FRotator Rot = UCatCapsuleComponent::Rotation + FRotator(Custom.GetRotation());
+			FRotator Rot = Rotation + FRotator(Custom.GetRotation());
 			Rot.Normalize();
 			Custom.SetRotation(FQuat(Rot));
 			const FMatrix &LocalToWorldFixed = Custom.ToMatrixWithScale();
@@ -111,6 +118,7 @@ FPrimitiveSceneProxy* UCatCapsuleComponent::CreateSceneProxy()
 		uint32 GetAllocatedSize( void ) const { return( FPrimitiveSceneProxy::GetAllocatedSize() ); }
 
 	private:
+		const FRotator	Rotation;
 		const uint32	bDrawOnlyIfSelected:1;
 		const float		CapsuleRadius;
 		const float		CapsuleHalfHeight;
@@ -125,14 +133,14 @@ void UCatCapsuleComponent::UpdateBodySetup()
 {
 	if (PrepareSharedBodySetup<UCapsuleComponent>())
 	{
-		bUseArchetypeBodySetup = InvalidateOrUpdateCatCapsuleBodySetup<EShapeBodySetupHelper::InvalidateSharingIfStale>(ShapeBodySetup, bUseArchetypeBodySetup, CapsuleRadius, CapsuleHalfHeight);
+		bUseArchetypeBodySetup = InvalidateOrUpdateCatCapsuleBodySetup<EShapeBodySetupHelper::InvalidateSharingIfStale>(ShapeBodySetup, bUseArchetypeBodySetup, CapsuleRadius, CapsuleHalfHeight, QuatRotation());
 	}
 
 	CreateShapeBodySetupIfNeededSphyl();
 
 	if (!bUseArchetypeBodySetup)
 	{
-		InvalidateOrUpdateCatCapsuleBodySetup<EShapeBodySetupHelper::UpdateBodySetup>(ShapeBodySetup, bUseArchetypeBodySetup, CapsuleRadius, CapsuleHalfHeight);
+		InvalidateOrUpdateCatCapsuleBodySetup<EShapeBodySetupHelper::UpdateBodySetup>(ShapeBodySetup, bUseArchetypeBodySetup, CapsuleRadius, CapsuleHalfHeight, QuatRotation());
 	}
 }
 
@@ -196,3 +204,25 @@ void UCatCapsuleComponent::SetShapeToNewGeomSphyl(const FPhysicsShapeHandle& Sha
 	FPhysicsInterface::SetUserData(Shape, (void*)ShapeBodySetup->AggGeom.SphylElems[0].GetUserData());
 }
 #endif // WITH_PHYSX
+
+FTransform UCatCapsuleComponent::GetWorldTransform() const
+{
+	return FTransform(Rotation, GetComponentLocation(), GetComponentScale());
+}
+FVector UCatCapsuleComponent::GetLocalTopLocation(bool bIncludeRadius) const
+{
+	return (Rotation + FRotator(90.f,0.f,0.f)).Vector() * (bIncludeRadius ? CapsuleHalfHeight : CapsuleHalfHeight - CapsuleRadius);
+}
+
+FVector UCatCapsuleComponent::GetLocalBottomLocation(bool bIncludeRadius) const
+{
+	return (Rotation + FRotator(90.f, 0.f, 0.f)).Vector() * -1.f * (bIncludeRadius ? CapsuleHalfHeight : CapsuleHalfHeight - CapsuleRadius);
+}
+FVector UCatCapsuleComponent::GetWorldTopLocation(bool bIncludeRadius) const
+{
+	return GetLocalTopLocation(bIncludeRadius) + GetComponentLocation();
+}
+FVector UCatCapsuleComponent::GetWorldBottomLocation(bool bIncludeRadius) const
+{
+	return GetLocalBottomLocation(bIncludeRadius) + GetComponentLocation();
+}

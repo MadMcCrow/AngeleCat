@@ -2,7 +2,7 @@
 
 
 #include "CatHUD.h"
-#include "UserWidget.h"
+#include "Blueprint/UserWidget.h"
 
 
 void ACatHUD::SpawnHUDWidget()

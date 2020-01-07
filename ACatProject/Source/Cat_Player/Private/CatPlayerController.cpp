@@ -18,7 +18,7 @@ ACatPlayerController::ACatPlayerController(const FObjectInitializer &ObjectIniti
 void ACatPlayerController::SetupInputComponent()
 {
     // create a different InputComponent class but still want the default bindings
-	if (InputComponent == NULL)
+	if (!InputComponent)
 	{
 		InputComponent = NewObject<UCatInputComponent>(this, TEXT("PC_InputComponent0"));
 		InputComponent->RegisterComponent();
@@ -40,7 +40,7 @@ void ACatPlayerController::BeginPlay()
 
 bool ACatPlayerController::IsUsingMouse() const
 {
-    return true;
+    return false;
 }
 
 void ACatPlayerController::EnableMouse(UWidget * inWidgetToFocus)
