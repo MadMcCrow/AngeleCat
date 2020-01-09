@@ -226,3 +226,16 @@ FVector UCatCapsuleComponent::GetWorldBottomLocation(bool bIncludeRadius) const
 {
 	return GetLocalBottomLocation(bIncludeRadius) + GetComponentLocation();
 }
+
+FVector UCatCapsuleComponent::GetRealExtendVector(bool bInWorld) const
+{
+	float radius, half_height;
+	GetScaledCapsuleSize(radius, half_height);
+	const auto CapsuleTransform = FTransform(Rotation, bInWorld ? GetComponentLocation() : FVector::ZeroVector, bInWorld ? GetComponentScale() : FVector::OneVector);
+	const FVector Z_without_hemisphere = Rotation.RotateVector(FVector::UpVector * (half_height - radius)).ProjectOnTo(FVector::UpVector);
+	const FVector Y = Rotation.RotateVector(FVector::RightVector * (radius)   + FVector::UpVector * (half_height - radius)).ProjectOnTo(FVector::RightVector);
+	const FVector X = Rotation.RotateVector(FVector::ForwardVector * (radius) + FVector::UpVector * (half_height - radius)).ProjectOnTo(FVector::ForwardVector);
+	const FVector Z = Z_without_hemisphere + FVector::UpVector * radius;
+	
+	return FVector(X.X, Y.Y, Z.Z);
+}

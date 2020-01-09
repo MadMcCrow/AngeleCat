@@ -58,7 +58,7 @@ void UCatMovementComponent::MoveAlongFloor(const FVector& InVelocity, float Delt
 	{
 		FloorNormal = OutStepDownResult->FloorResult.HitResult.ImpactNormal;
 		// TODO : Check this
-		bFloorNormalIsValid = OutStepDownResult->FloorResult.bBlockingHit;
+		bFloorNormalIsValid = OutStepDownResult->FloorResult.bBlockingHit && !FloorNormal.IsNearlyZero(KINDA_SMALL_NUMBER);
 		FindFloorAlignmentNormal(OutStepDownResult->FloorResult.HitResult, FVector(0, 0, -1));
 	}
 }
@@ -78,13 +78,18 @@ void UCatMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSecond
 		Sit();
 	}
 
-	// Avoid not being on floor for some reason
-	if (!CurrentFloor.IsWalkableFloor() )//&& (MovementMode == MOVE_Walking || MovementMode == MOVE_Falling))
+	FindFloor(UpdatedComponent->GetComponentLocation(), CurrentFloor, false);
+	AdjustFloorHeight();
+	SetBaseFromFloor(CurrentFloor);
+
+	if (CurrentFloor.HitResult.IsValidBlockingHit())
 	{
-		FindFloor(UpdatedComponent->GetComponentLocation(), CurrentFloor, false);
-		AdjustFloorHeight();
-		SetBaseFromFloor(CurrentFloor);
+		FloorNormal = CurrentFloor.HitResult.ImpactNormal;
+		// TODO : Check this
+		bFloorNormalIsValid = CurrentFloor.HitResult.bBlockingHit;
+		//FloorNormal = FindFloorAlignmentNormal(CurrentFloor.HitResult, FVector(0, 0, -1));
 	}
+
 }
 
 void UCatMovementComponent::UpdateCharacterStateAfterMovement(float DeltaSeconds)
@@ -130,12 +135,92 @@ float UCatMovementComponent::GetMaxSpeed() const
 }
 
 
+void UCatMovementComponent::FindFloor(const FVector& CapsuleLocation, FFindFloorResult& OutFloorResult, bool bCanUseCachedLocation, const FHitResult* DownwardSweepResult) const
+{
+	if (!HasValidData() || !UpdatedComponent->IsQueryCollisionEnabled())
+	{
+		return Super::FindFloor(CapsuleLocation, OutFloorResult, bCanUseCachedLocation, DownwardSweepResult);
+	}
+
+	auto CatCapsule = Cast<UCatCapsuleComponent>(CharacterOwner->GetCapsuleComponent());
+	if (!CatCapsule
+		|| (DownwardSweepResult != NULL && DownwardSweepResult->IsValidBlockingHit())
+		|| CatCapsule->Rotation == FRotator::ZeroRotator)
+	{
+		return Super::FindFloor(CapsuleLocation, OutFloorResult, bCanUseCachedLocation, DownwardSweepResult);
+	}
+
+	const float length = CatCapsule->GetRealExtendVector().Z;
+	const float radius = CatCapsule->GetRealExtendVector().Y;
+	
+	ComputeFloorDist(CapsuleLocation, length, length, OutFloorResult, radius, DownwardSweepResult);
+}
+
+
+bool UCatMovementComponent::IsValidLandingSpot(const FVector& CapsuleLocation, const FHitResult& Hit) const
+{
+	if (!Hit.bBlockingHit)
+	{
+		return false;
+	}
+
+	// Skip some checks if penetrating. Penetration will be handled by the FindFloor call (using a smaller capsule)
+	if (!Hit.bStartPenetrating)
+	{
+		// Reject unwalkable floor normals.
+		if (!IsWalkable(Hit))
+		{
+			return false;
+		}
+
+	
+		const auto CatCapsule = Cast<UCatCapsuleComponent>(CharacterOwner->GetCapsuleComponent());
+		if (!CatCapsule)
+			return false;
+		const float PawnRadius		= CatCapsule->GetRealExtendVector().X;
+		const float PawnHalfHeight	= CatCapsule->GetRealExtendVector().Z;
+
+		// Reject hits that are above our lower hemisphere (can happen when sliding down a vertical surface).
+		const float LowerHemisphereZ = Hit.Location.Z - PawnHalfHeight + PawnRadius;
+		if (Hit.ImpactPoint.Z >= LowerHemisphereZ)
+		{
+			return false;
+		}
+
+		// Reject hits that are barely on the cusp of the radius of the capsule
+		if (!IsWithinEdgeTolerance(Hit.Location, Hit.ImpactPoint, PawnRadius + PawnRadius * ShrinkScale))
+		{
+			return false;
+		}
+	}
+	else
+	{
+		// Penetrating
+		if (Hit.Normal.Z < KINDA_SMALL_NUMBER)
+		{
+			// Normal is nearly horizontal or downward, that's a penetration adjustment next to a vertical or overhanging wall. Don't pop to the floor.
+			return false;
+		}
+	}
+
+	FFindFloorResult FloorResult;
+	FindFloor(CapsuleLocation, FloorResult, false, &Hit);
+
+	if (!FloorResult.IsWalkableFloor())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+
 void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, float LineDistance, float SweepDistance, FFindFloorResult& OutFloorResult, float SweepRadius, const FHitResult* DownwardSweepResult) const
 {
+
 	UE_LOG(LogCharacterMovement, VeryVerbose, TEXT("[Role:%d] ComputeFloorDist: %s at location %s"), (int32)CharacterOwner->GetLocalRole(), *GetNameSafe(CharacterOwner), *CapsuleLocation.ToString());
 	OutFloorResult.Clear();
 
-	float PawnRadius, PawnHalfHeight;
 
 	auto CatCapsule = Cast<UCatCapsuleComponent>(CharacterOwner->GetCapsuleComponent());
 	if (!CatCapsule 
@@ -145,11 +230,10 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 		Super::ComputeFloorDist(CapsuleLocation, LineDistance, SweepDistance, OutFloorResult, SweepRadius, DownwardSweepResult);
 		return;
 	}
-
-	CatCapsule->GetScaledCapsuleSize(PawnRadius, PawnHalfHeight);
+	const FVector Extend = CatCapsule->GetRealExtendVector();
+	float PawnHalfHeight = Extend.Z;
+	float PawnRadius	 = Extend.X;
 	const auto CapsuleTransform = FTransform(CatCapsule->Rotation, CapsuleLocation, CatCapsule->GetComponentScale());
-	FVector ZCapsuleHalf = CatCapsule->Rotation.RotateVector(FVector::UpVector * (PawnHalfHeight - PawnRadius)).ProjectOnTo(FVector::UpVector);
-	PawnHalfHeight = ZCapsuleHalf.Size() + PawnRadius;
 
  	bool bSkipSweep = false;
 	// We require the sweep distance to be >= the line distance, otherwise the HitResult can't be interpreted as the sweep result.
@@ -181,7 +265,7 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 		{
 			// Reject hits adjacent to us, we only care about hits on the bottom portion of our capsule.
 			// Check 2D distance to impact point, reject if within a tolerance from radius.
-			if (Hit.bStartPenetrating || !IsWithinEdgeTolerance(CapsuleLocation, Hit.ImpactPoint, CapsuleShape.Capsule.Radius))
+			if (Hit.bStartPenetrating || !IsWithinEdgeTolerance(CapsuleLocation, Hit.ImpactPoint, CapsuleShape.Capsule.Radius * (1 + ShrinkScale)))
 			{
 				// Use a capsule with a slightly smaller radius and shorter height to avoid the adjacent object.
 				// Capsule must not be nearly zero or the trace will fall back to a line trace from the start point and have the wrong length.
@@ -202,7 +286,7 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 			const float MaxPenetrationAdjust = FMath::Max(MAX_FLOOR_DIST, PawnRadius);
 			const float SweepResult = FMath::Max(-MaxPenetrationAdjust, Hit.Time * TraceDist - ShrinkHeight);
 
-			OutFloorResult.SetFromSweep(Hit, SweepResult, false);
+			OutFloorResult.SetFromSweep(Hit, SweepResult, IsWalkable(Hit) ? false : false);
 			if (Hit.IsValidBlockingHit() && IsWalkable(Hit))
 			{
 				if (SweepResult <= SweepDistance)
@@ -219,7 +303,7 @@ void UCatMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, flo
 	// We do however want to try a line trace if the sweep was stuck in penetration.
 	if (!OutFloorResult.bBlockingHit && !OutFloorResult.HitResult.bStartPenetrating)
 	{
-		OutFloorResult.FloorDist = SweepDistance;
+		OutFloorResult.FloorDist = SweepDistance ;
 		return;
 	}
 
@@ -293,7 +377,7 @@ bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform
 		if (bDebug)
 		{
 			//DrawDebugBox(GetWorld(), A, BoxShape.GetExtent(), FColor::Orange, true, 0.1, 0, 1);
-			DrawDebugBox(GetWorld(), B, BoxShape.GetExtent(), retval ? FColor::Green : FColor::Red, false, 0.2, 0, 1);
+			DrawDebugBox(GetWorld(), B, BoxShape.GetExtent(), retval ? FColor::Green : FColor::Red, false, 0.05, 0, 1);
 		}
 #endif
 		return retval;
@@ -313,13 +397,21 @@ bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform
 
 void UCatMovementComponent::PhysicsRotation(float DeltaTime)
 {
+	// Align Character to floor :
+	float threshold = KINDA_SMALL_NUMBER;
+	if(bFloorNormalIsValid && !FloorNormal.IsNearlyZero(threshold) &&
+		(MovementMode == MOVE_Walking || MovementMode == MOVE_NavWalking) &&
+		!(FloorNormal - FVector::UpVector).IsNearlyZero(threshold))
+	{
+		const FRotator orient = (FloorNormal - FVector::UpVector).Rotation();
+		//MoveUpdatedComponent(FVector::ZeroVector, FRotator(orient.Pitch,0.f,0.f), /*bSweep*/ false);
+	}
+	
 	// Now we want to enable turn in place :
 	// the principle is to use an anim to play to rotate what the root motion did not do.
 	// So we just check if we can rotate or if we need to wait for turn in place to occur : 
 	if (!bUseTurnInPlaceRotationRate || !bIsInTurnInPlaceAnimation)
 		return Super::PhysicsRotation(DeltaTime);
-
-
 }
 
 
