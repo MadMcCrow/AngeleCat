@@ -61,6 +61,8 @@ void UCatMovementComponent::MoveAlongFloor(const FVector& InVelocity, float Delt
 		bFloorNormalIsValid = OutStepDownResult->FloorResult.bBlockingHit && !FloorNormal.IsNearlyZero(KINDA_SMALL_NUMBER);
 		FindFloorAlignmentNormal(OutStepDownResult->FloorResult.HitResult, FVector(0, 0, -1));
 	}
+
+	AdaptToFloorNormal();
 }
 
 
@@ -89,6 +91,8 @@ void UCatMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSecond
 		bFloorNormalIsValid = CurrentFloor.HitResult.bBlockingHit;
 		//FloorNormal = FindFloorAlignmentNormal(CurrentFloor.HitResult, FVector(0, 0, -1));
 	}
+	
+
 
 }
 
@@ -100,6 +104,7 @@ void UCatMovementComponent::UpdateCharacterStateAfterMovement(float DeltaSeconds
 	{
 		Stand();
 	}
+	AdaptToFloorNormal();
 }
 
  bool UCatMovementComponent::ApplyRequestedMove(float DeltaTime, float MaxAccel, float MaxSpeed, float Friction, float BrakingDeceleration, FVector& OutAcceleration, float& OutRequestedSpeed)
@@ -397,16 +402,9 @@ bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform
 
 void UCatMovementComponent::PhysicsRotation(float DeltaTime)
 {
-	// Align Character to floor :
-	float threshold = KINDA_SMALL_NUMBER;
-	if(bFloorNormalIsValid && !FloorNormal.IsNearlyZero(threshold) &&
-		(MovementMode == MOVE_Walking || MovementMode == MOVE_NavWalking) &&
-		!(FloorNormal - FVector::UpVector).IsNearlyZero(threshold))
-	{
-		const FRotator orient = (FloorNormal - FVector::UpVector).Rotation();
-		//MoveUpdatedComponent(FVector::ZeroVector, FRotator(orient.Pitch,0.f,0.f), /*bSweep*/ false);
-	}
-	
+	// Adapt to floor : 
+	AdaptToFloorNormal();
+
 	// Now we want to enable turn in place :
 	// the principle is to use an anim to play to rotate what the root motion did not do.
 	// So we just check if we can rotate or if we need to wait for turn in place to occur : 
@@ -453,19 +451,23 @@ FVector UCatMovementComponent::FindFloorAlignmentNormal(const FHitResult& RampHi
 			InitCollisionParams(QueryParams, ResponseParam);
 			const ECollisionChannel TraceChannel = UpdatedComponent->GetCollisionObjectType();
 
-			auto find_normal = [&TraceChannel, &ResponseParam, &QueryParams, &gravity](UWorld *world, FVector start, float length) -> FVector {
+			auto find_normal = [&TraceChannel, &ResponseParam, &QueryParams, &gravity](UWorld *world, FVector start, float length, bool &IsValid) -> FVector {
 				FHitResult OutHit;
 				if (world)
 					world->LineTraceSingleByChannel(OutHit, start, start + gravity * length, TraceChannel, QueryParams, ResponseParam);
+				IsValid = OutHit.IsValidBlockingHit();
 				return OutHit.Normal;
 			};
 			const FTransform cat_trans = cat_capsule->GetOwner() ? cat_capsule->GetOwner()->GetActorTransform() : FTransform();
-			const FVector cat_rear = find_normal(GetWorld(), cat_trans.TransformPosition(cat_capsule->GetLocalBottomLocation()), distance);
-			const FVector cat_front = find_normal(GetWorld(), cat_trans.TransformPosition(cat_capsule->GetLocalTopLocation()), distance);
+			bool valid_front, valid_rear;
+			const FVector cat_rear = find_normal(GetWorld(), cat_trans.TransformPosition(cat_capsule->GetLocalBottomLocation()), distance, valid_rear);
+			const FVector cat_front = find_normal(GetWorld(), cat_trans.TransformPosition(cat_capsule->GetLocalTopLocation()), distance, valid_front);
 			cat_normal = (cat_front + cat_rear) / 2;
+			bFloorNormalIsValid = valid_front && valid_rear;
 		}
 		else
 		{
+			bFloorNormalIsValid = RampHit.IsValidBlockingHit();
 			cat_normal = RampHit.ImpactNormal;
 		}
 #if !UE_BUILD_SHIPPING && WITH_EDITORONLY_DATA
@@ -568,6 +570,23 @@ void UCatMovementComponent::Stand()
 	{
 		bIsSitting = false;
 	}
+}
+
+bool UCatMovementComponent::AdaptToFloorNormal()
+{
+	// Align Character to floor :
+	float threshold = KINDA_SMALL_NUMBER;
+	if (!GetCharacterOwner() || GetCharacterOwner()->IsPendingKillOrUnreachable())
+		return false;
+
+	if (bFloorNormalIsValid &&
+		(MovementMode == MOVE_Walking || MovementMode == MOVE_NavWalking))
+	{
+		const FVector forward = GetCharacterOwner()->GetActorForwardVector();
+		const FVector orient = FVector::VectorPlaneProject(forward, !FloorNormal.IsNearlyZero(threshold) ? FloorNormal : FVector(0.f, 0.f, 1.f));
+		return MoveUpdatedComponent(FVector::ZeroVector, orient.Rotation(), /*bSweep*/ false);
+	}
+	return false;
 }
 
 bool UCatMovementComponent::CanSitInCurrentState() const

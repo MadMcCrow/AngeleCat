@@ -41,6 +41,8 @@ public :
 	// Allows to find the angle we should conform to
 	virtual FVector FindFloorAlignmentNormal(const FHitResult& RampHit, const FVector& gravity) const;
 	
+
+
 	/**
 	 * Use line trace to find surfaces and align to surface when going up or down
 	 */
@@ -126,6 +128,13 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Movement|Sitting")
 	virtual void Stand();
 
+	/**
+	 *	Adapt to the floor beneath
+	 *	@see FloorNormal 
+	*/
+	UFUNCTION()
+	virtual bool AdaptToFloorNormal();
+
 private:
 
 	/**	Is Sitting ? */
@@ -139,10 +148,7 @@ private:
 	FVector FloorNormal;
 
 	UPROPERTY(transient)
-	FRotator FloorOrient;
-
-	UPROPERTY(transient)
-	bool bFloorNormalIsValid;
+	mutable bool bFloorNormalIsValid;
 
 	UPROPERTY(transient)
 	bool bIsMoving;
