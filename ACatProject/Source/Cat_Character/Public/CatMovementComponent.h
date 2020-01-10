@@ -26,6 +26,8 @@ public :
 	virtual bool ApplyRequestedMove(float DeltaTime, float MaxAccel, float MaxSpeed, float Friction, float BrakingDeceleration, FVector& OutAcceleration, float& OutRequestedSpeed) override;
 	virtual void AddInputVector(FVector WorldVector,bool bForce) override;
 	virtual float GetMaxSpeed() const override;
+	virtual void FindFloor(const FVector& CapsuleLocation, FFindFloorResult& OutFloorResult, bool bCanUseCachedLocation, const FHitResult* DownwardSweepResult = nullptr) const override;
+	virtual bool IsValidLandingSpot(const FVector& CapsuleLocation, const FHitResult& Hit) const override;
 	virtual void ComputeFloorDist(const FVector& CapsuleLocation, float LineDistance, float SweepDistance, FFindFloorResult& OutFloorResult, float SweepRadius, const FHitResult* DownwardSweepResult = nullptr) const override;
 	virtual void PhysicsRotation(float DeltaTime) override;
 	virtual FVector ComputeGroundMovementDelta(const FVector& Delta, const FHitResult& RampHit, bool bHitFromLineTrace) const override;
@@ -98,13 +100,13 @@ protected:
 	 *	Shrink scale ratio used for floor detection (see ComputeFloorDist)
 	 */
 	UPROPERTY(Category = "Character Movement: Walking", EditDefaultsOnly, AdvancedDisplay, meta =(NoGetter))
-	float ShrinkScale = 0.5f;
+	float ShrinkScale = 0.9f;
 
 	/**
 	 * Shrink scale ratio used for floor detection (see ComputeFloorDist)
 	 */
 	UPROPERTY(Category = "Character Movement: Walking", EditDefaultsOnly, AdvancedDisplay, meta = (NoGetter))
-	float ShrinkScaleOverlap = 0.5f;
+	float ShrinkScaleOverlap = 0.1f;
 
 	/**	Determine if the cat can sit where he stands */
 	UFUNCTION(BlueprintPure, Category = "Movement|Sitting")
