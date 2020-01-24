@@ -20,7 +20,7 @@ public:
 
 	virtual void UpdateBodySetup() override;
 	//virtual struct FCollisionShape GetCollisionShape(float Inflation = 0.0f) const override;
-
+	
 	virtual FPrimitiveSceneProxy* CreateSceneProxy() override;
 
 	void CreateShapeBodySetupIfNeededSphyl();
@@ -33,7 +33,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shape")
 	FRotator Rotation;
 
-	FQuat QuatRotation() {return FQuat(Rotation);}
+	FQuat QuatRotation() const {return FQuat(Rotation);}
 
 	virtual FTransform GetWorldTransform() const;
 
@@ -49,6 +49,10 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Capsule")
 	virtual FVector GetWorldBottomLocation(bool bIncludeRadius = false) const;
+
+	// Get real Height width and length based 
+	UFUNCTION(BlueprintPure, Category = "Capsule")
+	virtual FVector GetRealExtendVector(bool bInWorld = false) const;
 
 
 };

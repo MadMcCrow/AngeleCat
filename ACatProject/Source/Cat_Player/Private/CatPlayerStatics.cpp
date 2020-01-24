@@ -50,7 +50,7 @@ void UCatPlayerStatics::SetPlayerInputMode(APlayerController * player, EUIInputM
 	if (player == nullptr)	
 		return;
 
-	EMouseLockMode inMouseLockMode = EMouseLockMode::LockInFullscreen;
+	const EMouseLockMode inMouseLockMode = EMouseLockMode::LockInFullscreen;
 		
 	switch(inputMode)
 	{
@@ -82,7 +82,7 @@ void UCatPlayerStatics::SetPlayerInputMode(APlayerController * player, EUIInputM
 	break;
 	case EUIInputMode::Game_Only :
 		{
-			FInputModeGameOnly mode;
+			const FInputModeGameOnly mode;
 			player->SetInputMode(mode);
 		}
 		player->bShowMouseCursor = false;

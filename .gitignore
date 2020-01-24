@@ -8,6 +8,10 @@ Content/Developers
 Content/StarterContent
 Content/Collections
 
+# Data Cache
+DerivedDataCache
+
+
 # no need to store solution, it can be regenerated
 *.sln
 

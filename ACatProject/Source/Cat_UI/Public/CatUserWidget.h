@@ -23,7 +23,7 @@ public:
     template<typename WidgetT, typename OwnerT>
     static WidgetT * NewWidget(OwnerT * owner, TSubclassOf< UCatUserWidget > userWidgetClass)
     {
-        FName newwidgetname = MakeUniqueObjectName(owner, userWidgetClass, userWidgetClass->GetDefaultObjectName());
+	    const FName newwidgetname = MakeUniqueObjectName(owner, userWidgetClass, userWidgetClass->GetDefaultObjectName());
         return CreateWidget<WidgetT,OwnerT>(owner, userWidgetClass, newwidgetname);
     }
 
