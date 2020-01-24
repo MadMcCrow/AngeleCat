@@ -2,7 +2,6 @@
 
 #include "CatPlayerState.h"
 #include "CatUserWidget.h"
-#include "Widgets/PlayerWidget.h"
 
 
 void ACatPlayerState::BeginPlay()

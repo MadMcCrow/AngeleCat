@@ -18,7 +18,7 @@ ACatPlayerPawn::ACatPlayerPawn() : Super()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 100.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-
+	CameraBoom->ProbeSize = 10.f; // The cat is quite small
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(CameraCompName);
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation

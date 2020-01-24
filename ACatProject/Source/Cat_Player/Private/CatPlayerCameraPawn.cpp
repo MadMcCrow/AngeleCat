@@ -39,12 +39,12 @@ ACatPlayerCameraPawn::ACatPlayerCameraPawn() : Super()
 	AutoPossessPlayer		= EAutoReceiveInput::Player0;
 	AIControllerClass		= nullptr;
 	bOnlyRelevantToOwner	= true;
-	bReplicateMovement		= false;
 	bReplicates				= false;
 	bNetLoadOnClient		= false;
 
 	// Disable Gameplay capabilities
-	bCanBeDamaged = false;
+	SetCanBeDamaged(false);
+	SetReplicatingMovement(false);
 }
 
 // Called when the game starts or when spawned

@@ -14,5 +14,6 @@ public class AngeleCatEditorTarget : TargetRules
 		ExtraModuleNames.Add("Cat_Game");
         ExtraModuleNames.Add("Cat_Character");
         ExtraModuleNames.Add("Cat_Actors");
+        DefaultBuildSettings = BuildSettingsVersion.V2;
     }
 }

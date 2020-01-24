@@ -15,7 +15,8 @@ public class Cat_Character : ModuleRules
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine" });
         PrivateDependencyModuleNames.AddRange(new string[] { "Cat_Player" });
         PrivateDependencyModuleNames.AddRange(new string[] { "PhysX"});
-
+        PrivateDependencyModuleNames.AddRange(new string[] { "PerfCounters" });
+        
         //The path for the header files
         PublicIncludePaths.AddRange(new string[] { "Cat_Character/Public" });
 

@@ -14,18 +14,26 @@ void UCatAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
     auto cat = TryGetOwningCat();
     if(cat && cat->GetCatMovementComponent())
     {
-        Velocity = cat->GetVelocity();
-        bIsJumping = cat->GetCatMovementComponent()->IsFalling();
-        bIsCrouching = cat->GetCatMovementComponent()->IsCrouching();
-        bIsSitting =  cat->GetCatMovementComponent()->IsSitting();
+        Velocity		 = cat->GetVelocity();
+		Direction		 = cat->GetActorForwardVector();
+        bIsJumping		 = cat->GetCatMovementComponent()->IsFalling();
+        bIsCrouching	 = cat->GetCatMovementComponent()->IsCrouching();
+        bIsSitting		 = cat->GetCatMovementComponent()->IsSitting();
+		bIsInTurnInPlace = cat->GetCatMovementComponent()->CanPlayTurnInPlace();
+		TurnInPlaceAngle = cat->GetCatMovementComponent()->GetTurnInPlaceRotation().Yaw;
+
+
+		cat->GetCatMovementComponent()->SetIsInTurnInPlaceAnim(bIsInTurnInPlace);
     }
     else
     {
-        Velocity = FVector::ZeroVector;
-        bIsSitting = true;
-        bIsJumping = false;
+        Velocity	 = FVector::ZeroVector;
+        bIsSitting	 = true;
+        bIsJumping	 = false;
         bIsCrouching = true;
+		bIsInTurnInPlace = false;
     }
+	
 }
 
 ACatPawn *  UCatAnimInstance::TryGetOwningCat(bool &isValid) const

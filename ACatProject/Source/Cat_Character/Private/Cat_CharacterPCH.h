@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Cat_Character.h"
+//#include "Cat_Character.h"
 #include "CoreMinimal.h"
 #include "Engine/World.h"
 //#include "Curves/CurveFloat.h"
