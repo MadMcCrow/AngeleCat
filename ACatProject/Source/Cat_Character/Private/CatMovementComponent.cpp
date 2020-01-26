@@ -44,6 +44,7 @@ UCatMovementComponent::UCatMovementComponent() : Super()
 	JumpZVelocity = 600.f; // cats are known to jump high
 	AirControl = 0.5f; // cats are very agile
 	bIsSitting = false; // we don't start sitting
+	AlignToFloorSpeed = 300.f;
 
 	// one fix could just be  to set to false:
 	bUseFlatBaseForFloorChecks = true;
@@ -61,6 +62,8 @@ void UCatMovementComponent::MoveAlongFloor(const FVector& InVelocity, float Delt
 		bFloorNormalIsValid = OutStepDownResult->FloorResult.bBlockingHit && !FloorNormal.IsNearlyZero(KINDA_SMALL_NUMBER);
 		FindFloorAlignmentNormal(OutStepDownResult->FloorResult.HitResult, FVector(0, 0, -1));
 	}
+
+	AdaptToFloorNormal();
 }
 
 
@@ -89,6 +92,8 @@ void UCatMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSecond
 		bFloorNormalIsValid = CurrentFloor.HitResult.bBlockingHit;
 		//FloorNormal = FindFloorAlignmentNormal(CurrentFloor.HitResult, FVector(0, 0, -1));
 	}
+	
+
 
 }
 
@@ -100,6 +105,7 @@ void UCatMovementComponent::UpdateCharacterStateAfterMovement(float DeltaSeconds
 	{
 		Stand();
 	}
+	AdaptToFloorNormal();
 }
 
  bool UCatMovementComponent::ApplyRequestedMove(float DeltaTime, float MaxAccel, float MaxSpeed, float Friction, float BrakingDeceleration, FVector& OutAcceleration, float& OutRequestedSpeed)
@@ -397,16 +403,9 @@ bool UCatMovementComponent::CustomFloorSweepTest( FHitResult& OutHit, FTransform
 
 void UCatMovementComponent::PhysicsRotation(float DeltaTime)
 {
-	// Align Character to floor :
-	float threshold = KINDA_SMALL_NUMBER;
-	if(bFloorNormalIsValid && !FloorNormal.IsNearlyZero(threshold) &&
-		(MovementMode == MOVE_Walking || MovementMode == MOVE_NavWalking) &&
-		!(FloorNormal - FVector::UpVector).IsNearlyZero(threshold))
-	{
-		const FRotator orient = (FloorNormal - FVector::UpVector).Rotation();
-		//MoveUpdatedComponent(FVector::ZeroVector, FRotator(orient.Pitch,0.f,0.f), /*bSweep*/ false);
-	}
-	
+	// Adapt to floor : 
+	AdaptToFloorNormal();
+
 	// Now we want to enable turn in place :
 	// the principle is to use an anim to play to rotate what the root motion did not do.
 	// So we just check if we can rotate or if we need to wait for turn in place to occur : 
@@ -420,6 +419,18 @@ bool UCatMovementComponent::ShouldRemainVertical() const
 	// Super does this :
 	// return IsMovingOnGround() || IsFalling();
 	return false;
+}
+
+bool UCatMovementComponent::MoveUpdatedComponentImpl(const FVector& Delta, const FQuat& NewRotation, bool bSweep,
+	FHitResult* OutHit, ETeleportType Teleport)
+{
+	return Super::MoveUpdatedComponentImpl(Delta, NewRotation, bSweep, OutHit, Teleport);
+}
+
+void UCatMovementComponent::PerformMovement(float DeltaTime)
+{
+	Super::PerformMovement(DeltaTime);
+	AdaptToFloorNormal(DeltaTime);
 }
 
 FVector UCatMovementComponent::ComputeGroundMovementDelta(const FVector& Delta, const FHitResult& RampHit, const bool bHitFromLineTrace) const
@@ -453,19 +464,23 @@ FVector UCatMovementComponent::FindFloorAlignmentNormal(const FHitResult& RampHi
 			InitCollisionParams(QueryParams, ResponseParam);
 			const ECollisionChannel TraceChannel = UpdatedComponent->GetCollisionObjectType();
 
-			auto find_normal = [&TraceChannel, &ResponseParam, &QueryParams, &gravity](UWorld *world, FVector start, float length) -> FVector {
+			auto find_normal = [&TraceChannel, &ResponseParam, &QueryParams, &gravity](UWorld *world, FVector start, float length, bool &IsValid) -> FVector {
 				FHitResult OutHit;
 				if (world)
 					world->LineTraceSingleByChannel(OutHit, start, start + gravity * length, TraceChannel, QueryParams, ResponseParam);
+				IsValid = OutHit.IsValidBlockingHit();
 				return OutHit.Normal;
 			};
 			const FTransform cat_trans = cat_capsule->GetOwner() ? cat_capsule->GetOwner()->GetActorTransform() : FTransform();
-			const FVector cat_rear = find_normal(GetWorld(), cat_trans.TransformPosition(cat_capsule->GetLocalBottomLocation()), distance);
-			const FVector cat_front = find_normal(GetWorld(), cat_trans.TransformPosition(cat_capsule->GetLocalTopLocation()), distance);
+			bool valid_front, valid_rear;
+			const FVector cat_rear = find_normal(GetWorld(), cat_trans.TransformPosition(cat_capsule->GetLocalBottomLocation()), distance, valid_rear);
+			const FVector cat_front = find_normal(GetWorld(), cat_trans.TransformPosition(cat_capsule->GetLocalTopLocation()), distance, valid_front);
 			cat_normal = (cat_front + cat_rear) / 2;
+			bFloorNormalIsValid = valid_front && valid_rear;
 		}
 		else
 		{
+			bFloorNormalIsValid = RampHit.IsValidBlockingHit();
 			cat_normal = RampHit.ImpactNormal;
 		}
 #if !UE_BUILD_SHIPPING && WITH_EDITORONLY_DATA
@@ -568,6 +583,31 @@ void UCatMovementComponent::Stand()
 	{
 		bIsSitting = false;
 	}
+}
+
+bool UCatMovementComponent::AdaptToFloorNormal(float deltaTime/*=-1.f*/, bool sweep /*=false*/)
+{
+	// Align Character to floor :
+	float threshold = KINDA_SMALL_NUMBER;
+	if (!GetCharacterOwner() || GetCharacterOwner()->IsPendingKillOrUnreachable())
+		return false;
+
+	if (bFloorNormalIsValid &&
+		(MovementMode == MOVE_Walking || MovementMode == MOVE_NavWalking))
+	{
+		const FVector forward = GetCharacterOwner()->GetActorForwardVector();
+		const FVector orient = FVector::VectorPlaneProject(forward, !FloorNormal.IsNearlyZero(threshold) ? FloorNormal : FVector(0.f, 0.f, 1.f));
+		if(deltaTime > 0)
+		{
+			const auto Rotation = FMath::Lerp(forward, orient, AlignToFloorSpeed * deltaTime).Rotation();
+			return MoveUpdatedComponent(FVector::ZeroVector, Rotation, sweep);
+		}
+		else
+		{
+			return MoveUpdatedComponent(FVector::ZeroVector, orient.Rotation(), sweep);
+		}	
+	}
+	return false;
 }
 
 bool UCatMovementComponent::CanSitInCurrentState() const

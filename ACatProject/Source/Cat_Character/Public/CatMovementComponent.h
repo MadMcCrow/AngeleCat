@@ -32,6 +32,8 @@ public :
 	virtual void PhysicsRotation(float DeltaTime) override;
 	virtual FVector ComputeGroundMovementDelta(const FVector& Delta, const FHitResult& RampHit, bool bHitFromLineTrace) const override;
 	virtual bool ShouldRemainVertical() const override;
+	virtual bool MoveUpdatedComponentImpl(const FVector& Delta, const FQuat& NewRotation, bool bSweep, FHitResult* OutHit, ETeleportType Teleport) override;
+	virtual void PerformMovement(float DeltaTime) override;
 	/** ~ UCharacterMovementComponent interface */
 
 	
@@ -41,6 +43,8 @@ public :
 	// Allows to find the angle we should conform to
 	virtual FVector FindFloorAlignmentNormal(const FHitResult& RampHit, const FVector& gravity) const;
 	
+
+
 	/**
 	 * Use line trace to find surfaces and align to surface when going up or down
 	 */
@@ -64,6 +68,10 @@ public :
 	 */
 	UPROPERTY(Category = "Character Movement (Rotation Settings)", EditAnywhere, BlueprintReadWrite)
 	float MinTurnInPlaceAngle;
+
+	/**	how fast this character adapts to floor normal */
+	UPROPERTY(Category = "Character Movement (Rotation Settings)", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0"))
+	float AlignToFloorSpeed;
 	
 	/**Get current sitting status */
 	UFUNCTION(BlueprintPure, Category = "Movement|Sitting")
@@ -126,6 +134,13 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Movement|Sitting")
 	virtual void Stand();
 
+	/**
+	 *	Adapt to the floor beneath
+	 *	@see FloorNormal 
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Movement|Walking")
+	virtual bool AdaptToFloorNormal(float deltaTime = -1.f, bool sweep = false);
+
 private:
 
 	/**	Is Sitting ? */
@@ -139,10 +154,7 @@ private:
 	FVector FloorNormal;
 
 	UPROPERTY(transient)
-	FRotator FloorOrient;
-
-	UPROPERTY(transient)
-	bool bFloorNormalIsValid;
+	mutable bool bFloorNormalIsValid;
 
 	UPROPERTY(transient)
 	bool bIsMoving;
