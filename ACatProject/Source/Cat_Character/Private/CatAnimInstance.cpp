@@ -18,12 +18,12 @@ void UCatAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		Direction		 = cat->GetActorForwardVector();
         bIsJumping		 = cat->GetCatMovementComponent()->IsFalling();
         bIsCrouching	 = cat->GetCatMovementComponent()->IsCrouching();
-        bIsSitting		 = cat->GetCatMovementComponent()->IsSitting();
-		bIsInTurnInPlace = cat->GetCatMovementComponent()->CanPlayTurnInPlace();
-		TurnInPlaceAngle = cat->GetCatMovementComponent()->GetTurnInPlaceRotation().Yaw;
+        //bIsSitting		 = cat->GetCatMovementComponent()->IsSitting();
+		//bIsInTurnInPlace = cat->GetCatMovementComponent()->CanPlayTurnInPlace();
+		//TurnInPlaceAngle = cat->GetCatMovementComponent()->GetTurnInPlaceRotation().Yaw;
 
 
-		cat->GetCatMovementComponent()->SetIsInTurnInPlaceAnim(bIsInTurnInPlace);
+		//cat->GetCatMovementComponent()->SetIsInTurnInPlaceAnim(bIsInTurnInPlace);
     }
     else
     {

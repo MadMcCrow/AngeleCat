@@ -47,7 +47,7 @@ void ACatPlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	auto catinput = Cast<UCatInputComponent>(PlayerInputComponent);
 	if(catinput)
-		catinput->BindInputsToCharacter(this);
+		catinput->BindInputsToPawn(this);
 }
 
 void ACatPlayerPawn::TurnAtRate(float Rate)

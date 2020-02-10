@@ -2,15 +2,18 @@
 
 #include "CatPawn.h"
 #include "CatMovementComponent.h"
-#include "CatCapsuleComponent.h"
 #include "Cat_CharacterPCH.h"
 
 
+FName ACatPawn::CatMovementComponentName = TEXT("CatMovementComp");
+
 // Sets default values
-ACatPawn::ACatPawn(const FObjectInitializer& ObjectInitializer) : 
-Super(ObjectInitializer.SetDefaultSubobjectClass<UCatMovementComponent>(ACharacter::CharacterMovementComponentName).SetDefaultSubobjectClass<UCatCapsuleComponent>(ACharacter::CapsuleComponentName))
+ACatPawn::ACatPawn(const FObjectInitializer& ObjectInitializer) :
+Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = false; // need for tick
+
+	CatMovementComp = ObjectInitializer.CreateDefaultSubobject<UCatMovementComponent>(this, CatMovementComponentName);
 
 	// set our turn rates for input
 	BaseTurnRate = 45.f;
@@ -27,17 +30,12 @@ Super(ObjectInitializer.SetDefaultSubobjectClass<UCatMovementComponent>(ACharact
 	bIsRunning = false;
 
 
-	// Capsule component :
-	Cast<UCatCapsuleComponent>(GetCapsuleComponent())->Rotation = FRotator(-90.f, 0.f, 0.f);
-	GetCapsuleComponent()->SetCapsuleHalfHeight(20.f, false);
-	GetCapsuleComponent()->SetCapsuleRadius(10.f, false);
-
 }
 
 void ACatPawn::MoveForward(float inValue)
 {
-	if(GetCharacterMovement())
-		GetCharacterMovement()->AddInputVector( GetActorForwardVector() * inValue, false);
+	if(GetCatMovementComponent())
+		GetCatMovementComponent()->AddInputVector( GetActorForwardVector() * inValue, false);
 }
 
 void ACatPawn::MoveRight(float inValue)
@@ -48,27 +46,27 @@ void ACatPawn::MoveRight(float inValue)
  void ACatPawn::Run()
  {
 	 bIsRunning = true;
-	 if(GetCatMovementComponent())
-	 	GetCatMovementComponent()->RequestRun(bIsRunning);
+	 //if(GetCatMovementComponent())
+	 //	GetCatMovementComponent()->RequestRun(bIsRunning);
  }
 
   void ACatPawn::StopRunning()
  {
 	 bIsRunning = false;
-	 if(GetCatMovementComponent())
-	 	GetCatMovementComponent()->RequestRun(bIsRunning);
+	 //if(GetCatMovementComponent())
+	 //	GetCatMovementComponent()->RequestRun(bIsRunning);
  }
 
 
 void ACatPawn::ToggleCrouch()
 {
 	bIsCrouching = !bIsCrouching;
-	if(GetCharacterMovement())
-	 	GetCharacterMovement()->bWantsToCrouch = bIsCrouching;
+	//if(GetCatMovementComponent())
+	//	GetCatMovementComponent()->bWantsToCrouch = bIsCrouching;
 }
 
 UCatMovementComponent * ACatPawn::GetCatMovementComponent() const
 {
-	return Cast<UCatMovementComponent>(GetCharacterMovement());
+	return CatMovementComp;
 }
 

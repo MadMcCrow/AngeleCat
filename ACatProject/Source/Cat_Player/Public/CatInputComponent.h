@@ -24,7 +24,7 @@ public:
 
 	/**	Bind stored input in this component to functions in character	*/
 	UFUNCTION()
-	virtual void BindInputsToCharacter(ACharacter * characterTarget);
+	virtual void BindInputsToPawn(APawn* characterTarget);
 
 	/**	Bind stored input in this component to functions in controller	*/
 	UFUNCTION()

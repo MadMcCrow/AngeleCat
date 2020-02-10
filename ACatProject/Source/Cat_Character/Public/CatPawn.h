@@ -3,17 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "GameFramework/Pawn.h"
 #include "CatPawn.generated.h"
 
 class UCatMovementComponent;
 
 UCLASS(ClassGroup = "Cat_Character", Category = "Pawn")
-class CAT_CHARACTER_API ACatPawn : public ACharacter
+class CAT_CHARACTER_API ACatPawn : public APawn
 {
 	GENERATED_BODY()
 
 public:
+
+	static FName CatMovementComponentName;
+
 	// Sets default values for this character's properties
 	ACatPawn(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
@@ -45,7 +48,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inputs")
 	float BaseLookUpRate;
 
-	UFUNCTION(BlueprintPure, Category = "Movement")
+	UFUNCTION(BlueprintPure, Category = "Movement", meta = (hideSelfPin))
 	virtual UCatMovementComponent * GetCatMovementComponent() const;
 
 private:
@@ -58,5 +61,9 @@ private:
 	UPROPERTY(transient)
 	bool bIsCrouching;
 
-	
+
+	/** Cat movement component belongs to */
+	UPROPERTY(VisibleAnywhere, Category = "Movement", meta = (AllowPrivateAccess))
+	UCatMovementComponent* CatMovementComp;
+
 };

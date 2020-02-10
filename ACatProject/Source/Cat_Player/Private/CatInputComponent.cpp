@@ -19,13 +19,13 @@ UCatInputComponent::UCatInputComponent(const FObjectInitializer &ObjectInitializ
 }
 
 
-void UCatInputComponent::BindInputsToCharacter(ACharacter * characterTarget)
+void UCatInputComponent::BindInputsToPawn(APawn * characterTarget)
 {
     if(!characterTarget)
         return;
 
-	BindAction(JumpAction, IE_Pressed, characterTarget, &ACharacter::Jump);
-	BindAction(JumpAction, IE_Released, characterTarget, &ACharacter::StopJumping);
+	//BindAction(JumpAction, IE_Pressed, characterTarget, &ACharacter::Jump);
+	//BindAction(JumpAction, IE_Released, characterTarget, &ACharacter::StopJumping);
 
     
 	BindAxis(TurnAxis,        characterTarget, &APawn::AddControllerYawInput);
