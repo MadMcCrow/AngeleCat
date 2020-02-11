@@ -15,18 +15,18 @@ ACatPawn::ACatPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectIn
 {
 	PrimaryActorTick.bCanEverTick = false; // need for tick
 
+	// Components set up
 	CatCollisionComp	= ObjectInitializer.CreateDefaultSubobject<UBoxComponent>(this, CatCollisionComponentName);
 	CatMeshComp			= ObjectInitializer.CreateDefaultSubobject<USkeletalMeshComponent>(this, CatMeshComponentName);
 	CatMovementComp		= ObjectInitializer.CreateDefaultSubobject<UCatMovementComponent>(this, CatMovementComponentName);
-
 	RootComponent = CatCollisionComp;
 	CatMeshComp->SetupAttachment(RootComponent);
+	CatMovementComp->SetUpdatedComponent(RootComponent);
 	
 	// set our turn rates for input
+	/// TODO: Move this to input component
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
-
-	// Movement component sets itself !
 
 	// Don't rotate when the controller rotates. Let that just affect the camera and adapt cat to the orientation via animation
 	bUseControllerRotationPitch = false;
