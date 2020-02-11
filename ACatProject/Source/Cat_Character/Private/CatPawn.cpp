@@ -2,19 +2,26 @@
 
 #include "CatPawn.h"
 #include "CatMovementComponent.h"
+#include "Components/BoxComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Cat_CharacterPCH.h"
 
 
-FName ACatPawn::CatMovementComponentName = TEXT("CatMovementComp");
+FName ACatPawn::CatMovementComponentName	= TEXT("CatMovementComp");
+FName ACatPawn::CatCollisionComponentName	= TEXT("CatCollisionComp");
 
 // Sets default values
-ACatPawn::ACatPawn(const FObjectInitializer& ObjectInitializer) :
-Super(ObjectInitializer)
+ACatPawn::ACatPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = false; // need for tick
 
-	CatMovementComp = ObjectInitializer.CreateDefaultSubobject<UCatMovementComponent>(this, CatMovementComponentName);
+	CatCollisionComp	= ObjectInitializer.CreateDefaultSubobject<UBoxComponent>(this, CatCollisionComponentName);
+	CatMeshComp			= ObjectInitializer.CreateDefaultSubobject<USkeletalMeshComponent>(this, CatMeshComponentName);
+	CatMovementComp		= ObjectInitializer.CreateDefaultSubobject<UCatMovementComponent>(this, CatMovementComponentName);
 
+	RootComponent = CatCollisionComp;
+	CatMeshComp->SetupAttachment(RootComponent);
+	
 	// set our turn rates for input
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;

@@ -7,6 +7,8 @@
 #include "CatPawn.generated.h"
 
 class UCatMovementComponent;
+class UBoxComponent;
+class USkeletalMeshComponent;
 
 UCLASS(ClassGroup = "Cat_Character", Category = "Pawn")
 class CAT_CHARACTER_API ACatPawn : public APawn
@@ -16,6 +18,8 @@ class CAT_CHARACTER_API ACatPawn : public APawn
 public:
 
 	static FName CatMovementComponentName;
+	static FName CatCollisionComponentName;
+	static FName CatMeshComponentName;
 
 	// Sets default values for this character's properties
 	ACatPawn(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
@@ -65,5 +69,13 @@ private:
 	/** Cat movement component belongs to */
 	UPROPERTY(VisibleAnywhere, Category = "Movement", meta = (AllowPrivateAccess))
 	UCatMovementComponent* CatMovementComp;
+
+	/** Cat movement component belongs to */
+	UPROPERTY(VisibleAnywhere, Category = "Collision", meta = (AllowPrivateAccess))
+	UBoxComponent* CatCollisionComp;
+
+	/** Cat movement component belongs to */
+	UPROPERTY(VisibleAnywhere, Category = "Collision", meta = (AllowPrivateAccess))
+	USkeletalMeshComponent* CatMeshComp;
 
 };
