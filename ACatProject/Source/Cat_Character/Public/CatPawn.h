@@ -7,7 +7,7 @@
 #include "CatPawn.generated.h"
 
 class UCatMovementComponent;
-class UBoxComponent;
+class UCatCapsuleComponent;
 class USkeletalMeshComponent;
 
 UCLASS(ClassGroup = "Cat_Character", Category = "Pawn")
@@ -67,15 +67,15 @@ private:
 
 
 	/** Cat movement component belongs to */
-	UPROPERTY(VisibleAnywhere, Category = "Movement", meta = (AllowPrivateAccess))
+	UPROPERTY(VisibleAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	UCatMovementComponent* CatMovementComp;
 
 	/** Cat movement component belongs to */
-	UPROPERTY(VisibleAnywhere, Category = "Collision", meta = (AllowPrivateAccess))
-	UBoxComponent* CatCollisionComp;
+	UPROPERTY(VisibleAnywhere, Category = "Collision", meta = (AllowPrivateAccess = "true"))
+	UCatCapsuleComponent* CatCollisionComp;
 
 	/** Cat movement component belongs to */
-	UPROPERTY(VisibleAnywhere, Category = "Collision", meta = (AllowPrivateAccess))
+	UPROPERTY(VisibleAnywhere, Category = "Collision", meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* CatMeshComp;
 
 };

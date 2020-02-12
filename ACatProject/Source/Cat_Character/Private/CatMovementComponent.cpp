@@ -11,15 +11,12 @@
 #include "DrawDebugHelpers.h"
 #endif
 
-// TODO : may not be a good think to just copy the define/declares
-DEFINE_LOG_CATEGORY_STATIC(LogCharacterMovement, Log, All);
-DECLARE_CYCLE_STAT(TEXT("Char CharStepUp"), STAT_CharStepUp, STATGROUP_Character);
-//
-// MAGIC NUMBERS (from CharacterMovementComponent)
-const float MAX_STEP_SIDE_Z = 0.08f;	// maximum z value for the normal on the vertical side of steps
-const float SWIMBOBSPEED = -80.f;
-const float VERTICAL_SLOPE_NORMAL_Z = 0.001f; // Slope is vertical if Abs(Normal.Z) <= this threshold. Accounts for precision problems that sometimes angle normals slightly off horizontal for vertical surface.
-
+UENUM(BlueprintType)
+enum class ECatMovementState : uint8
+{
+	Sit		UMETA(DisplayName = "Sitting"),
+	Walk	UMETA(DisplayName = "Walking")
+};
 
 
 float UCatMovementComponent::MinMovingSpeed = KINDA_SMALL_NUMBER;

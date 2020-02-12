@@ -2,13 +2,14 @@
 
 #include "CatPawn.h"
 #include "CatMovementComponent.h"
-#include "Components/BoxComponent.h"
+#include "CatCapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Cat_CharacterPCH.h"
 
 
 FName ACatPawn::CatMovementComponentName	= TEXT("CatMovementComp");
 FName ACatPawn::CatCollisionComponentName	= TEXT("CatCollisionComp");
+FName ACatPawn::CatMeshComponentName		= TEXT("CatMeshComp");
 
 // Sets default values
 ACatPawn::ACatPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -16,12 +17,17 @@ ACatPawn::ACatPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectIn
 	PrimaryActorTick.bCanEverTick = false; // need for tick
 
 	// Components set up
-	CatCollisionComp	= ObjectInitializer.CreateDefaultSubobject<UBoxComponent>(this, CatCollisionComponentName);
+	CatCollisionComp	= ObjectInitializer.CreateDefaultSubobject<UCatCapsuleComponent>(this, CatCollisionComponentName);
 	CatMeshComp			= ObjectInitializer.CreateDefaultSubobject<USkeletalMeshComponent>(this, CatMeshComponentName);
 	CatMovementComp		= ObjectInitializer.CreateDefaultSubobject<UCatMovementComponent>(this, CatMovementComponentName);
 	RootComponent = CatCollisionComp;
 	CatMeshComp->SetupAttachment(RootComponent);
-	CatMovementComp->SetUpdatedComponent(RootComponent);
+	CatMovementComp->SetUpdatedComponent(CatCollisionComp);
+
+	CatCollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	CatCollisionComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	CatCollisionComp->SetSimulatePhysics(true);
+	CatCollisionComp->SetEnableGravity(true);
 	
 	// set our turn rates for input
 	/// TODO: Move this to input component
