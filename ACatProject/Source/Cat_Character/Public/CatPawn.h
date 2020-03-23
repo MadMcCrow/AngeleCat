@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
+#include "GameFramework/Character.h"
 #include "CatPawn.generated.h"
 
 class UCatMovementComponent;
@@ -11,7 +11,7 @@ class UCatCapsuleComponent;
 class USkeletalMeshComponent;
 
 UCLASS(ClassGroup = "Cat_Character", Category = "Pawn")
-class CAT_CHARACTER_API ACatPawn : public APawn
+class CAT_CHARACTER_API ACatPawn : public ACharacter
 {
 	GENERATED_BODY()
 

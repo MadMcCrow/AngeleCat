@@ -18,11 +18,11 @@ ACatPawn::ACatPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectIn
 
 	// Components set up
 	CatCollisionComp	= ObjectInitializer.CreateDefaultSubobject<UCatCapsuleComponent>(this, CatCollisionComponentName);
-	CatMeshComp			= ObjectInitializer.CreateDefaultSubobject<USkeletalMeshComponent>(this, CatMeshComponentName);
+	CatMeshComp			= GetMesh();//ObjectInitializer.CreateDefaultSubobject<USkeletalMeshComponent>(this, CatMeshComponentName);
 	CatMovementComp		= ObjectInitializer.CreateDefaultSubobject<UCatMovementComponent>(this, CatMovementComponentName);
-	RootComponent = CatCollisionComp;
-	CatMeshComp->SetupAttachment(RootComponent);
-	CatMovementComp->SetUpdatedComponent(CatCollisionComp);
+	//RootComponent = CatCollisionComp;
+	//CatMeshComp->SetupAttachment(RootComponent);
+	//CatMovementComp->SetUpdatedComponent(CatCollisionComp);
 
 	CatCollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CatCollisionComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);

@@ -11,7 +11,7 @@
  *  Base Class for Animation blueprints
  */
 UCLASS(ClassGroup = "Cat_Character", Category = "Movement")
-class CAT_CHARACTER_API UCatMovementComponent : public UPawnMovementComponent
+class CAT_CHARACTER_API UCatMovementComponent : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
 
